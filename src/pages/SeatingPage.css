@@ -1,0 +1,94 @@
+.seating-page {
+  padding: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.seating-page__toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.seating-page__error {
+  color: #c0392b;
+}
+
+.seating-page__report {
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.seating-page__tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.seating-table {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-height: 120px;
+  background: #fafafa;
+}
+
+.seating-table--over {
+  border-color: #26b5ce;
+  background: #eefbfd;
+}
+
+.seating-table--unseated {
+  background: #fff7e6;
+  border-color: #f0d78c;
+}
+
+.seating-table__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.seating-table__capacity--over {
+  color: #c0392b;
+  font-weight: bold;
+}
+
+.seating-table__guests {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.guest-chip {
+  padding: 0.35rem 0.5rem;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: grab;
+  font-size: 0.85rem;
+}
+
+.guest-chip--locked {
+  border-color: #26b5ce;
+}
+
+.guest-chip--moved {
+  background: #fff2e0;
+}
+
+.guest-chip--dragging {
+  opacity: 0.5;
+}
+
+.seating-diff {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+}
+
+.seating-diff__empty {
+  color: #666;
+  font-size: 0.9rem;
+}
