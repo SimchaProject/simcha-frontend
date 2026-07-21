@@ -1,0 +1,19 @@
+.vine-divider {
+  display: block;
+  margin-bottom: 26px;
+}
+
+.vine-divider line {
+  stroke: var(--simcha-gold);
+  stroke-width: 1;
+}
+
+.vine-divider circle {
+  fill: var(--simcha-red);
+}
+
+.vine-divider path {
+  fill: none;
+  stroke: var(--simcha-green);
+  stroke-width: 1.4;
+}

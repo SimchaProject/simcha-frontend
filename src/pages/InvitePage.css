@@ -1,0 +1,254 @@
+.invite-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  background: #f1efe8;
+  font-family: 'Rubik', sans-serif;
+  box-sizing: border-box;
+}
+
+.invite-page__error {
+  text-align: center;
+  color: var(--simcha-red);
+  font-size: 13px;
+}
+
+.invite-card {
+  width: 100%;
+  max-width: 660px;
+  height: fit-content;
+  margin: auto 0;
+  background: var(--simcha-paper);
+  color: var(--simcha-ink);
+  padding: 34px 36px 30px;
+  clip-path: polygon(
+    0% 10px,
+    6% 0,
+    12% 10px,
+    18% 0,
+    24% 10px,
+    30% 0,
+    36% 10px,
+    42% 0,
+    48% 10px,
+    54% 0,
+    60% 10px,
+    66% 0,
+    72% 10px,
+    78% 0,
+    84% 10px,
+    90% 0,
+    96% 10px,
+    100% 0,
+    100% 100%,
+    0% 100%
+  );
+  border-left: 0.5px solid var(--simcha-line);
+  border-right: 0.5px solid var(--simcha-line);
+  border-bottom: 0.5px solid var(--simcha-line);
+  animation: invite-fade-in 0.5s ease both;
+  box-sizing: border-box;
+}
+
+@keyframes invite-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.invite-eyebrow {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--simcha-gold);
+  margin: 0 0 18px;
+}
+
+.invite-names {
+  text-align: center;
+  font-family: 'Bellefair', serif;
+  font-size: 52px;
+  margin: 0 0 10px;
+  line-height: 1.15;
+}
+
+.invite-amp {
+  color: var(--simcha-red);
+}
+
+.invite-subline {
+  text-align: center;
+  font-size: 14px;
+  color: var(--simcha-ink-muted);
+  margin: 0 0 26px;
+}
+
+.invite-section-title {
+  text-align: center;
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 17px;
+  margin: 0 0 4px;
+}
+
+.invite-section-sub {
+  text-align: center;
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+  margin: 0 0 22px;
+}
+
+.invite-form {
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.invite-field label {
+  font-size: 11px;
+  color: var(--simcha-gold);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.invite-field input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--simcha-gold);
+  background: transparent;
+  padding: 0 0 4px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  color: var(--simcha-ink);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.invite-field input::placeholder {
+  color: #a99a85;
+}
+
+.invite-field input:focus {
+  border-bottom-color: var(--simcha-red);
+}
+
+.invite-field--error input {
+  border-bottom-color: var(--simcha-red);
+}
+
+.invite-field__error {
+  color: var(--simcha-red);
+  font-size: 11px;
+  margin: 5px 0 0;
+}
+
+.seed-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.seed {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.seed:hover {
+  transform: scale(1.15);
+}
+
+.seed:focus-visible {
+  outline: 2px solid var(--simcha-red);
+  outline-offset: 2px;
+}
+
+.seed--filled {
+  background: var(--simcha-red);
+  border: none;
+}
+
+.seed--empty {
+  background: transparent;
+  border: 1px solid var(--simcha-line);
+}
+
+.invite-seal-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.wax-seal {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: 2px solid var(--simcha-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Frank Ruhl Libre', serif;
+  color: var(--simcha-red);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.wax-seal:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(178, 58, 46, 0.25);
+}
+
+.wax-seal:active:not(:disabled) {
+  transform: rotate(-6deg) scale(0.96);
+}
+
+.wax-seal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wax-seal__spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(178, 58, 46, 0.25);
+  border-top-color: var(--simcha-red);
+  animation: wax-seal-spin 0.7s linear infinite;
+}
+
+@keyframes wax-seal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wa-note,
+.invite-wa-note {
+  text-align: center;
+  font-size: 11px;
+  color: var(--simcha-green);
+  margin: 2px 0 0;
+}
+
+.invite-success {
+  animation: invite-fade-in 0.4s ease both;
+}
