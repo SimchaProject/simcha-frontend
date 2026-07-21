@@ -46,7 +46,13 @@ export function DashboardLayout() {
   }
 
   if (!couple) return null
-  if (loading) return <div className="dash-loading" />
+  if (loading) {
+    return (
+      <div className="dash-loading">
+        <span className="dash-loading__spinner" aria-hidden="true" />
+      </div>
+    )
+  }
   if (error) {
     return (
       <div className="dash-loading">

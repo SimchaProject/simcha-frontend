@@ -75,7 +75,11 @@ export function DatePicker({ id, value, onChange, min, max, placeholder, hasErro
         type="button"
         id={id}
         className={`date-picker__trigger${hasError ? ' date-picker__trigger--error' : ''}`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
+        onFocus={() => setOpen(true)}
+        onBlur={(e) => {
+          if (!rootRef.current?.contains(e.relatedTarget as Node)) setOpen(false)
+        }}
       >
         {selected ? (
           formatDisplay(selected)

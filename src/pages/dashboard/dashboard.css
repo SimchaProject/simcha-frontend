@@ -139,6 +139,21 @@
   font-size: 13px;
 }
 
+.dash-loading__spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid rgba(178, 58, 46, 0.2);
+  border-top-color: var(--simcha-red);
+  animation: dash-loading-spin 0.7s linear infinite;
+}
+
+@keyframes dash-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* shared section styles used across dashboard sub-pages */
 
 .dash-page-header {
