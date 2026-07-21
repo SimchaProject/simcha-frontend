@@ -1,0 +1,129 @@
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  background: #f1efe8;
+  font-family: 'Rubik', sans-serif;
+  color: var(--simcha-ink);
+  box-sizing: border-box;
+}
+
+.dashboard-shell {
+  width: 100%;
+  max-width: 640px;
+  height: fit-content;
+  margin: auto 0;
+  background: var(--simcha-paper);
+  border: 0.5px solid var(--simcha-line);
+  padding: 30px 36px 36px;
+  box-sizing: border-box;
+  animation: dashboard-fade-in 0.5s ease both;
+}
+
+@keyframes dashboard-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+  border-bottom: 0.5px solid var(--simcha-line);
+}
+
+.dashboard-logo {
+  font-family: 'Bellefair', serif;
+  font-size: 22px;
+  color: var(--simcha-red);
+}
+
+.dashboard-logout {
+  border: none;
+  background: transparent;
+  color: var(--simcha-ink-muted);
+  font-size: 13px;
+  font-family: 'Rubik', sans-serif;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.dashboard-logout:hover {
+  color: var(--simcha-red);
+}
+
+.dashboard-welcome {
+  text-align: center;
+  padding-bottom: 26px;
+  margin-bottom: 26px;
+  border-bottom: 0.5px solid var(--simcha-line);
+}
+
+.dashboard-welcome__label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--simcha-gold);
+  margin: 0 0 8px;
+}
+
+.dashboard-welcome__name {
+  font-family: 'Bellefair', serif;
+  font-size: 32px;
+  margin: 0 0 4px;
+}
+
+.dashboard-welcome__email {
+  font-size: 13px;
+  color: var(--simcha-ink-muted);
+  margin: 0;
+}
+
+.dashboard-heading {
+  text-align: center;
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+
+.dashboard-empty {
+  text-align: center;
+  font-size: 13px;
+  color: var(--simcha-ink-muted);
+  margin: 0;
+}
+
+.dashboard-error {
+  text-align: center;
+  font-size: 13px;
+  color: var(--simcha-red);
+  margin: 0;
+}
+
+.dashboard-wedding-detail {
+  text-align: center;
+  font-size: 13px;
+  color: var(--simcha-ink-muted);
+  margin: 0 0 14px;
+}
+
+.dashboard-wedding-link {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  color: var(--simcha-red);
+  text-decoration: none;
+}
+
+.dashboard-wedding-link:hover {
+  text-decoration: underline;
+}
