@@ -14,22 +14,40 @@ export interface GuestPageConfigInput {
   theme: string
   welcomeMessage?: string
   heroPhotoUrl?: string
+  ceremonyTime?: string
+  rsvpDeadline?: string
+  dressCode?: string
+  contactPhone?: string
 }
 
-export interface BudgetCategoryInput {
-  name: string
-  allocatedAmount: number
+export interface GuestPageConfig {
+  id: string
+  weddingId: string
+  theme: string
+  welcomeMessage: string | null
+  heroPhotoUrl: string | null
+  ceremonyTime: string | null
+  rsvpDeadline: string | null
+  dressCode: string | null
+  contactPhone: string | null
 }
 
-export interface BudgetInput {
-  totalAmount: number
-  categories?: BudgetCategoryInput[]
+export interface PublicGuestPageConfig {
+  theme: string
+  welcomeMessage: string | null
+  heroPhotoUrl: string | null
+  ceremonyTime: string | null
+  rsvpDeadline: string | null
+  dressCode: string | null
 }
 
-export interface VendorInput {
-  name: string
-  category: string
-  contactInfo?: string
+export interface PublicWedding {
+  coupleNameA: string
+  coupleNameB: string
+  date: string
+  venue: string
+  slug: string
+  guestPageConfig: PublicGuestPageConfig | null
 }
 
 export interface CreateWeddingPayload {
@@ -39,6 +57,4 @@ export interface CreateWeddingPayload {
   venue: string
   slug: string
   guestPageConfig: GuestPageConfigInput
-  budget?: BudgetInput
-  vendors?: VendorInput[]
 }

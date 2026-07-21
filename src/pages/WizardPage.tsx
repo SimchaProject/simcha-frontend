@@ -5,11 +5,10 @@ import { weddingApi } from '../api/wedding'
 import { Stepper } from '../components/wizard/Stepper'
 import { StepBasics } from '../components/wizard/StepBasics'
 import { StepGuestPage } from '../components/wizard/StepGuestPage'
-import { StepBudget } from '../components/wizard/StepBudget'
-import { StepVendors } from '../components/wizard/StepVendors'
+import { StepEventDetails } from '../components/wizard/StepEventDetails'
 import { StepReview } from '../components/wizard/StepReview'
 import { WaxSealButton } from '../components/motifs/WaxSealButton'
-import { validateBasics } from '../components/wizard/validation'
+import { validateBasics, validateEventDetails } from '../components/wizard/validation'
 import { clearWizardData, loadWizardData, saveWizardData } from '../components/wizard/storage'
 import { initialWizardData, WIZARD_STEP_COUNT, type WizardData } from '../components/wizard/types'
 import './WizardPage.css'
@@ -50,10 +49,11 @@ export function WizardPage() {
       setErrors(stepErrors)
       if (Object.keys(stepErrors).length > 0) return
     }
-    goToStep(data.step + 1)
-  }
-
-  const handleSkip = () => {
+    if (data.step === 3) {
+      const stepErrors = validateEventDetails(data)
+      setErrors(stepErrors)
+      if (Object.keys(stepErrors).length > 0) return
+    }
     goToStep(data.step + 1)
   }
 
@@ -61,11 +61,6 @@ export function WizardPage() {
     setSubmitting(true)
     setSubmitError(null)
     try {
-      const categories = data.budgetCategories.filter(
-        (c) => c.name.trim() && c.allocatedAmount && !isNaN(Number(c.allocatedAmount)),
-      )
-      const vendors = data.vendors.filter((v) => v.name.trim() && v.category.trim())
-
       await weddingApi.create({
         coupleNameA: data.coupleNameA.trim(),
         coupleNameB: data.coupleNameB.trim(),
@@ -75,25 +70,11 @@ export function WizardPage() {
         guestPageConfig: {
           theme: data.theme,
           welcomeMessage: data.welcomeMessage.trim() || undefined,
+          ceremonyTime: data.ceremonyTime || undefined,
+          rsvpDeadline: data.rsvpDeadline || undefined,
+          dressCode: data.dressCode.trim() || undefined,
+          contactPhone: data.contactPhone.replace(/[\s-]/g, '') || undefined,
         },
-        budget:
-          data.totalBudget || categories.length > 0
-            ? {
-                totalAmount: Number(data.totalBudget) || 0,
-                categories: categories.map((c) => ({
-                  name: c.name.trim(),
-                  allocatedAmount: Number(c.allocatedAmount),
-                })),
-              }
-            : undefined,
-        vendors:
-          vendors.length > 0
-            ? vendors.map((v) => ({
-                name: v.name.trim(),
-                category: v.category.trim(),
-                contactInfo: v.contactInfo.trim() || undefined,
-              }))
-            : undefined,
       })
 
       clearWizardData(couple.id)
@@ -112,9 +93,8 @@ export function WizardPage() {
 
         {data.step === 1 && <StepBasics data={data} errors={errors} onChange={updateData} />}
         {data.step === 2 && <StepGuestPage data={data} onChange={updateData} />}
-        {data.step === 3 && <StepBudget data={data} onChange={updateData} onSkip={handleSkip} />}
-        {data.step === 4 && <StepVendors data={data} onChange={updateData} onSkip={handleSkip} />}
-        {data.step === 5 && <StepReview data={data} />}
+        {data.step === 3 && <StepEventDetails data={data} errors={errors} onChange={updateData} />}
+        {data.step === 4 && <StepReview data={data} />}
 
         {submitError && <p className="wizard-page__error">{submitError}</p>}
 

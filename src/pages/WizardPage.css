@@ -1,9 +1,11 @@
 .wizard-page {
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   display: flex;
   justify-content: center;
   padding: 40px 20px;
-  background: #f1efe8;
+  background: var(--simcha-paper);
   font-family: 'Rubik', sans-serif;
   color: var(--simcha-ink);
   box-sizing: border-box;
@@ -11,14 +13,27 @@
 
 .wizard-card {
   width: 100%;
-  max-width: 680px;
+  max-width: 820px;
   height: fit-content;
   margin: auto 0;
-  background: var(--simcha-paper);
-  border: 0.5px solid var(--simcha-line);
-  padding: 34px 40px 30px;
+  padding: 34px 8px 30px;
   box-sizing: border-box;
   animation: wizard-fade-in 0.5s ease both;
+}
+
+@media (max-width: 560px) {
+  .wizard-page {
+    padding: 24px 16px;
+  }
+
+  .wizard-card {
+    padding: 0;
+  }
+
+  .wizard-field-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
 }
 
 @keyframes wizard-fade-in {
