@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { VineDivider } from '../components/motifs/VineDivider'
+import { AuthModal } from '../components/AuthModal'
 import './LandingPage.css'
 
 function ChecklistIcon() {
@@ -36,18 +37,28 @@ function ReportMoneyIcon() {
 }
 
 export function LandingPage() {
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null)
+
   return (
     <div className="landing-page">
       <div className="landing-shell">
         <nav className="landing-nav">
           <span className="landing-logo">שמחה</span>
           <div className="landing-nav-right">
-            <Link className="landing-login-link" to="/login">
+            <button
+              type="button"
+              className="landing-login-link"
+              onClick={() => setAuthMode('login')}
+            >
               כניסה
-            </Link>
-            <Link className="landing-signup-btn" to="/signup">
+            </button>
+            <button
+              type="button"
+              className="landing-signup-btn"
+              onClick={() => setAuthMode('signup')}
+            >
               הרשמה
-            </Link>
+            </button>
           </div>
         </nav>
 
@@ -59,11 +70,11 @@ export function LandingPage() {
             במקום אחד
           </p>
           <p className="landing-sub">אישורי הגעה, סידורי הושבה וניהול תקציב — בלי טבלאות אקסל, בלי בלגן.</p>
-          <Link className="landing-cta-seal" to="/signup">
+          <button type="button" className="landing-cta-seal" onClick={() => setAuthMode('signup')}>
             התחילו
             <br />
             בחינם
-          </Link>
+          </button>
         </div>
 
         <VineDivider leaves={[{ x: 200, r: 7 }]} />
@@ -92,6 +103,8 @@ export function LandingPage() {
           </div>
         </div>
       </div>
+
+      {authMode && <AuthModal initialMode={authMode} onClose={() => setAuthMode(null)} />}
     </div>
   )
 }
