@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Simcha — admin reference (v1, layout not final — see design spec)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bellefair&family=Frank+Ruhl+Libre:wght@500;700&family=Rubik:wght@400;500&display=swap">
+<style>
+  body { background:#F1EFE8; margin:0; padding:40px; font-family:'Rubik',sans-serif; }
+  .shell {
+    max-width:760px; margin:0 auto; background:#EFE6D2; color:#241A14;
+    border:0.5px solid #C9B98D; display:flex; min-height:460px;
+  }
+  .nav { width:110px; flex-shrink:0; padding:24px 0; display:flex; flex-direction:column; gap:10px; border-left:0.5px solid #C9B98D; }
+  .nav-item { padding:9px 14px; font-size:12px; color:#5A4D3A; }
+  .nav-item.active { background:#E3D6B8; border-top:0.5px solid #C9B98D; border-bottom:0.5px solid #C9B98D; border-right:2px solid #B23A2E; color:#241A14; margin-right:-1px; }
+  .main { flex:1; padding:26px 30px; }
+  .title { font-family:'Bellefair',serif; font-size:24px; margin:0 0 22px; }
+  .title .date { font-size:14px; color:#5A4D3A; font-family:'Rubik',sans-serif; }
+  .stamps { display:flex; gap:26px; margin-bottom:28px; }
+  .stamp { width:84px; height:84px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; border-width:2px; border-style:solid; }
+  .stamp .n { font-size:20px; font-weight:500; }
+  .stamp .l { font-size:9px; letter-spacing:1px; }
+  .stamp.red { border-color:#B23A2E; transform:rotate(-5deg); }
+  .stamp.red .n, .stamp.red .l { color:#B23A2E; }
+  .stamp.green { border-color:#4F5C3A; transform:rotate(4deg); }
+  .stamp.green .n, .stamp.green .l { color:#4F5C3A; }
+  .stamp.gold { border-color:#8C7038; transform:rotate(-3deg); }
+  .stamp.gold .n, .stamp.gold .l { color:#8C7038; }
+  .list-title { font-family:'Frank Ruhl Libre',serif; font-size:14px; margin:0 0 2px; }
+  .ledger { border-top:1px solid #8C7038; margin-top:10px; }
+  .row { display:flex; align-items:center; padding:10px 0; border-bottom:0.5px solid #C9B98D; font-size:13px; }
+  .row .name { flex:1; }
+  .row .phone { width:100px; color:#5A4D3A; }
+  .row .count { width:30px; text-align:center; }
+  .dot { width:16px; height:16px; border-radius:50%; }
+  .dot.confirmed { background:#B23A2E; }
+  .dot.pending { border:1px solid #C9B98D; }
+  .footer { display:flex; align-items:center; justify-content:space-between; margin-top:26px; padding-top:18px; border-top:0.5px solid #C9B98D; }
+  .footer-label .t1 { font-size:13px; font-weight:500; margin:0 0 2px; }
+  .footer-label .t2 { font-size:11px; color:#5A4D3A; margin:0; }
+  .seal-btn { width:64px; height:64px; border-radius:50%; border:2px solid #B23A2E; display:flex; align-items:center; justify-content:center; transform:rotate(-6deg); flex-shrink:0; font-family:'Frank Ruhl Libre',serif; font-size:11px; color:#B23A2E; text-align:center; line-height:1.2; cursor:pointer; background:transparent; }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="nav">
+      <div class="nav-item active">לוח בקרה</div>
+      <div class="nav-item">אורחים</div>
+      <div class="nav-item">סידור הושבה</div>
+      <div class="nav-item">תקציב וספקים</div>
+      <div class="nav-item">הגדרות</div>
+    </div>
+    <div class="main">
+      <p class="title">רותם ועידן <span class="date">· 21.09.2026</span></p>
+      <div class="stamps">
+        <div class="stamp red"><span class="n">118</span><span class="l">אישרו</span></div>
+        <div class="stamp green"><span class="n">62</span><span class="l">מקומ' פנוי</span></div>
+        <div class="stamp gold"><span class="n">64%</span><span class="l">תקציב</span></div>
+      </div>
+      <p class="list-title">רשימת אורחים</p>
+      <div class="ledger">
+        <div class="row"><span class="name">נועה כהן</span><span class="phone">050-1234567</span><span class="count">2</span><div class="dot confirmed"></div></div>
+        <div class="row"><span class="name">איתי לוי</span><span class="phone">052-9876543</span><span class="count">4</span><div class="dot confirmed"></div></div>
+        <div class="row"><span class="name">מיכל אברהם</span><span class="phone">054-5551234</span><span class="count">1</span><div class="dot pending"></div></div>
+      </div>
+      <div class="footer">
+        <div class="footer-label">
+          <p class="t1">סידור הושבה</p>
+          <p class="t2">118 אורחים ממתינים לשיבוץ</p>
+        </div>
+        <button class="seal-btn">הרץ<br/>אופט'</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

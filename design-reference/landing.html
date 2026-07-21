@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Simcha — invitation landing reference</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bellefair&family=Frank+Ruhl+Libre:wght@500;700&family=Rubik:wght@400;500&display=swap">
+<style>
+  body { background:#F1EFE8; margin:0; padding:40px; font-family:'Rubik',sans-serif; }
+  .card {
+    max-width:520px; margin:0 auto;
+    background:#EFE6D2; color:#241A14; padding:34px 36px 30px;
+    clip-path:polygon(0% 10px,6% 0,12% 10px,18% 0,24% 10px,30% 0,36% 10px,42% 0,48% 10px,54% 0,60% 10px,66% 0,72% 10px,78% 0,84% 10px,90% 0,96% 10px,100% 0,100% 100%,0% 100%);
+    border-left:0.5px solid #C9B98D; border-right:0.5px solid #C9B98D; border-bottom:0.5px solid #C9B98D;
+  }
+  .eyebrow { text-align:center; font-size:12px; letter-spacing:3px; color:#8C7038; margin:0 0 18px; }
+  .names { text-align:center; font-family:'Bellefair',serif; font-size:52px; margin:0 0 10px; line-height:1.15; }
+  .names .amp { color:#B23A2E; }
+  .subline { text-align:center; font-size:14px; color:#5A4D3A; margin:0 0 26px; }
+  .section-title { text-align:center; font-family:'Frank Ruhl Libre',serif; font-weight:500; font-size:17px; margin:0 0 4px; }
+  .section-sub { text-align:center; font-size:12px; color:#5A4D3A; margin:0 0 22px; }
+  .form { max-width:340px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+  .field label { font-size:11px; color:#8C7038; letter-spacing:1px; display:block; }
+  .field .input { height:26px; border-bottom:1px solid #8C7038; display:flex; align-items:flex-end; padding-bottom:4px; font-size:14px; color:#A99A85; }
+  .seed-row { display:flex; gap:8px; margin-top:8px; }
+  .seed { width:16px; height:16px; border-radius:50%; }
+  .seed.filled { background:#B23A2E; }
+  .seed.empty { border:1px solid #C9B98D; }
+  .seal-wrap { display:flex; justify-content:center; padding-top:8px; }
+  .seal {
+    width:78px; height:78px; border-radius:50%; border:2px solid #B23A2E;
+    display:flex; align-items:center; justify-content:center; transform:rotate(-6deg);
+    font-family:'Frank Ruhl Libre',serif; color:#B23A2E; font-size:15px; font-weight:500;
+    cursor:pointer; background:transparent;
+  }
+  .wa-note { text-align:center; font-size:11px; color:#4F5C3A; margin:2px 0 0; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <p class="eyebrow">בשמחה ובאהבה</p>
+    <p class="names">רותם <span class="amp">&amp;</span> עידן</p>
+    <p class="subline">יום שני, 21 בספטמבר 2026 &nbsp;·&nbsp; גן האירוס, זכרון יעקב</p>
+
+    <svg width="100%" height="26" viewBox="0 0 400 26" preserveAspectRatio="none" style="display:block;margin-bottom:26px;">
+      <line x1="0" y1="13" x2="400" y2="13" stroke="#8C7038" stroke-width="1"/>
+      <g transform="translate(90,13)"><circle r="6" fill="#B23A2E"/><path d="M -3 -6 L 0 -11 L 3 -6" fill="none" stroke="#4F5C3A" stroke-width="1.4"/></g>
+      <g transform="translate(200,13)"><circle r="7" fill="#B23A2E"/><path d="M -3 -7 L 0 -13 L 3 -7" fill="none" stroke="#4F5C3A" stroke-width="1.4"/></g>
+      <g transform="translate(310,13)"><circle r="6" fill="#B23A2E"/><path d="M -3 -6 L 0 -11 L 3 -6" fill="none" stroke="#4F5C3A" stroke-width="1.4"/></g>
+    </svg>
+
+    <p class="section-title">אישור הגעה</p>
+    <p class="section-sub">מלאו כאן ותקבלו אישור בוואטסאפ</p>
+
+    <div class="form">
+      <div class="field">
+        <label>שם מלא</label>
+        <div class="input">נועה כהן</div>
+      </div>
+      <div class="field">
+        <label>טלפון נייד</label>
+        <div class="input">050-1234567</div>
+      </div>
+      <div class="field">
+        <label>כמה מגיעים</label>
+        <div class="seed-row">
+          <div class="seed filled"></div>
+          <div class="seed filled"></div>
+          <div class="seed filled"></div>
+          <div class="seed empty"></div>
+          <div class="seed empty"></div>
+          <div class="seed empty"></div>
+        </div>
+      </div>
+      <div class="seal-wrap">
+        <button class="seal">אישור</button>
+      </div>
+      <p class="wa-note">אישור יישלח אליכם בוואטסאפ</p>
+    </div>
+  </div>
+</body>
+</html>
