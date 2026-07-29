@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { guestsApi } from '../api/guests'
+import { weddingApi } from '../api/wedding'
 import type { Guest, RsvpStatus } from '../types/guests'
+import type { Wedding } from '../types/wedding'
 import type { RsvpSubmittedEvent } from '../types/rsvp'
 import { GuestRow } from '../components/guests/GuestRow'
 import { GuestForm, type GuestFormValues } from '../components/guests/GuestForm'
@@ -46,7 +48,14 @@ export function GuestListPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [recentEvents, setRecentEvents] = useState<RsvpSubmittedEvent[]>([])
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
+  const [wedding, setWedding] = useState<Wedding | null>(null)
   const previousGuestsRef = useRef<Guest[] | null>(null)
+
+  // Needed to build the invite link embedded in bulk WhatsApp messages -
+  // a reminder with no link gives the guest nothing to click through to.
+  useEffect(() => {
+    weddingApi.getMine().then(setWedding).catch(() => undefined)
+  }, [])
 
   // Live updates are done by polling and diffing against the previous
   // snapshot (no Redis/SSE - simpler architecture, plenty fast enough at
@@ -230,10 +239,13 @@ export function GuestListPage() {
 
       {error && <p className="guest-list-page__error">{error}</p>}
 
-      {selectedIds.size > 0 && guests && (
+      {selectedIds.size > 0 && guests && wedding && (
         <BulkWhatsAppBar
           guests={guests.filter((g) => selectedIds.has(g.id))}
           onClear={() => setSelectedIds(new Set())}
+          coupleNameA={wedding.coupleNameA}
+          coupleNameB={wedding.coupleNameB}
+          inviteUrl={`${window.location.origin}/w/${wedding.slug}`}
         />
       )}
 

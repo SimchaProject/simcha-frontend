@@ -4,12 +4,21 @@ import { buildWaLink } from '../../utils/whatsapp'
 interface BulkWhatsAppBarProps {
   guests: Guest[]
   onClear: () => void
+  coupleNameA: string
+  coupleNameB: string
+  inviteUrl: string
 }
 
 // Browsers block multiple window.open() calls fired in a loop without a
 // user gesture per call, so this renders one link per guest for the couple
 // to click through individually rather than trying to auto-open every tab.
-export function BulkWhatsAppBar({ guests, onClear }: BulkWhatsAppBarProps) {
+export function BulkWhatsAppBar({
+  guests,
+  onClear,
+  coupleNameA,
+  coupleNameB,
+  inviteUrl,
+}: BulkWhatsAppBarProps) {
   const withPhone = guests.filter((g): g is Guest & { phone: string } => Boolean(g.phone))
   const withoutPhoneCount = guests.length - withPhone.length
 
@@ -29,7 +38,10 @@ export function BulkWhatsAppBar({ guests, onClear }: BulkWhatsAppBarProps) {
           <a
             key={guest.id}
             className="btn btn--ghost"
-            href={buildWaLink(guest.phone, `היי ${guest.name}! מזכירים לכם לאשר הגעה לחתונה 🙂`)}
+            href={buildWaLink(
+              guest.phone,
+              `היי ${guest.name}! מוזמנים לחתונה של ${coupleNameA} ו${coupleNameB} 🎉 לאישור הגעה: ${inviteUrl}`,
+            )}
             target="_blank"
             rel="noopener noreferrer"
           >
