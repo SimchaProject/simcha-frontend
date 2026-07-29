@@ -12,6 +12,8 @@ import { DashboardPage } from './pages/DashboardPage.tsx'
 import { WizardPage } from './pages/WizardPage.tsx'
 import { InvitePage } from './pages/InvitePage.tsx'
 import { SeatingPage } from './pages/SeatingPage.tsx'
+import { GuestListPage } from './pages/GuestListPage.tsx'
+import { WeddingSettingsPage } from './pages/WeddingSettingsPage.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -39,6 +41,22 @@ createRoot(document.getElementById('root')!).render(
           />
           <Route path="/w/:weddingSlug" element={<InvitePage />} />
           <Route path="/weddings/:weddingId/seating" element={<SeatingPage />} />
+          <Route
+            path="/weddings/:weddingId/guests"
+            element={
+              <ProtectedRoute>
+                <GuestListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/weddings/:weddingId/settings"
+            element={
+              <ProtectedRoute>
+                <WeddingSettingsPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -1,57 +1,82 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
 import { rsvpApi } from '../api/rsvp'
+import { weddingApi } from '../api/wedding'
+import type { PublicWeddingInfo } from '../types/wedding'
 import { SeedDots } from '../components/motifs/SeedDots'
 import { WaxSealButton } from '../components/motifs/WaxSealButton'
 import { VineDivider } from '../components/motifs/VineDivider'
+import { Countdown } from '../components/motifs/Countdown'
+import { ScheduleList } from '../components/motifs/ScheduleList'
+import { ArrivalSection } from '../components/motifs/ArrivalSection'
+import { GiftSection } from '../components/motifs/GiftSection'
+import { normalizePhone, isValidIsraeliMobile } from '../utils/phone'
 import './InvitePage.css'
 
 const MAX_PARTY_SIZE = 6
 
-// Placeholder until a wedding-info endpoint exists — couple/date/venue should
-// come from the backend per weddingSlug rather than being hardcoded here.
-const DEMO_WEDDING = {
-  brideName: 'רותם',
-  groomName: 'עידן',
-  dateLabel: 'יום שני, 21 בספטמבר 2026',
-  venueLabel: 'גן האירוס, זכרון יעקב',
-}
-
 interface FieldErrors {
   name?: string
   phone?: string
+  attending?: string
 }
 
-function normalizePhone(raw: string) {
-  return raw.replace(/[\s-]/g, '')
-}
-
-function validate(name: string, phone: string): FieldErrors {
+function validate(name: string, phone: string, attending: boolean | null): FieldErrors {
   const errors: FieldErrors = {}
   if (name.trim().length < 2) {
     errors.name = 'נא להזין שם מלא'
   }
-  if (!/^05\d{8}$/.test(normalizePhone(phone))) {
+  if (!isValidIsraeliMobile(phone)) {
     errors.phone = 'מספר טלפון לא תקין'
+  }
+  if (attending === null) {
+    errors.attending = 'נא לבחור האם תגיעו'
   }
   return errors
 }
 
 export function InvitePage() {
   const { weddingSlug } = useParams<{ weddingSlug: string }>()
+  const [wedding, setWedding] = useState<PublicWeddingInfo | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [partySize, setPartySize] = useState(1)
+  const [attending, setAttending] = useState<boolean | null>(null)
+  const [dietaryNotes, setDietaryNotes] = useState('')
+  const [needsTransport, setNeedsTransport] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (!weddingSlug) return
+    let cancelled = false
+    weddingApi
+      .getBySlug(weddingSlug)
+      .then((result) => {
+        if (cancelled) return
+        setWedding(result)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setNotFound(true)
+        setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [weddingSlug])
+
   if (!weddingSlug) return <p className="invite-page__error">ההזמנה לא נמצאה.</p>
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const fieldErrors = validate(name, phone)
+    const fieldErrors = validate(name, phone, attending)
     setErrors(fieldErrors)
     if (Object.keys(fieldErrors).length > 0) return
 
@@ -62,6 +87,9 @@ export function InvitePage() {
         name: name.trim(),
         phone: normalizePhone(phone),
         partySize,
+        attending: attending === true,
+        dietaryNotes: attending === true ? dietaryNotes.trim() || undefined : undefined,
+        needsTransport: attending === true ? needsTransport : undefined,
       })
       setWhatsappUrl(result.whatsappUrl)
     } catch {
@@ -71,23 +99,57 @@ export function InvitePage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="invite-page">
+        <p className="invite-page__error">טוען...</p>
+      </div>
+    )
+  }
+
+  if (notFound || !wedding) {
+    return (
+      <div className="invite-page">
+        <p className="invite-page__error">ההזמנה לא נמצאה.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="invite-page">
       <div className="invite-card">
         <p className="invite-eyebrow">בשמחה ובאהבה</p>
         <p className="invite-names">
-          {DEMO_WEDDING.brideName} <span className="invite-amp">&amp;</span> {DEMO_WEDDING.groomName}
+          {wedding.coupleNameA} <span className="invite-amp">&amp;</span> {wedding.coupleNameB}
         </p>
         <p className="invite-subline">
-          {DEMO_WEDDING.dateLabel} &nbsp;·&nbsp; {DEMO_WEDDING.venueLabel}
+          {wedding.date} &nbsp;·&nbsp; {wedding.venue}
         </p>
+        {wedding.guestPageConfig.welcomeMessage && (
+          <p className="invite-welcome-message">{wedding.guestPageConfig.welcomeMessage}</p>
+        )}
+
+        <Countdown targetDate={wedding.date} />
+        <ScheduleList entries={wedding.guestPageConfig.schedule} />
+        <ArrivalSection
+          mapUrl={wedding.guestPageConfig.mapUrl}
+          parkingInfo={wedding.guestPageConfig.parkingInfo}
+        />
+        <GiftSection
+          payboxLink={wedding.guestPageConfig.payboxLink}
+          bankTransferDetails={wedding.guestPageConfig.bankTransferDetails}
+        />
 
         <VineDivider />
 
         {whatsappUrl ? (
           <div className="invite-success">
-            <p className="invite-section-title">תודה שאישרתם!</p>
-            <p className="invite-section-sub">שומרים לכם מקום, מתרגשים לראותכם</p>
+            <p className="invite-section-title">
+              {attending ? 'תודה שאישרתם!' : 'תודה על העדכון'}
+            </p>
+            <p className="invite-section-sub">
+              {attending ? 'שומרים לכם מקום, מתרגשים לראותכם' : 'חבל שלא תוכלו להגיע, נתגעגע'}
+            </p>
             <div className="invite-seal-wrap">
               <a
                 className="wax-seal"
@@ -140,9 +202,65 @@ export function InvitePage() {
               </div>
 
               <div className="invite-field">
-                <label>כמה מגיעים</label>
-                <SeedDots value={partySize} max={MAX_PARTY_SIZE} onChange={setPartySize} label="כמה מגיעים" />
+                <label>האם תגיעו?</label>
+                <div className="invite-attend-toggle" role="group" aria-label="האם תגיעו">
+                  <button
+                    type="button"
+                    className={`invite-attend-option${attending === true ? ' invite-attend-option--selected' : ''}`}
+                    aria-pressed={attending === true}
+                    onClick={() => {
+                      setAttending(true)
+                      if (errors.attending) setErrors((prev) => ({ ...prev, attending: undefined }))
+                    }}
+                  >
+                    מגיעים בשמחה
+                  </button>
+                  <button
+                    type="button"
+                    className={`invite-attend-option${attending === false ? ' invite-attend-option--selected' : ''}`}
+                    aria-pressed={attending === false}
+                    onClick={() => {
+                      setAttending(false)
+                      if (errors.attending) setErrors((prev) => ({ ...prev, attending: undefined }))
+                    }}
+                  >
+                    לא נוכל להגיע
+                  </button>
+                </div>
+                {errors.attending && <p className="invite-field__error">{errors.attending}</p>}
               </div>
+
+              {attending === true && (
+                <>
+                  <div className="invite-field">
+                    <label>כמה מגיעים</label>
+                    <SeedDots value={partySize} max={MAX_PARTY_SIZE} onChange={setPartySize} label="כמה מגיעים" />
+                  </div>
+
+                  <div className="invite-field">
+                    <label htmlFor="rsvp-dietary">הערות תזונה (אופציונלי)</label>
+                    <textarea
+                      id="rsvp-dietary"
+                      className="invite-dietary"
+                      value={dietaryNotes}
+                      onChange={(e) => setDietaryNotes(e.target.value)}
+                      placeholder="צמחוני, טבעוני, אלרגיות..."
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="invite-field invite-field--checkbox">
+                    <label className="invite-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={needsTransport}
+                        onChange={(e) => setNeedsTransport(e.target.checked)}
+                      />
+                      צריך/ה הסעה מאורגנת
+                    </label>
+                  </div>
+                </>
+              )}
 
               {submitError && <p className="invite-page__error">{submitError}</p>}
 

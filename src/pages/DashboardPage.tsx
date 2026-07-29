@@ -68,6 +68,12 @@ export function DashboardPage() {
             <a className="dashboard-wedding-link" href={`/w/${wedding.slug}`}>
               {window.location.origin}/w/{wedding.slug}
             </a>
+            <a className="dashboard-wedding-link" href={`/weddings/${wedding.id}/guests`}>
+              רשימת אורחים
+            </a>
+            <a className="dashboard-wedding-link" href={`/weddings/${wedding.id}/settings`}>
+              עריכת פרטי החתונה
+            </a>
           </>
         )}
       </div>

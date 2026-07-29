@@ -1,0 +1,123 @@
+.guest-list-page {
+  --accent: #b76e79;
+  --accent-dark: #96545e;
+  --ink: #2d2a26;
+  --muted: #837c74;
+  --border: #e8e1d9;
+  --surface: #ffffff;
+  --bg: #fbf7f2;
+  --danger: #c0392b;
+  --ok: #7a9e7e;
+
+  padding: 2rem 1.5rem 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #fffdfa 0%, var(--bg) 60%);
+  color: var(--ink);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+.guest-list-page__header {
+  margin-bottom: 1.5rem;
+}
+
+.guest-list-page__header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.guest-list-page__subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.guest-list-page__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.guest-list-page__status-filter {
+  margin-inline-start: auto;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.guest-list-page__add-form {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.guest-list-page__error {
+  color: var(--danger);
+  background: #fdf0ee;
+  border: 1px solid #f5c6c0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.guest-list-page__empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 3rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+}
+
+.rsvp-live-feed {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.rsvp-live-feed__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.rsvp-live-feed__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.rsvp-live-feed__list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.rsvp-live-feed__name {
+  font-weight: 600;
+}
