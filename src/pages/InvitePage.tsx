@@ -50,6 +50,7 @@ export function InvitePage() {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null)
 
   useEffect(() => {
@@ -92,6 +93,7 @@ export function InvitePage() {
         needsTransport: attending === true ? needsTransport : undefined,
       })
       setWhatsappUrl(result.whatsappUrl)
+      setSubmitted(true)
     } catch {
       setSubmitError('משהו השתבש, נסו שוב.')
     } finally {
@@ -142,7 +144,7 @@ export function InvitePage() {
 
         <VineDivider />
 
-        {whatsappUrl ? (
+        {submitted ? (
           <div className="invite-success">
             <p className="invite-section-title">
               {attending ? 'תודה שאישרתם!' : 'תודה על העדכון'}
@@ -150,23 +152,27 @@ export function InvitePage() {
             <p className="invite-section-sub">
               {attending ? 'שומרים לכם מקום, מתרגשים לראותכם' : 'חבל שלא תוכלו להגיע, נתגעגע'}
             </p>
-            <div className="invite-seal-wrap">
-              <a
-                className="wax-seal"
-                style={{ transform: 'rotate(4deg)' }}
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                וואטסאפ
-              </a>
-            </div>
-            <p className="invite-wa-note">לחצו לקבלת אישור בוואטסאפ</p>
+            {whatsappUrl && (
+              <>
+                <div className="invite-seal-wrap">
+                  <a
+                    className="wax-seal"
+                    style={{ transform: 'rotate(4deg)' }}
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    וואטסאפ
+                  </a>
+                </div>
+                <p className="invite-wa-note">לחצו לעדכן את הזוג בוואטסאפ</p>
+              </>
+            )}
           </div>
         ) : (
           <>
             <p className="invite-section-title">אישור הגעה</p>
-            <p className="invite-section-sub">מלאו כאן ותקבלו אישור בוואטסאפ</p>
+            <p className="invite-section-sub">מלאו כאן ותשובתכם תעודכן ישירות לזוג</p>
 
             <form className="invite-form" onSubmit={handleSubmit} noValidate>
               <div className={`invite-field${errors.name ? ' invite-field--error' : ''}`}>
@@ -269,7 +275,7 @@ export function InvitePage() {
                   אישור
                 </WaxSealButton>
               </div>
-              <p className="invite-wa-note">אישור יישלח אליכם בוואטסאפ</p>
+              <p className="invite-wa-note">נעדכן את הזוג בוואטסאפ עם תשובתכם</p>
             </form>
           </>
         )}

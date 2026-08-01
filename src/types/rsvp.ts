@@ -9,7 +9,9 @@ export interface RsvpPayload {
 
 export interface RsvpResponse {
   id: string
-  whatsappUrl: string
+  // null when the couple hasn't set a contact phone in their wedding
+  // settings yet - there's no number to notify.
+  whatsappUrl: string | null
 }
 
 // A locally-detected guest change, surfaced by diffing successive polls of

@@ -14,9 +14,16 @@ export interface GuestPageConfig {
   bankTransferDetails: string | null
 }
 
+// Only present on the authed /weddings/mine response - never sent to the
+// public invite page, since it's server-side data used to build the
+// guest's post-RSVP wa.me link, not guest-facing content.
+export interface PrivateGuestPageConfig extends GuestPageConfig {
+  contactPhone: string | null
+}
+
 // Partial update body for PATCH /weddings/:weddingId/guest-page-config -
 // every field optional.
-export type GuestPageConfigUpdate = Partial<GuestPageConfig>
+export type GuestPageConfigUpdate = Partial<PrivateGuestPageConfig>
 
 export interface Wedding {
   id: string
@@ -28,7 +35,7 @@ export interface Wedding {
   createdBy: string
   createdAt: string
   updatedAt: string
-  guestPageConfig: GuestPageConfig
+  guestPageConfig: PrivateGuestPageConfig
 }
 
 // What the public invite page gets - deliberately narrower than Wedding

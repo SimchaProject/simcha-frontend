@@ -29,6 +29,7 @@ export function WeddingSettingsPage() {
   const [parkingInfo, setParkingInfo] = useState('')
   const [payboxLink, setPayboxLink] = useState('')
   const [bankTransferDetails, setBankTransferDetails] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
 
   useEffect(() => {
     if (!weddingId) return
@@ -53,6 +54,7 @@ export function WeddingSettingsPage() {
         setParkingInfo(result.guestPageConfig.parkingInfo ?? '')
         setPayboxLink(result.guestPageConfig.payboxLink ?? '')
         setBankTransferDetails(result.guestPageConfig.bankTransferDetails ?? '')
+        setContactPhone(result.guestPageConfig.contactPhone ?? '')
         setLoading(false)
       })
       .catch((e) => {
@@ -90,6 +92,7 @@ export function WeddingSettingsPage() {
         parkingInfo: parkingInfo.trim() || undefined,
         payboxLink: payboxLink.trim() || undefined,
         bankTransferDetails: bankTransferDetails.trim() || undefined,
+        contactPhone: contactPhone.trim() || undefined,
       })
       setSaved(true)
     } catch (e) {
@@ -193,6 +196,22 @@ export function WeddingSettingsPage() {
             <span>הוראות חניה</span>
             <textarea value={parkingInfo} onChange={(e) => setParkingInfo(e.target.value)} rows={2} />
           </label>
+        </section>
+
+        <section className="settings-section">
+          <h2>עדכוני אישור הגעה</h2>
+          <label className="settings-field">
+            <span>מספר טלפון ליצירת קשר</span>
+            <input
+              type="text"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="050-1234567"
+            />
+          </label>
+          <p className="settings-field__hint">
+            כשאורח מאשר או מבטל הגעה, הוא יוכל לשלוח לכם עדכון בוואטסאפ למספר הזה. בלי מספר כאן, אפשרות זו לא תוצג לאורחים.
+          </p>
         </section>
 
         <section className="settings-section">
