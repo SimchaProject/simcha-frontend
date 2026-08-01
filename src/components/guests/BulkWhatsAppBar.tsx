@@ -40,7 +40,7 @@ export function BulkWhatsAppBar({
             className="btn btn--ghost"
             href={buildWaLink(
               guest.phone,
-              `היי ${guest.name}! מוזמנים לחתונה של ${coupleNameA} ו${coupleNameB} 🎉 לאישור הגעה: ${inviteUrl}`,
+              `היי ${guest.name}! מוזמנים לחתונה של ${coupleNameA} ו${coupleNameB}. לאישור הגעה: ${inviteUrl}`,
             )}
             target="_blank"
             rel="noopener noreferrer"
