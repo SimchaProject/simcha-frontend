@@ -341,13 +341,15 @@ export function GuestsPage() {
               ))}
             </select>
           </td>
-          <td colSpan={2} className="dash-guest-table__edit-actions">
-            <button type="button" onClick={() => saveEdit(guest.id)}>
-              שמרו
-            </button>
-            <button type="button" onClick={cancelEdit}>
-              ביטול
-            </button>
+          <td colSpan={2}>
+            <div className="dash-guest-table__edit-actions">
+              <button type="button" onClick={() => saveEdit(guest.id)}>
+                שמרו
+              </button>
+              <button type="button" onClick={cancelEdit}>
+                ביטול
+              </button>
+            </div>
           </td>
         </>
       ) : (
@@ -381,14 +383,16 @@ export function GuestsPage() {
               ))}
             </select>
           </td>
-          <td className="dash-guest-table__actions">
-            <ReminderButton guest={guest} />
-            <button type="button" onClick={() => startEdit(guest)}>
-              ערכו
-            </button>
-            <button type="button" onClick={() => handleDelete(guest.id)}>
-              הסירו
-            </button>
+          <td>
+            <div className="dash-guest-table__actions">
+              <ReminderButton guest={guest} />
+              <button type="button" onClick={() => startEdit(guest)}>
+                ערכו
+              </button>
+              <button type="button" onClick={() => handleDelete(guest.id)}>
+                הסירו
+              </button>
+            </div>
           </td>
         </>
       )}

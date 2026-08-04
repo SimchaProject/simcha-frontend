@@ -250,7 +250,17 @@ export function InvitePage() {
                 <>
                   <div className="invite-field">
                     <label>כמה מגיעים</label>
-                    <SeedDots value={partySize} max={MAX_PARTY_SIZE} onChange={setPartySize} label="כמה מגיעים" />
+                    <div className="invite-party-size-row">
+                      <SeedDots value={partySize} max={MAX_PARTY_SIZE} onChange={setPartySize} label="כמה מגיעים" />
+                      <input
+                        type="number"
+                        min={1}
+                        className="invite-party-size-input"
+                        value={partySize}
+                        onChange={(e) => setPartySize(Math.max(1, Number(e.target.value) || 1))}
+                        aria-label="כמה מגיעים (מספר)"
+                      />
+                    </div>
                   </div>
 
                   <div className="invite-field">

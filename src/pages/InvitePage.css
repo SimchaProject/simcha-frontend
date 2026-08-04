@@ -344,6 +344,17 @@
   accent-color: var(--simcha-red);
 }
 
+.invite-party-size-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.invite-party-size-input {
+  width: 56px !important;
+  text-align: center;
+}
+
 .seed-row {
   display: flex;
   gap: 8px;
