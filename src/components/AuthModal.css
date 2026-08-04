@@ -1,0 +1,108 @@
+.auth-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(36, 26, 20, 0.45);
+  backdrop-filter: blur(2px);
+  box-sizing: border-box;
+  animation: auth-modal-backdrop-in 0.18s ease both;
+}
+
+@keyframes auth-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.auth-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--simcha-paper);
+  border-radius: 14px;
+  box-shadow: 0 30px 70px rgba(36, 26, 20, 0.35);
+  padding: 40px 36px;
+  box-sizing: border-box;
+  animation: auth-modal-card-in 0.22s ease both;
+}
+
+@keyframes auth-modal-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: var(--simcha-ink-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.auth-modal-close:hover {
+  color: var(--simcha-red);
+  background: var(--simcha-paper-dark);
+}
+
+.auth-modal-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin: 0 0 18px;
+  border-bottom: 1px solid var(--simcha-line);
+}
+
+.auth-modal-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--simcha-ink-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease;
+}
+
+.auth-modal-tab:hover {
+  color: var(--simcha-ink);
+}
+
+.auth-modal-tab--active {
+  color: var(--simcha-red);
+  border-bottom-color: var(--simcha-red);
+}
+
+@media (max-width: 480px) {
+  .auth-modal-card {
+    padding: 32px 22px;
+  }
+}

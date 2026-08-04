@@ -1,6 +1,7 @@
 import { http } from './http'
 import type {
   CreateWeddingPayload,
+  GuestPageConfig,
   GuestPageConfigUpdate,
   PublicWeddingInfo,
   Wedding,
@@ -9,7 +10,9 @@ import type {
 export const weddingApi = {
   getMine: () => http.get<Wedding | null>('/weddings/mine'),
   create: (payload: CreateWeddingPayload) => http.post<Wedding>('/weddings', payload),
-  getBySlug: (slug: string) => http.get<PublicWeddingInfo>(`/weddings/${slug}/public`),
+  getBySlug: (slug: string) => http.get<PublicWeddingInfo>(`/weddings/${slug}`),
+  getGuestPageConfig: (weddingId: string) =>
+    http.get<GuestPageConfig>(`/weddings/${weddingId}/guest-page-config`),
   updateGuestPageConfig: (weddingId: string, payload: GuestPageConfigUpdate) =>
-    http.patch<Wedding>(`/weddings/${weddingId}/guest-page-config`, payload),
+    http.patch<GuestPageConfig>(`/weddings/${weddingId}/guest-page-config`, payload),
 }

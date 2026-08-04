@@ -15,7 +15,7 @@ export interface RsvpResponse {
 }
 
 // A locally-detected guest change, surfaced by diffing successive polls of
-// the guest list (see GuestListPage) - not a server-pushed event.
+// the guest list (see GuestsPage) - not a server-pushed event.
 export interface RsvpSubmittedEvent {
   guestId: string
   name: string

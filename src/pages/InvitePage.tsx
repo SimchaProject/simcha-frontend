@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { rsvpApi } from '../api/rsvp'
 import { weddingApi } from '../api/wedding'
 import type { PublicWeddingInfo } from '../types/wedding'
+import { formatHebrewDate } from '../lib/hebrewDate'
 import { SeedDots } from '../components/motifs/SeedDots'
 import { WaxSealButton } from '../components/motifs/WaxSealButton'
 import { VineDivider } from '../components/motifs/VineDivider'
@@ -75,6 +76,22 @@ export function InvitePage() {
 
   if (!weddingSlug) return <p className="invite-page__error">ההזמנה לא נמצאה.</p>
 
+  if (loading) {
+    return (
+      <div className="invite-page">
+        <p className="invite-page__error">טוען...</p>
+      </div>
+    )
+  }
+
+  if (notFound || !wedding) {
+    return (
+      <div className="invite-page">
+        <p className="invite-page__error">ההזמנה לא נמצאה.</p>
+      </div>
+    )
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     const fieldErrors = validate(name, phone, attending)
@@ -101,22 +118,6 @@ export function InvitePage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="invite-page">
-        <p className="invite-page__error">טוען...</p>
-      </div>
-    )
-  }
-
-  if (notFound || !wedding) {
-    return (
-      <div className="invite-page">
-        <p className="invite-page__error">ההזמנה לא נמצאה.</p>
-      </div>
-    )
-  }
-
   return (
     <div className="invite-page">
       <div className="invite-card">
@@ -125,10 +126,19 @@ export function InvitePage() {
           {wedding.coupleNameA} <span className="invite-amp">&amp;</span> {wedding.coupleNameB}
         </p>
         <p className="invite-subline">
-          {wedding.date} &nbsp;·&nbsp; {wedding.venue}
+          {formatHebrewDate(wedding.date)} &nbsp;·&nbsp; {wedding.venue}
+          {wedding.guestPageConfig.ceremonyTime && (
+            <>
+              {' '}
+              &nbsp;·&nbsp; שעה {wedding.guestPageConfig.ceremonyTime}
+            </>
+          )}
         </p>
         {wedding.guestPageConfig.welcomeMessage && (
           <p className="invite-welcome-message">{wedding.guestPageConfig.welcomeMessage}</p>
+        )}
+        {wedding.guestPageConfig.dressCode && (
+          <p className="invite-subline">קוד לבוש: {wedding.guestPageConfig.dressCode}</p>
         )}
 
         <Countdown targetDate={wedding.date} />

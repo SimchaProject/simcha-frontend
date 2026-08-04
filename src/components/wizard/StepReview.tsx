@@ -1,16 +1,11 @@
 import type { WizardData } from './types'
+import { formatHebrewDate } from '../../lib/hebrewDate'
 
 interface StepReviewProps {
   data: WizardData
 }
 
 export function StepReview({ data }: StepReviewProps) {
-  const totalCategoriesAmount = data.budgetCategories.reduce(
-    (sum, c) => sum + (parseFloat(c.allocatedAmount) || 0),
-    0,
-  )
-  const hasBudget = Boolean(data.totalBudget) || data.budgetCategories.length > 0
-
   return (
     <div className="wizard-step">
       <p className="wizard-step__title">סיכום</p>
@@ -22,7 +17,7 @@ export function StepReview({ data }: StepReviewProps) {
           {data.coupleNameA} &amp; {data.coupleNameB}
         </p>
         <p className="wizard-review-row">
-          {data.date || '—'} &nbsp;·&nbsp; {data.venue || '—'}
+          {data.date ? formatHebrewDate(data.date) : '—'} &nbsp;·&nbsp; {data.venue || '—'}
         </p>
         <p className="wizard-review-row" dir="ltr">
           simcha.app/w/{data.slug}
@@ -39,41 +34,15 @@ export function StepReview({ data }: StepReviewProps) {
       </div>
 
       <div className="wizard-review-section">
-        <p className="wizard-review-section__title">תקציב</p>
-        {hasBudget ? (
-          <>
-            <p className="wizard-review-row">תקציב כולל: ₪{data.totalBudget || 0}</p>
-            {data.budgetCategories.map((c) => (
-              <p className="wizard-review-row" key={c.id}>
-                {c.name || 'קטגוריה'}: ₪{c.allocatedAmount || 0}
-              </p>
-            ))}
-            {data.budgetCategories.length > 0 && (
-              <p className="wizard-review-row wizard-review-row--muted">
-                סה"כ הוקצה: ₪{totalCategoriesAmount}
-              </p>
-            )}
-          </>
-        ) : (
-          <p className="wizard-review-row wizard-review-row--muted">
-            לא הוגדר — ניתן להוסיף מאוחר יותר
-          </p>
+        <p className="wizard-review-section__title">פרטי האירוע</p>
+        <p className="wizard-review-row">שעה: {data.ceremonyTime || '—'}</p>
+        <p className="wizard-review-row" dir="ltr">
+          {data.contactPhone || '—'}
+        </p>
+        {data.rsvpDeadline && (
+          <p className="wizard-review-row">מועד אחרון לאישור: {formatHebrewDate(data.rsvpDeadline)}</p>
         )}
-      </div>
-
-      <div className="wizard-review-section">
-        <p className="wizard-review-section__title">ספקים</p>
-        {data.vendors.length > 0 ? (
-          data.vendors.map((v) => (
-            <p className="wizard-review-row" key={v.id}>
-              {v.name || 'ספק'} — {v.category || '—'} {v.contactInfo && `· ${v.contactInfo}`}
-            </p>
-          ))
-        ) : (
-          <p className="wizard-review-row wizard-review-row--muted">
-            לא הוגדרו — ניתן להוסיף מאוחר יותר
-          </p>
-        )}
+        {data.dressCode && <p className="wizard-review-row">קוד לבוש: {data.dressCode}</p>}
       </div>
     </div>
   )

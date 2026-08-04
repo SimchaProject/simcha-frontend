@@ -15,3 +15,12 @@ export function validateBasics(data: WizardData): Record<string, string> {
   }
   return errors
 }
+
+export function validateEventDetails(data: WizardData): Record<string, string> {
+  const errors: Record<string, string> = {}
+  if (!data.ceremonyTime) errors.ceremonyTime = 'נא לבחור שעה'
+  if (!/^05\d{8}$/.test(data.contactPhone.replace(/[\s-]/g, ''))) {
+    errors.contactPhone = 'מספר טלפון לא תקין'
+  }
+  return errors
+}

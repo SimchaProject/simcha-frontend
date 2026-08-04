@@ -36,7 +36,8 @@ interface ImportModalProps {
 
 // Client-side parsing here is purely a preview/UX aid - the raw file is what
 // actually gets sent, the backend is the source of truth for real import
-// validation and dedup.
+// validation and dedup (including Hebrew header aliases and title-row
+// detection, which this preview doesn't attempt to replicate).
 export function ImportModal({ weddingId, onClose, onImported }: ImportModalProps) {
   const [file, setFile] = useState<File | null>(null)
   const [previewRows, setPreviewRows] = useState<PreviewRow[] | null>(null)
@@ -130,20 +131,20 @@ export function ImportModal({ weddingId, onClose, onImported }: ImportModalProps
 
         <div className="import-modal__actions">
           {result ? (
-            <button className="btn btn--primary" onClick={onClose}>
+            <button className="dash-guest-btn" onClick={onClose}>
               סגירה
             </button>
           ) : (
             <>
               <button
-                className="btn btn--primary"
+                className="dash-guest-btn"
                 onClick={handleConfirm}
                 disabled={!file || busy}
               >
-                {busy && <span className="spinner" />}
+                {busy && <span className="dash-guest-spinner" />}
                 ייבוא
               </button>
-              <button className="btn btn--ghost" onClick={onClose} disabled={busy}>
+              <button className="dash-guest-btn" onClick={onClose} disabled={busy}>
                 ביטול
               </button>
             </>

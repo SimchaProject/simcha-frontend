@@ -1,5 +1,6 @@
 import type { WizardData } from './types'
 import { generateSlug } from './slug'
+import { DatePicker } from '../ui/DatePicker'
 
 interface StepBasicsProps {
   data: WizardData
@@ -31,7 +32,7 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
             type="text"
             value={data.coupleNameA}
             onChange={(e) => handleNameChange('coupleNameA', e.target.value)}
-            placeholder="לדוגמה: רותם"
+            placeholder="לדוגמה: נועה"
           />
           {errors.coupleNameA && <p className="wizard-field__error">{errors.coupleNameA}</p>}
         </div>
@@ -43,7 +44,7 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
             type="text"
             value={data.coupleNameB}
             onChange={(e) => handleNameChange('coupleNameB', e.target.value)}
-            placeholder="לדוגמה: עידן"
+            placeholder="לדוגמה: איתי"
           />
           {errors.coupleNameB && <p className="wizard-field__error">{errors.coupleNameB}</p>}
         </div>
@@ -51,11 +52,11 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
 
       <div className={`wizard-field${errors.date ? ' wizard-field--error' : ''}`}>
         <label htmlFor="wizard-date">תאריך החתונה</label>
-        <input
+        <DatePicker
           id="wizard-date"
-          type="date"
           value={data.date}
-          onChange={(e) => onChange({ date: e.target.value })}
+          onChange={(date) => onChange({ date })}
+          hasError={Boolean(errors.date)}
         />
         {errors.date && <p className="wizard-field__error">{errors.date}</p>}
       </div>

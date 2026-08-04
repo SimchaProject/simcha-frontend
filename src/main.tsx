@@ -8,12 +8,14 @@ import { ProtectedRoute } from './auth/ProtectedRoute'
 import { LandingPage } from './pages/LandingPage.tsx'
 import { LoginPage } from './pages/LoginPage.tsx'
 import { SignupPage } from './pages/SignupPage.tsx'
-import { DashboardPage } from './pages/DashboardPage.tsx'
+import { DashboardLayout } from './pages/dashboard/DashboardLayout.tsx'
+import { OverviewPage } from './pages/dashboard/OverviewPage.tsx'
+import { GuestsPage } from './pages/dashboard/GuestsPage.tsx'
+import { ComingSoonPage } from './pages/dashboard/ComingSoonPage.tsx'
+import { SettingsPage } from './pages/dashboard/SettingsPage.tsx'
 import { WizardPage } from './pages/WizardPage.tsx'
 import { InvitePage } from './pages/InvitePage.tsx'
-import { SeatingPage } from './pages/SeatingPage.tsx'
-import { GuestListPage } from './pages/GuestListPage.tsx'
-import { WeddingSettingsPage } from './pages/WeddingSettingsPage.tsx'
+import { SeatingPage } from './pages/dashboard/SeatingPage.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -27,10 +29,27 @@ createRoot(document.getElementById('root')!).render(
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <DashboardLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<OverviewPage />} />
+            <Route path="guests" element={<GuestsPage />} />
+            <Route path="seating" element={<SeatingPage />} />
+            <Route
+              path="budget"
+              element={
+                <ComingSoonPage title="תקציב" description="ניהול תקציב יהיה זמין כאן בקרוב." />
+              }
+            />
+            <Route
+              path="vendors"
+              element={
+                <ComingSoonPage title="ספקים" description="ניהול ספקים יהיה זמין כאן בקרוב." />
+              }
+            />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
           <Route
             path="/wedding/new"
             element={
@@ -40,23 +59,6 @@ createRoot(document.getElementById('root')!).render(
             }
           />
           <Route path="/w/:weddingSlug" element={<InvitePage />} />
-          <Route path="/weddings/:weddingId/seating" element={<SeatingPage />} />
-          <Route
-            path="/weddings/:weddingId/guests"
-            element={
-              <ProtectedRoute>
-                <GuestListPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/weddings/:weddingId/settings"
-            element={
-              <ProtectedRoute>
-                <WeddingSettingsPage />
-              </ProtectedRoute>
-            }
-          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

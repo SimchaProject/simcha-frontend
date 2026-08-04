@@ -1,0 +1,153 @@
+.date-picker {
+  position: relative;
+  width: 100%;
+}
+
+.date-picker__trigger {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--simcha-gold);
+  background: transparent;
+  padding: 0 0 4px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  color: var(--simcha-ink);
+  text-align: right;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.date-picker__trigger:hover,
+.date-picker__trigger:focus-visible {
+  border-bottom-color: var(--simcha-red);
+  outline: none;
+}
+
+.date-picker__trigger--error {
+  border-bottom-color: var(--simcha-red);
+}
+
+.date-picker__placeholder {
+  color: #a99a85;
+}
+
+.date-picker__popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 264px;
+  background: var(--simcha-paper);
+  border: 1px solid var(--simcha-line);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(36, 26, 20, 0.16);
+  padding: 14px;
+  direction: rtl;
+  animation: date-picker-in 0.12s ease both;
+}
+
+@keyframes date-picker-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.date-picker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.date-picker__month-label {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--simcha-ink);
+}
+
+.date-picker__nav {
+  border: none;
+  background: transparent;
+  color: var(--simcha-gold);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.date-picker__nav:hover {
+  color: var(--simcha-red);
+  background: var(--simcha-paper-dark);
+}
+
+.date-picker__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  direction: rtl;
+  margin-bottom: 4px;
+}
+
+.date-picker__weekdays span {
+  text-align: center;
+  font-size: 10px;
+  color: var(--simcha-ink-muted);
+  letter-spacing: 0.5px;
+}
+
+.date-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  direction: rtl;
+}
+
+.date-picker__day {
+  width: 100%;
+  aspect-ratio: 1;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  color: var(--simcha-ink);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.date-picker__day:hover:not(:disabled) {
+  background: var(--simcha-paper-dark);
+}
+
+.date-picker__day--selected {
+  background: var(--simcha-red);
+  color: var(--simcha-paper);
+}
+
+.date-picker__day--selected:hover {
+  background: var(--simcha-red);
+}
+
+.date-picker__day:disabled {
+  color: #c8bda6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 380px) {
+  .date-picker__popover {
+    width: 100%;
+    right: auto;
+    left: 0;
+  }
+}

@@ -48,3 +48,17 @@ export interface BulkImportResult {
   skippedCount: number
   errors: Array<{ row: number; message: string }>
 }
+
+export interface GuestGroup {
+  id: string
+  weddingId: string
+  name: string
+}
+
+export interface CreateGuestGroupPayload {
+  name: string
+}
+
+export interface UpdateGuestGroupPayload {
+  name?: string
+}

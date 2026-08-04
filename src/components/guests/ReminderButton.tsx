@@ -7,7 +7,7 @@ export function ReminderButton({ guest }: { guest: Guest }) {
 
   return (
     <a
-      className="btn btn--ghost reminder-button"
+      className="dash-guest-btn"
       href={guest.reminderWaMeLink}
       target="_blank"
       rel="noopener noreferrer"
