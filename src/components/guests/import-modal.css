@@ -1,0 +1,79 @@
+.import-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 42, 38, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.import-modal {
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.import-modal h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
+}
+
+.import-modal__hint {
+  margin: 0 0 1rem;
+  color: var(--muted, #837c74);
+  font-size: 0.85rem;
+}
+
+.import-modal__preview {
+  margin-top: 1rem;
+}
+
+.import-modal__preview-summary {
+  font-size: 0.85rem;
+  color: var(--muted, #837c74);
+  margin: 0 0 0.5rem;
+}
+
+.import-modal__preview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.import-modal__row--invalid {
+  color: var(--danger, #c0392b);
+}
+
+.import-modal__preview-more {
+  font-size: 0.8rem;
+  color: var(--muted, #837c74);
+  margin: 0.4rem 0 0;
+}
+
+.import-modal__error {
+  color: var(--danger, #c0392b);
+  font-size: 0.85rem;
+}
+
+.import-modal__result {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.import-modal__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}

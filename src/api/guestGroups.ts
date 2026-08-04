@@ -1,5 +1,5 @@
 import { http } from './http'
-import type { CreateGuestGroupPayload, GuestGroup, UpdateGuestGroupPayload } from '../types/guest'
+import type { CreateGuestGroupPayload, GuestGroup, UpdateGuestGroupPayload } from '../types/guests'
 
 export const guestGroupsApi = {
   list: (weddingId: string) => http.get<GuestGroup[]>(`/weddings/${weddingId}/guest-groups`),
@@ -8,5 +8,5 @@ export const guestGroupsApi = {
   update: (weddingId: string, groupId: string, payload: UpdateGuestGroupPayload) =>
     http.patch<GuestGroup>(`/weddings/${weddingId}/guest-groups/${groupId}`, payload),
   remove: (weddingId: string, groupId: string) =>
-    http.delete<void>(`/weddings/${weddingId}/guest-groups/${groupId}`),
+    http.del<void>(`/weddings/${weddingId}/guest-groups/${groupId}`),
 }

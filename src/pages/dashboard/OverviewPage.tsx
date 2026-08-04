@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDashboard } from './dashboard-context'
 import { guestsApi } from '../../api/guests'
-import type { Guest } from '../../types/guest'
+import type { Guest } from '../../types/guests'
 import { formatHebrewDate } from '../../lib/hebrewDate'
 
 function daysUntil(dateStr: string): number {
@@ -29,9 +29,9 @@ export function OverviewPage() {
   const inviteUrl = `${window.location.origin}/w/${wedding.slug}`
   const days = daysUntil(wedding.date)
 
-  const confirmed = guests?.filter((g) => g.rsvpStatus === 'confirmed') ?? []
-  const declined = guests?.filter((g) => g.rsvpStatus === 'declined') ?? []
-  const pending = guests?.filter((g) => g.rsvpStatus === 'pending') ?? []
+  const confirmed = guests?.filter((g) => g.rsvpStatus === 'ATTENDING') ?? []
+  const declined = guests?.filter((g) => g.rsvpStatus === 'DECLINED') ?? []
+  const pending = guests?.filter((g) => g.rsvpStatus === 'PENDING') ?? []
   const confirmedGuestsCount = confirmed.reduce((sum, g) => sum + g.partySize, 0)
 
   const handleCopy = async () => {

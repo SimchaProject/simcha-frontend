@@ -1,3 +1,82 @@
+/* live RSVP feed */
+
+.dash-live-feed {
+  background: var(--simcha-paper-dark);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  animation: dash-bulk-bar-in 0.2s ease both;
+}
+
+.dash-live-feed__header {
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+  margin-bottom: 6px;
+}
+
+.dash-live-feed__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-live-feed__list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.dash-live-feed__name {
+  font-weight: 500;
+}
+
+/* rsvp status badge (used in the live feed) */
+
+.rsvp-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.rsvp-badge--attending {
+  background: rgba(76, 128, 84, 0.14);
+  color: #3f7248;
+}
+
+.rsvp-badge--declined {
+  background: rgba(178, 58, 46, 0.12);
+  color: var(--simcha-red);
+}
+
+.rsvp-badge--pending {
+  background: rgba(140, 112, 56, 0.14);
+  color: var(--simcha-gold);
+}
+
+/* dietary/transport indicators inline with the guest name */
+
+.dash-guest-note {
+  margin-inline-start: 6px;
+  cursor: help;
+}
+
+/* bulk WhatsApp row */
+
+.dash-bulk-wa-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+}
+
 .dash-guest-btn {
   display: inline-flex;
   align-items: center;

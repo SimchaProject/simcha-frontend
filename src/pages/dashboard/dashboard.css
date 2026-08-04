@@ -423,6 +423,56 @@
   margin-top: 8px;
 }
 
+.settings-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.settings-row__time {
+  flex: 0 0 90px;
+  border: none;
+  border-bottom: 1px solid var(--simcha-gold);
+  background: transparent;
+  padding: 0 0 4px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  color: var(--simcha-ink);
+  outline: none;
+}
+
+.settings-row__label {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid var(--simcha-gold);
+  background: transparent;
+  padding: 0 0 4px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  color: var(--simcha-ink);
+  outline: none;
+}
+
+.settings-row__remove {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--simcha-ink-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px;
+}
+
+.settings-row__remove:hover {
+  color: var(--simcha-red);
+}
+
 /* coming soon */
 
 .dash-coming-soon__card {

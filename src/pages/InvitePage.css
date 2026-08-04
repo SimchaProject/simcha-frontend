@@ -116,6 +116,16 @@
   margin: 0 auto 18px;
 }
 
+.invite-welcome-message {
+  max-width: 420px;
+  margin: -12px auto 26px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--simcha-ink);
+  white-space: pre-wrap;
+}
+
 .invite-section-title {
   text-align: center;
   font-family: 'Frank Ruhl Libre', serif;
@@ -137,6 +147,94 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.invite-countdown {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  margin: 0 0 26px;
+}
+
+.invite-countdown__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.invite-countdown__num {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 28px;
+  color: var(--simcha-red);
+  line-height: 1;
+}
+
+.invite-countdown__label {
+  font-size: 10px;
+  color: var(--simcha-ink-muted);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.invite-schedule,
+.invite-arrival,
+.invite-gift {
+  max-width: 420px;
+  margin: 0 auto 26px;
+}
+
+.invite-schedule__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.invite-schedule__row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.invite-schedule__time {
+  font-family: 'Frank Ruhl Libre', serif;
+  color: var(--simcha-red);
+  min-width: 44px;
+  text-align: center;
+}
+
+.invite-schedule__label {
+  color: var(--simcha-ink);
+}
+
+.invite-map-link {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  color: var(--simcha-red);
+  text-decoration: none;
+  margin-bottom: 6px;
+}
+
+.invite-map-link:hover {
+  text-decoration: underline;
+}
+
+.invite-arrival__parking {
+  margin-bottom: 0;
+}
+
+.invite-bank-details {
+  white-space: pre-wrap;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  color: var(--simcha-ink);
+  text-align: center;
+  background: transparent;
+  margin: 10px 0 0;
 }
 
 .invite-field label {
@@ -177,6 +275,84 @@
   color: var(--simcha-red);
   font-size: 11px;
   margin: 5px 0 0;
+}
+
+.invite-attend-toggle {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.invite-attend-option {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--simcha-line);
+  border-radius: 999px;
+  background: transparent;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  color: var(--simcha-ink);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.invite-attend-option:hover {
+  border-color: var(--simcha-gold);
+}
+
+.invite-attend-option--selected {
+  background: var(--simcha-red);
+  border-color: var(--simcha-red);
+  color: #fff;
+}
+
+.invite-dietary {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--simcha-line);
+  border-radius: 6px;
+  background: transparent;
+  padding: 8px 10px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  color: var(--simcha-ink);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.invite-dietary:focus {
+  border-color: var(--simcha-red);
+}
+
+.invite-checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px !important;
+  color: var(--simcha-ink) !important;
+  letter-spacing: normal !important;
+  cursor: pointer;
+}
+
+.invite-checkbox-label input[type='checkbox'] {
+  width: auto !important;
+  border: none !important;
+  accent-color: var(--simcha-red);
+}
+
+.invite-party-size-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.invite-party-size-input {
+  width: 56px !important;
+  text-align: center;
 }
 
 .seed-row {

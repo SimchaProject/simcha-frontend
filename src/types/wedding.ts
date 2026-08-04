@@ -1,3 +1,33 @@
+export interface ScheduleEntry {
+  time: string
+  label: string
+}
+
+export interface GuestPageConfig {
+  id: string
+  weddingId: string
+  theme: string
+  welcomeMessage: string | null
+  heroPhotoUrl: string | null
+  // Couple-authored day-of timeline.
+  schedule: ScheduleEntry[]
+  ceremonyTime: string | null
+  rsvpDeadline: string | null
+  dressCode: string | null
+  mapUrl: string | null
+  parkingInfo: string | null
+  payboxLink: string | null
+  bankTransferDetails: string | null
+  // Used server-side to build the guest's post-RSVP wa.me link. Never sent
+  // to the public invite page.
+  contactPhone: string | null
+}
+
+// Partial update body for PATCH /weddings/:weddingId/guest-page-config.
+export type GuestPageConfigUpdate = Partial<
+  Omit<GuestPageConfig, 'id' | 'weddingId'>
+>
+
 export interface Wedding {
   id: string
   slug: string
@@ -8,46 +38,48 @@ export interface Wedding {
   createdBy: string
   createdAt: string
   updatedAt: string
+  guestPageConfig: GuestPageConfig
+}
+
+// What the public invite page gets - deliberately narrower than Wedding
+// (no createdBy/timestamps/contactPhone), served unauthenticated by slug.
+export interface PublicGuestPageConfig {
+  theme: string
+  welcomeMessage: string | null
+  heroPhotoUrl: string | null
+  schedule: ScheduleEntry[]
+  ceremonyTime: string | null
+  rsvpDeadline: string | null
+  dressCode: string | null
+  mapUrl: string | null
+  parkingInfo: string | null
+  payboxLink: string | null
+  bankTransferDetails: string | null
+}
+
+export interface PublicWeddingInfo {
+  id: string
+  slug: string
+  coupleNameA: string
+  coupleNameB: string
+  date: string
+  venue: string
+  guestPageConfig: PublicGuestPageConfig
 }
 
 export interface GuestPageConfigInput {
   theme: string
   welcomeMessage?: string
   heroPhotoUrl?: string
+  schedule?: ScheduleEntry[]
   ceremonyTime?: string
   rsvpDeadline?: string
   dressCode?: string
+  mapUrl?: string
+  parkingInfo?: string
+  payboxLink?: string
+  bankTransferDetails?: string
   contactPhone?: string
-}
-
-export interface GuestPageConfig {
-  id: string
-  weddingId: string
-  theme: string
-  welcomeMessage: string | null
-  heroPhotoUrl: string | null
-  ceremonyTime: string | null
-  rsvpDeadline: string | null
-  dressCode: string | null
-  contactPhone: string | null
-}
-
-export interface PublicGuestPageConfig {
-  theme: string
-  welcomeMessage: string | null
-  heroPhotoUrl: string | null
-  ceremonyTime: string | null
-  rsvpDeadline: string | null
-  dressCode: string | null
-}
-
-export interface PublicWedding {
-  coupleNameA: string
-  coupleNameB: string
-  date: string
-  venue: string
-  slug: string
-  guestPageConfig: PublicGuestPageConfig | null
 }
 
 export interface CreateWeddingPayload {

@@ -1,16 +1,31 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDashboard } from './dashboard-context'
 import { guestsApi } from '../../api/guests'
 import { guestGroupsApi } from '../../api/guestGroups'
-import type { Guest, GuestGroup, RsvpStatus } from '../../types/guest'
-import { CsvImportModal } from '../../components/guests/CsvImportModal'
+import type { Guest, GuestGroup, RsvpStatus } from '../../types/guests'
+import type { RsvpSubmittedEvent } from '../../types/rsvp'
+import { ImportModal } from '../../components/guests/ImportModal'
+import { ReminderButton } from '../../components/guests/ReminderButton'
+import { RsvpLiveFeed } from '../../components/guests/RsvpLiveFeed'
+import { buildWaLink } from '../../utils/whatsapp'
 import './guests.css'
 
 const STATUS_LABELS: Record<RsvpStatus, string> = {
-  pending: 'ממתין',
-  confirmed: 'מאושר',
-  declined: 'לא מגיע',
+  PENDING: 'ממתין',
+  ATTENDING: 'מאושר',
+  DECLINED: 'לא מגיע',
 }
+
+// The dropdown's CSS was authored against the older pending/confirmed/declined
+// vocabulary - map to it here rather than rename those style rules.
+const STATUS_CSS_SUFFIX: Record<RsvpStatus, string> = {
+  PENDING: 'pending',
+  ATTENDING: 'confirmed',
+  DECLINED: 'declined',
+}
+
+const POLL_INTERVAL_MS = 8000
+const MAX_RECENT_EVENTS = 20
 
 const NO_GROUP = ''
 
@@ -34,12 +49,26 @@ function guestPayload(draft: GuestDraft) {
   }
 }
 
+function toRsvpEvent(guest: Guest): RsvpSubmittedEvent {
+  return {
+    guestId: guest.id,
+    name: guest.name,
+    partySize: guest.partySize,
+    rsvpStatus: guest.rsvpStatus,
+    dietaryNotes: guest.dietaryNotes,
+    respondedAt: guest.respondedAt ?? new Date().toISOString(),
+    timestamp: new Date().toISOString(),
+  }
+}
+
 export function GuestsPage() {
   const { wedding } = useDashboard()
   const [guests, setGuests] = useState<Guest[]>([])
   const [groups, setGroups] = useState<GuestGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [recentEvents, setRecentEvents] = useState<RsvpSubmittedEvent[]>([])
+  const previousGuestsRef = useRef<Guest[] | null>(null)
 
   const [newGuest, setNewGuest] = useState<GuestDraft>(emptyDraft)
   const [adding, setAdding] = useState(false)
@@ -58,11 +87,31 @@ export function GuestsPage() {
   const [newGroupName, setNewGroupName] = useState('')
   const [showCsvModal, setShowCsvModal] = useState(false)
 
+  const load = () => {
+    guestsApi.list(wedding.id).then((fresh) => {
+      const previous = previousGuestsRef.current
+      if (previous) {
+        const changed = fresh.filter((g) => {
+          const old = previous.find((p) => p.id === g.id)
+          return old && (old.rsvpStatus !== g.rsvpStatus || old.respondedAt !== g.respondedAt)
+        })
+        if (changed.length > 0) {
+          setRecentEvents((prev) =>
+            [...changed.map(toRsvpEvent), ...prev].slice(0, MAX_RECENT_EVENTS),
+          )
+        }
+      }
+      previousGuestsRef.current = fresh
+      setGuests(fresh)
+    })
+  }
+
   useEffect(() => {
     let cancelled = false
     Promise.all([guestsApi.list(wedding.id), guestGroupsApi.list(wedding.id)])
       .then(([guestList, groupList]) => {
         if (cancelled) return
+        previousGuestsRef.current = guestList
         setGuests(guestList)
         setGroups(groupList)
         setLoading(false)
@@ -78,10 +127,21 @@ export function GuestsPage() {
     }
   }, [wedding.id])
 
+  // Live updates via polling + diffing against the previous snapshot - no
+  // Redis/SSE, plenty fast enough at guest-list scale.
+  const loadRef = useRef(load)
+  useEffect(() => {
+    loadRef.current = load
+  })
+  useEffect(() => {
+    const interval = setInterval(() => loadRef.current(), POLL_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [])
+
   const stats = useMemo(() => {
-    const confirmed = guests.filter((g) => g.rsvpStatus === 'confirmed')
-    const pending = guests.filter((g) => g.rsvpStatus === 'pending')
-    const declined = guests.filter((g) => g.rsvpStatus === 'declined')
+    const confirmed = guests.filter((g) => g.rsvpStatus === 'ATTENDING')
+    const pending = guests.filter((g) => g.rsvpStatus === 'PENDING')
+    const declined = guests.filter((g) => g.rsvpStatus === 'DECLINED')
     return {
       total: guests.length,
       totalParty: guests.reduce((sum, g) => sum + g.partySize, 0),
@@ -106,6 +166,16 @@ export function GuestsPage() {
     })
   }, [guests, search, statusFilter, sortKey, sortDir])
 
+  const selectedGuests = useMemo(
+    () => guests.filter((g) => selectedIds.has(g.id)),
+    [guests, selectedIds],
+  )
+  const selectedWithPhone = useMemo(
+    () => selectedGuests.filter((g): g is Guest & { phone: string } => Boolean(g.phone)),
+    [selectedGuests],
+  )
+  const inviteUrl = `${window.location.origin}/w/${wedding.slug}`
+
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -124,6 +194,7 @@ export function GuestsPage() {
     try {
       const created = await guestsApi.create(wedding.id, guestPayload(newGuest))
       setGuests((prev) => [...prev, created])
+      previousGuestsRef.current = [...(previousGuestsRef.current ?? []), created]
       setNewGuest(emptyDraft)
     } catch {
       setAddError('נא לוודא שהשם והטלפון תקינים.')
@@ -270,24 +341,38 @@ export function GuestsPage() {
               ))}
             </select>
           </td>
-          <td colSpan={2} className="dash-guest-table__edit-actions">
-            <button type="button" onClick={() => saveEdit(guest.id)}>
-              שמרו
-            </button>
-            <button type="button" onClick={cancelEdit}>
-              ביטול
-            </button>
+          <td colSpan={2}>
+            <div className="dash-guest-table__edit-actions">
+              <button type="button" onClick={() => saveEdit(guest.id)}>
+                שמרו
+              </button>
+              <button type="button" onClick={cancelEdit}>
+                ביטול
+              </button>
+            </div>
           </td>
         </>
       ) : (
         <>
-          <td>{guest.name}</td>
+          <td>
+            {guest.name}
+            {guest.dietaryNotes && (
+              <span className="dash-guest-note" title={guest.dietaryNotes}>
+                🍽️
+              </span>
+            )}
+            {guest.needsTransport && (
+              <span className="dash-guest-note" title="צריך/ה הסעה מאורגנת">
+                🚌
+              </span>
+            )}
+          </td>
           <td dir="ltr">{guest.phone ?? '—'}</td>
           <td>{guest.partySize}</td>
           <td>{groups.find((g) => g.id === guest.groupId)?.name ?? '—'}</td>
           <td>
             <select
-              className={`dash-status-select dash-status-select--${guest.rsvpStatus}`}
+              className={`dash-status-select dash-status-select--${STATUS_CSS_SUFFIX[guest.rsvpStatus]}`}
               value={guest.rsvpStatus}
               onChange={(e) => handleStatusChange(guest.id, e.target.value as RsvpStatus)}
             >
@@ -298,13 +383,16 @@ export function GuestsPage() {
               ))}
             </select>
           </td>
-          <td className="dash-guest-table__actions">
-            <button type="button" onClick={() => startEdit(guest)}>
-              ערכו
-            </button>
-            <button type="button" onClick={() => handleDelete(guest.id)}>
-              הסירו
-            </button>
+          <td>
+            <div className="dash-guest-table__actions">
+              <ReminderButton guest={guest} />
+              <button type="button" onClick={() => startEdit(guest)}>
+                ערכו
+              </button>
+              <button type="button" onClick={() => handleDelete(guest.id)}>
+                הסירו
+              </button>
+            </div>
           </td>
         </>
       )}
@@ -373,6 +461,8 @@ export function GuestsPage() {
         <p className="dash-page-title">אורחים</p>
         <p className="dash-page-sub">{guests.length} אורחים ברשימה</p>
       </div>
+
+      <RsvpLiveFeed events={recentEvents} />
 
       <div className="dash-stats-grid">
         <div className="dash-stat-card">
@@ -480,13 +570,13 @@ export function GuestsPage() {
       {selectedIds.size > 0 && (
         <div className="dash-bulk-bar">
           <span>{selectedIds.size} נבחרו</span>
-          <button type="button" onClick={() => bulkSetStatus('confirmed')}>
+          <button type="button" onClick={() => bulkSetStatus('ATTENDING')}>
             סמנו כמאושר
           </button>
-          <button type="button" onClick={() => bulkSetStatus('pending')}>
+          <button type="button" onClick={() => bulkSetStatus('PENDING')}>
             סמנו כממתין
           </button>
-          <button type="button" onClick={() => bulkSetStatus('declined')}>
+          <button type="button" onClick={() => bulkSetStatus('DECLINED')}>
             סמנו כלא מגיע
           </button>
           <button type="button" className="dash-bulk-bar__delete" onClick={bulkDelete}>
@@ -495,6 +585,26 @@ export function GuestsPage() {
           <button type="button" className="dash-bulk-bar__clear" onClick={() => setSelectedIds(new Set())}>
             נקו בחירה
           </button>
+        </div>
+      )}
+
+      {selectedIds.size > 0 && selectedWithPhone.length > 0 && (
+        <div className="dash-bulk-wa-row">
+          <span>שליחת הזמנה בוואטסאפ:</span>
+          {selectedWithPhone.map((guest) => (
+            <a
+              key={guest.id}
+              className="dash-guest-btn"
+              href={buildWaLink(
+                guest.phone,
+                `היי ${guest.name}! מוזמנים לחתונה של ${wedding.coupleNameA} ו${wedding.coupleNameB}. לאישור הגעה: ${inviteUrl}`,
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {guest.name}
+            </a>
+          ))}
         </div>
       )}
 
@@ -552,10 +662,10 @@ export function GuestsPage() {
       )}
 
       {showCsvModal && (
-        <CsvImportModal
+        <ImportModal
           weddingId={wedding.id}
           onClose={() => setShowCsvModal(false)}
-          onImported={(created) => setGuests((prev) => [...prev, ...created])}
+          onImported={load}
         />
       )}
     </div>

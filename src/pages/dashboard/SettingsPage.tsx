@@ -2,15 +2,33 @@ import { useEffect, useState } from 'react'
 import { useDashboard } from './dashboard-context'
 import { weddingApi } from '../../api/wedding'
 import { DatePicker } from '../../components/ui/DatePicker'
+import type { ScheduleEntry } from '../../types/wedding'
 import '../WizardPage.css'
+import './guests.css'
+
+interface ScheduleDraft {
+  id: string
+  time: string
+  label: string
+}
+
+function newScheduleEntry(): ScheduleDraft {
+  return { id: crypto.randomUUID(), time: '', label: '' }
+}
 
 export function SettingsPage() {
   const { wedding } = useDashboard()
   const [loading, setLoading] = useState(true)
   const [welcomeMessage, setWelcomeMessage] = useState('')
+  const [heroPhotoUrl, setHeroPhotoUrl] = useState('')
+  const [schedule, setSchedule] = useState<ScheduleDraft[]>([])
   const [ceremonyTime, setCeremonyTime] = useState('')
   const [rsvpDeadline, setRsvpDeadline] = useState('')
   const [dressCode, setDressCode] = useState('')
+  const [mapUrl, setMapUrl] = useState('')
+  const [parkingInfo, setParkingInfo] = useState('')
+  const [payboxLink, setPayboxLink] = useState('')
+  const [bankTransferDetails, setBankTransferDetails] = useState('')
   const [contactPhone, setContactPhone] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -21,9 +39,15 @@ export function SettingsPage() {
     weddingApi.getGuestPageConfig(wedding.id).then((config) => {
       if (cancelled) return
       setWelcomeMessage(config.welcomeMessage ?? '')
+      setHeroPhotoUrl(config.heroPhotoUrl ?? '')
+      setSchedule(config.schedule.map((entry) => ({ id: crypto.randomUUID(), ...entry })))
       setCeremonyTime(config.ceremonyTime ?? '')
       setRsvpDeadline(config.rsvpDeadline ?? '')
       setDressCode(config.dressCode ?? '')
+      setMapUrl(config.mapUrl ?? '')
+      setParkingInfo(config.parkingInfo ?? '')
+      setPayboxLink(config.payboxLink ?? '')
+      setBankTransferDetails(config.bankTransferDetails ?? '')
       setContactPhone(config.contactPhone ?? '')
       setLoading(false)
     })
@@ -34,16 +58,37 @@ export function SettingsPage() {
 
   const inviteUrl = `${window.location.origin}/w/${wedding.slug}`
 
+  const updateScheduleEntry = (id: string, patch: Partial<ScheduleDraft>) => {
+    setSchedule((prev) => prev.map((entry) => (entry.id === id ? { ...entry, ...patch } : entry)))
+  }
+
+  const removeScheduleEntry = (id: string) => {
+    setSchedule((prev) => prev.filter((entry) => entry.id !== id))
+  }
+
+  const addScheduleEntry = () => {
+    setSchedule((prev) => [...prev, newScheduleEntry()])
+  }
+
   const handleSave = async () => {
     setSaving(true)
     setSaved(false)
     setError(null)
     try {
+      const cleanSchedule: ScheduleEntry[] = schedule
+        .filter((entry) => entry.time.trim() && entry.label.trim())
+        .map(({ time, label }) => ({ time: time.trim(), label: label.trim() }))
       await weddingApi.updateGuestPageConfig(wedding.id, {
         welcomeMessage: welcomeMessage.trim() || undefined,
+        heroPhotoUrl: heroPhotoUrl.trim() || undefined,
+        schedule: cleanSchedule,
         ceremonyTime: ceremonyTime || undefined,
         rsvpDeadline: rsvpDeadline || undefined,
         dressCode: dressCode.trim() || undefined,
+        mapUrl: mapUrl.trim() || undefined,
+        parkingInfo: parkingInfo.trim() || undefined,
+        payboxLink: payboxLink.trim() || undefined,
+        bankTransferDetails: bankTransferDetails.trim() || undefined,
         contactPhone: contactPhone.replace(/[\s-]/g, '') || undefined,
       })
       setSaved(true)
@@ -94,6 +139,16 @@ export function SettingsPage() {
           />
         </div>
 
+        <div className="wizard-field">
+          <label htmlFor="settings-hero-photo">קישור לתמונת רקע</label>
+          <input
+            id="settings-hero-photo"
+            type="text"
+            value={heroPhotoUrl}
+            onChange={(e) => setHeroPhotoUrl(e.target.value)}
+          />
+        </div>
+
         <div className="wizard-field-row">
           <div className="wizard-field">
             <label htmlFor="settings-ceremony-time">שעת האירוע</label>
@@ -136,6 +191,83 @@ export function SettingsPage() {
             value={dressCode}
             onChange={(e) => setDressCode(e.target.value)}
             placeholder="לדוגמה: אלגנט"
+          />
+        </div>
+
+        <div className="wizard-field">
+          <label>סדר יום</label>
+          <div className="settings-rows">
+            {schedule.map((entry) => (
+              <div className="settings-row" key={entry.id}>
+                <input
+                  type="text"
+                  className="settings-row__time"
+                  value={entry.time}
+                  onChange={(e) => updateScheduleEntry(entry.id, { time: e.target.value })}
+                  placeholder="17:00"
+                />
+                <input
+                  type="text"
+                  className="settings-row__label"
+                  value={entry.label}
+                  onChange={(e) => updateScheduleEntry(entry.id, { label: e.target.value })}
+                  placeholder="קבלת פנים"
+                />
+                <button
+                  type="button"
+                  className="settings-row__remove"
+                  onClick={() => removeScheduleEntry(entry.id)}
+                  aria-label="הסרת שורה"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button type="button" className="dash-guest-btn" onClick={addScheduleEntry}>
+              + הוספת שורה
+            </button>
+          </div>
+        </div>
+
+        <div className="wizard-field">
+          <label htmlFor="settings-map-url">קישור ניווט (Waze / Google Maps)</label>
+          <input
+            id="settings-map-url"
+            type="text"
+            value={mapUrl}
+            onChange={(e) => setMapUrl(e.target.value)}
+            placeholder="https://waze.com/..."
+          />
+        </div>
+
+        <div className="wizard-field">
+          <label htmlFor="settings-parking">הוראות חניה</label>
+          <textarea
+            id="settings-parking"
+            rows={2}
+            value={parkingInfo}
+            onChange={(e) => setParkingInfo(e.target.value)}
+          />
+        </div>
+
+        <div className="wizard-field">
+          <label htmlFor="settings-paybox">קישור PayBox</label>
+          <input
+            id="settings-paybox"
+            type="text"
+            value={payboxLink}
+            onChange={(e) => setPayboxLink(e.target.value)}
+            placeholder="https://paybox.co.il/..."
+          />
+        </div>
+
+        <div className="wizard-field">
+          <label htmlFor="settings-bank">פרטי העברה בנקאית</label>
+          <textarea
+            id="settings-bank"
+            rows={3}
+            value={bankTransferDetails}
+            onChange={(e) => setBankTransferDetails(e.target.value)}
           />
         </div>
 
