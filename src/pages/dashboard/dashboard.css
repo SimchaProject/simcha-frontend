@@ -154,6 +154,13 @@
   }
 }
 
+.dash-page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+}
+
 /* shared section styles used across dashboard sub-pages */
 
 .dash-page-header {
@@ -284,6 +291,17 @@
 .dash-guest-add-row input:nth-child(3) {
   flex: 0.6;
   min-width: 60px;
+}
+
+.dash-guest-add-row select {
+  border: 1px solid var(--simcha-line);
+  border-radius: 14px;
+  background: transparent;
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  padding: 6px 10px;
+  color: var(--simcha-ink-muted);
+  cursor: pointer;
 }
 
 .dash-guest-add-row button {

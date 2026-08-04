@@ -1,5 +1,11 @@
 import { http } from './http'
-import type { OptimizeResponse, SeatingSnapshot } from '../types/seating'
+import type {
+  CreateTablePayload,
+  OptimizeResponse,
+  SeatingSnapshot,
+  SeatingTable,
+  UpdateTablePayload,
+} from '../types/seating'
 
 export const seatingApi = {
   getSnapshot: (weddingId: string) =>
@@ -11,6 +17,15 @@ export const seatingApi = {
   reoptimize: (weddingId: string) =>
     http.post<OptimizeResponse>(`/weddings/${weddingId}/seating/reoptimize`),
 
-  overrideAssignment: (weddingId: string, assignmentId: string, tableId: string | null) =>
-    http.patch(`/weddings/${weddingId}/seating/assignments/${assignmentId}`, { tableId }),
+  assignGuest: (weddingId: string, guestId: string, tableId: string | null) =>
+    http.patch(`/weddings/${weddingId}/seating/guests/${guestId}/assignment`, { tableId }),
+
+  createTable: (weddingId: string, payload: CreateTablePayload) =>
+    http.post<SeatingTable>(`/weddings/${weddingId}/seating/tables`, payload),
+
+  updateTable: (weddingId: string, tableId: string, payload: UpdateTablePayload) =>
+    http.patch<SeatingTable>(`/weddings/${weddingId}/seating/tables/${tableId}`, payload),
+
+  deleteTable: (weddingId: string, tableId: string) =>
+    http.delete<void>(`/weddings/${weddingId}/seating/tables/${tableId}`),
 }

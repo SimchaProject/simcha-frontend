@@ -14,16 +14,18 @@ export function UnseatedBucket({ assignments }: Props) {
   return (
     <div
       ref={setNodeRef}
-      className={`seating-table seating-table--unseated${isOver ? ' seating-table--over' : ''}`}
+      className={`dash-unseated${isOver ? ' dash-unseated--over' : ''}`}
     >
-      <div className="seating-table__header">
-        <strong>Unseated</strong>
-        <span className="seating-table__capacity seating-table__capacity--ok">{assignments.length}</span>
+      <div className="dash-unseated__header">
+        <strong>ללא הושבה</strong>
+        <span className="dash-table__capacity dash-table__capacity--ok">{assignments.length}</span>
       </div>
-      <div className="seating-table__guests">
-        {assignments.length === 0 && <div className="seating-table__empty">Drag a guest here to unseat them</div>}
+      <div className="dash-unseated__guests">
+        {assignments.length === 0 && (
+          <div className="dash-unseated__empty">גררו לכאן אורח כדי להוציא אותו מהושבה</div>
+        )}
         {assignments.map((a) => (
-          <GuestChip key={a.id} assignment={a} moved={a.tableId !== a.originalTableId} />
+          <GuestChip key={a.guestId} assignment={a} moved={a.tableId !== a.originalTableId} />
         ))}
       </div>
     </div>

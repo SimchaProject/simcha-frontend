@@ -15,7 +15,7 @@ import { ComingSoonPage } from './pages/dashboard/ComingSoonPage.tsx'
 import { SettingsPage } from './pages/dashboard/SettingsPage.tsx'
 import { WizardPage } from './pages/WizardPage.tsx'
 import { InvitePage } from './pages/InvitePage.tsx'
-import { SeatingPage } from './pages/SeatingPage.tsx'
+import { SeatingPage } from './pages/dashboard/SeatingPage.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -35,15 +35,7 @@ createRoot(document.getElementById('root')!).render(
           >
             <Route index element={<OverviewPage />} />
             <Route path="guests" element={<GuestsPage />} />
-            <Route
-              path="seating"
-              element={
-                <ComingSoonPage
-                  title="סידור הושבה"
-                  description="מנוע סידור ההושבה עדיין בבנייה ויהיה זמין כאן בקרוב."
-                />
-              }
-            />
+            <Route path="seating" element={<SeatingPage />} />
             <Route
               path="budget"
               element={
@@ -67,7 +59,6 @@ createRoot(document.getElementById('root')!).render(
             }
           />
           <Route path="/w/:weddingSlug" element={<InvitePage />} />
-          <Route path="/weddings/:weddingId/seating" element={<SeatingPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
