@@ -10,16 +10,18 @@ interface ContentProps {
 export function GuestChipContent({ assignment, moved }: ContentProps) {
   return (
     <>
-      <span className="guest-chip__avatar" style={{ background: avatarColor(assignment.guestName) }}>
+      <span className="dash-guest-chip__avatar" style={{ background: avatarColor(assignment.guestName) }}>
         {initials(assignment.guestName)}
       </span>
-      <span className="guest-chip__name">{assignment.guestName}</span>
+      <span className="dash-guest-chip__name">{assignment.guestName}</span>
       {assignment.locked && (
-        <span className="guest-chip__lock" title="Manually placed">
+        <span className="dash-guest-chip__lock" title="הוזז ידנית">
           🔒
         </span>
       )}
-      {moved && !assignment.locked && <span className="guest-chip__moved-dot" title="Moved by re-optimize" />}
+      {moved && !assignment.locked && (
+        <span className="dash-guest-chip__moved-dot" title="הוזז על ידי אופטימיזציה מחדש" />
+      )}
     </>
   )
 }
@@ -31,7 +33,7 @@ interface Props {
 
 export function GuestChip({ assignment, moved }: Props) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: assignment.id,
+    id: assignment.guestId,
   })
 
   return (
@@ -39,7 +41,7 @@ export function GuestChip({ assignment, moved }: Props) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`guest-chip${assignment.locked ? ' guest-chip--locked' : ''}${moved ? ' guest-chip--moved' : ''}${isDragging ? ' guest-chip--dragging' : ''}`}
+      className={`dash-guest-chip${assignment.locked ? ' dash-guest-chip--locked' : ''}${moved ? ' dash-guest-chip--moved' : ''}${isDragging ? ' dash-guest-chip--dragging' : ''}`}
     >
       <GuestChipContent assignment={assignment} moved={moved} />
     </div>

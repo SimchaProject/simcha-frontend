@@ -3,10 +3,25 @@ export interface SeatingTable {
   weddingId: string
   label: string
   capacity: number
+  x: number
+  y: number
+}
+
+export interface CreateTablePayload {
+  label: string
+  capacity: number
+  x?: number
+  y?: number
+}
+
+export interface UpdateTablePayload {
+  label?: string
+  capacity?: number
+  x?: number
+  y?: number
 }
 
 export interface SeatAssignment {
-  id: string
   guestId: string
   guestName: string
   tableId: string | null

@@ -1,16 +1,3 @@
-export interface BudgetCategoryDraft {
-  id: string
-  name: string
-  allocatedAmount: string
-}
-
-export interface VendorDraft {
-  id: string
-  name: string
-  category: string
-  contactInfo: string
-}
-
 export interface WizardData {
   step: number
   coupleNameA: string
@@ -22,12 +9,13 @@ export interface WizardData {
   theme: string
   welcomeMessage: string
   heroPhotoName: string
-  totalBudget: string
-  budgetCategories: BudgetCategoryDraft[]
-  vendors: VendorDraft[]
+  ceremonyTime: string
+  rsvpDeadline: string
+  dressCode: string
+  contactPhone: string
 }
 
-export const WIZARD_STEP_COUNT = 5
+export const WIZARD_STEP_COUNT = 4
 
 export const initialWizardData: WizardData = {
   step: 1,
@@ -40,7 +28,8 @@ export const initialWizardData: WizardData = {
   theme: 'classic',
   welcomeMessage: '',
   heroPhotoName: '',
-  totalBudget: '',
-  budgetCategories: [],
-  vendors: [],
+  ceremonyTime: '',
+  rsvpDeadline: '',
+  dressCode: '',
+  contactPhone: '',
 }

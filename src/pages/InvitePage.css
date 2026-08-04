@@ -1,9 +1,11 @@
 .invite-page {
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   display: flex;
   justify-content: center;
   padding: 40px 20px;
-  background: #f1efe8;
+  background: var(--simcha-paper);
   font-family: 'Rubik', sans-serif;
   box-sizing: border-box;
 }
@@ -16,10 +18,10 @@
 
 .invite-card {
   width: 100%;
-  max-width: 660px;
+  max-width: 760px;
   height: fit-content;
   margin: auto 0;
-  background: var(--simcha-paper);
+  background: var(--simcha-paper-dark);
   color: var(--simcha-ink);
   padding: 34px 36px 30px;
   clip-path: polygon(
@@ -44,11 +46,23 @@
     100% 100%,
     0% 100%
   );
-  border-left: 0.5px solid var(--simcha-line);
-  border-right: 0.5px solid var(--simcha-line);
-  border-bottom: 0.5px solid var(--simcha-line);
+  box-shadow: 0 18px 40px rgba(36, 26, 20, 0.12);
   animation: invite-fade-in 0.5s ease both;
   box-sizing: border-box;
+}
+
+@media (max-width: 560px) {
+  .invite-page {
+    padding: 24px 12px;
+  }
+
+  .invite-card {
+    padding: 30px 22px 26px;
+  }
+
+  .invite-names {
+    font-size: 38px;
+  }
 }
 
 @keyframes invite-fade-in {
@@ -86,7 +100,20 @@
   text-align: center;
   font-size: 14px;
   color: var(--simcha-ink-muted);
-  margin: 0 0 26px;
+  margin: 0 0 10px;
+}
+
+.invite-subline:last-of-type {
+  margin-bottom: 26px;
+}
+
+.invite-welcome {
+  text-align: center;
+  font-size: 13px;
+  color: var(--simcha-ink);
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto 18px;
 }
 
 .invite-section-title {
@@ -190,55 +217,6 @@
   display: flex;
   justify-content: center;
   padding-top: 8px;
-}
-
-.wax-seal {
-  width: 78px;
-  height: 78px;
-  border-radius: 50%;
-  border: 2px solid var(--simcha-red);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Frank Ruhl Libre', serif;
-  color: var(--simcha-red);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  background: transparent;
-  text-decoration: none;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.wax-seal:hover:not(:disabled) {
-  box-shadow: 0 6px 16px rgba(178, 58, 46, 0.25);
-}
-
-.wax-seal:active:not(:disabled) {
-  transform: rotate(-6deg) scale(0.96);
-}
-
-.wax-seal:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.wax-seal__spinner {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid rgba(178, 58, 46, 0.25);
-  border-top-color: var(--simcha-red);
-  animation: wax-seal-spin 0.7s linear infinite;
-}
-
-@keyframes wax-seal-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .wa-note,

@@ -6,5 +6,5 @@ export interface RsvpPayload {
 
 export interface RsvpResponse {
   id: string
-  whatsappUrl: string
+  whatsappUrl: string | null
 }

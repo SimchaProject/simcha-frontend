@@ -62,7 +62,7 @@ export function SignupPage() {
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className={`auth-field${errors.name ? ' auth-field--error' : ''}`}>
-            <label htmlFor="signup-name">שם מלא</label>
+            <label htmlFor="signup-name">מי מתחתנים?</label>
             <input
               id="signup-name"
               type="text"
@@ -71,7 +71,7 @@ export function SignupPage() {
                 setName(e.target.value)
                 if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }))
               }}
-              placeholder="לדוגמה: רותם ועידן"
+              placeholder="לדוגמה: נועה ואיתי"
               autoComplete="name"
             />
             {errors.name && <p className="auth-field__error">{errors.name}</p>}
