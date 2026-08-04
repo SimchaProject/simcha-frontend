@@ -665,10 +665,7 @@ export function GuestsPage() {
         <ImportModal
           weddingId={wedding.id}
           onClose={() => setShowCsvModal(false)}
-          onImported={() => {
-            setShowCsvModal(false)
-            load()
-          }}
+          onImported={load}
         />
       )}
     </div>
