@@ -13,6 +13,8 @@ interface PreviewRow {
   reason?: string
 }
 
+const EXCEL_EXTENSION = /\.xlsx?$/i
+
 function getField(record: Record<string, string>, field: string): string {
   const key = Object.keys(record).find((k) => k.trim().toLowerCase() === field)
   return key ? (record[key] ?? '').trim() : ''
@@ -44,6 +46,7 @@ export function ImportModal({ weddingId, onClose, onImported }: ImportModalProps
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<BulkImportResult | null>(null)
+  const [isExcel, setIsExcel] = useState(false)
 
   const handleFile = (selected: File | null) => {
     setFile(selected)
@@ -51,6 +54,15 @@ export function ImportModal({ weddingId, onClose, onImported }: ImportModalProps
     setError(null)
     setPreviewRows(null)
     if (!selected) return
+
+    // Papa.parse only understands CSV text - Excel's binary format gets a
+    // simple "file selected" state instead of a row-by-row preview. The
+    // backend still parses and validates the actual file either way.
+    if (EXCEL_EXTENSION.test(selected.name)) {
+      setIsExcel(true)
+      return
+    }
+    setIsExcel(false)
 
     Papa.parse<Record<string, string>>(selected, {
       header: true,
@@ -82,10 +94,20 @@ export function ImportModal({ weddingId, onClose, onImported }: ImportModalProps
   return (
     <div className="import-modal-overlay" onClick={onClose}>
       <div className="import-modal" onClick={(e) => e.stopPropagation()}>
-        <h2>ייבוא אורחים מקובץ CSV</h2>
-        <p className="import-modal__hint">קובץ Excel? שמרו כ-CSV לפני ההעלאה.</p>
+        <h2>ייבוא אורחים מקובץ</h2>
+        <p className="import-modal__hint">קובצי CSV ו-Excel (.xlsx) נתמכים.</p>
 
-        <input type="file" accept=".csv" onChange={(e) => handleFile(e.target.files?.[0] ?? null)} />
+        <input
+          type="file"
+          accept=".csv,.xlsx,.xls"
+          onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+        />
+
+        {isExcel && file && !result && (
+          <p className="import-modal__preview-summary">
+            נבחר קובץ Excel: {file.name} — הייבוא יבדוק את כל השורות בשרת.
+          </p>
+        )}
 
         {previewRows && !result && (
           <div className="import-modal__preview">
