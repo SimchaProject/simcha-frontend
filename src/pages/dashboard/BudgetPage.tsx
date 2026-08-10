@@ -1,0 +1,238 @@
+import { useEffect, useRef, useState } from 'react'
+import { useDashboard } from './dashboard-context'
+import { budgetApi } from '../../api/budget'
+import type { BudgetSummary } from '../../types/budget'
+import './budget.css'
+
+const PAYMENT_TYPE_LABELS: Record<string, string> = {
+  DEPOSIT: 'מקדמה',
+  INSTALLMENT: 'תשלום',
+  FINAL: 'תשלום סופי',
+}
+
+export function BudgetPage() {
+  const { wedding } = useDashboard()
+  const [summary, setSummary] = useState<BudgetSummary | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const [totalDraft, setTotalDraft] = useState('')
+  const [savingTotal, setSavingTotal] = useState(false)
+
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryAmount, setNewCategoryAmount] = useState('')
+  const [addingCategory, setAddingCategory] = useState(false)
+
+  // Several actions on this page (save total, add/remove category) all
+  // call load() to refresh, so more than one request can be in flight at
+  // once - guard against an older, slower response overwriting a newer
+  // one when they resolve out of order.
+  const latestRequestId = useRef(0)
+
+  const load = () => {
+    const requestId = ++latestRequestId.current
+    budgetApi
+      .getSummary(wedding.id)
+      .then((result) => {
+        if (requestId !== latestRequestId.current) return
+        setSummary(result)
+        setTotalDraft(String(result.totalAmount))
+        setLoading(false)
+      })
+      .catch(() => {
+        if (requestId !== latestRequestId.current) return
+        setError('לא הצלחנו לטעון את התקציב.')
+        setLoading(false)
+      })
+  }
+
+  useEffect(() => {
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wedding.id])
+
+  const handleSaveTotal = async () => {
+    if (!totalDraft) return
+    setSavingTotal(true)
+    try {
+      await budgetApi.updateBudget(wedding.id, { totalAmount: Number(totalDraft) })
+      load()
+    } catch {
+      setError('לא הצלחנו לשמור את סכום התקציב.')
+    } finally {
+      setSavingTotal(false)
+    }
+  }
+
+  const handleAddCategory = async () => {
+    if (!newCategoryName.trim() || !newCategoryAmount) return
+    setAddingCategory(true)
+    try {
+      await budgetApi.createCategory(wedding.id, {
+        name: newCategoryName.trim(),
+        allocatedAmount: Number(newCategoryAmount),
+      })
+      setNewCategoryName('')
+      setNewCategoryAmount('')
+      load()
+    } catch {
+      setError('לא הצלחנו להוסיף את הקטגוריה.')
+    } finally {
+      setAddingCategory(false)
+    }
+  }
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!window.confirm('להסיר את הקטגוריה?')) return
+    await budgetApi.removeCategory(wedding.id, categoryId)
+    load()
+  }
+
+  if (loading || !summary) {
+    return (
+      <div className="dash-budget">
+        <div className="dash-page-header">
+          <p className="dash-page-title">תקציב</p>
+        </div>
+        <div className="dash-page-loading">
+          <span className="dash-loading__spinner" aria-hidden="true" />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="dash-budget">
+      <div className="dash-page-header">
+        <p className="dash-page-title">תקציב</p>
+        <p className="dash-page-sub">מעקב אחר תקציב, ספקים, ותשלומים</p>
+      </div>
+
+      {error && <p className="dash-guest-error">{error}</p>}
+
+      <div className="dash-stats-grid">
+        <div className="dash-stat-card">
+          <p className="dash-stat-card__value">₪{summary.totalAmount.toLocaleString()}</p>
+          <p className="dash-stat-card__label">תקציב כולל</p>
+        </div>
+        <div className="dash-stat-card">
+          <p className="dash-stat-card__value">₪{summary.totalPaid.toLocaleString()}</p>
+          <p className="dash-stat-card__label">שולם בפועל</p>
+        </div>
+        <div className="dash-stat-card">
+          <p className="dash-stat-card__value">₪{summary.totalRemaining.toLocaleString()}</p>
+          <p className="dash-stat-card__label">נותר</p>
+        </div>
+      </div>
+
+      <div className="dash-budget-total-row">
+        <input
+          type="number"
+          min="0"
+          value={totalDraft}
+          onChange={(e) => setTotalDraft(e.target.value)}
+        />
+        <button type="button" onClick={handleSaveTotal} disabled={savingTotal}>
+          עדכנו תקציב כולל
+        </button>
+      </div>
+
+      <div className="dash-budget-section">
+        <p className="dash-budget-section__title">קטגוריות</p>
+        {summary.categories.length === 0 ? (
+          <p className="dash-page-sub">עדיין אין קטגוריות. הוסיפו למטה.</p>
+        ) : (
+          <div className="dash-budget-categories">
+            {summary.categories.map((category) => {
+              const percent =
+                category.allocatedAmount > 0
+                  ? Math.min(100, Math.round((category.actualAmount / category.allocatedAmount) * 100))
+                  : 0
+              const over = category.actualAmount > category.allocatedAmount
+              return (
+                <div className="dash-budget-category" key={category.id}>
+                  <div className="dash-budget-category__header">
+                    <span>{category.name}</span>
+                    <span>
+                      ₪{category.actualAmount.toLocaleString()} / ₪{category.allocatedAmount.toLocaleString()}
+                    </span>
+                    <button type="button" onClick={() => handleDeleteCategory(category.id)}>
+                      הסירו
+                    </button>
+                  </div>
+                  <div className="dash-budget-bar">
+                    <div
+                      className={`dash-budget-bar__fill${over ? ' dash-budget-bar__fill--over' : ''}`}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        <div className="dash-budget-add-category-row">
+          <input
+            type="text"
+            placeholder="שם קטגוריה"
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+          />
+          <input
+            type="number"
+            min="0"
+            placeholder="סכום מתוקצב"
+            value={newCategoryAmount}
+            onChange={(e) => setNewCategoryAmount(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={handleAddCategory}
+            disabled={addingCategory || !newCategoryName.trim() || !newCategoryAmount}
+          >
+            + הוסיפו קטגוריה
+          </button>
+        </div>
+      </div>
+
+      <div className="dash-budget-section">
+        <p className="dash-budget-section__title dash-budget-section__title--overdue">
+          תשלומים באיחור ({summary.overduePayments.length})
+        </p>
+        {summary.overduePayments.length === 0 ? (
+          <p className="dash-page-sub">אין תשלומים באיחור.</p>
+        ) : (
+          <ul className="dash-budget-payment-list dash-budget-payment-list--overdue">
+            {summary.overduePayments.map((payment) => (
+              <li key={payment.id}>
+                <span>{payment.vendorName}</span>
+                <span>{PAYMENT_TYPE_LABELS[payment.paymentType]}</span>
+                <span>₪{payment.amount.toLocaleString()}</span>
+                <span>{payment.dueDate}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="dash-budget-section">
+        <p className="dash-budget-section__title">תשלומים קרובים ({summary.upcomingPayments.length})</p>
+        {summary.upcomingPayments.length === 0 ? (
+          <p className="dash-page-sub">אין תשלומים קרובים מתוזמנים.</p>
+        ) : (
+          <ul className="dash-budget-payment-list">
+            {summary.upcomingPayments.map((payment) => (
+              <li key={payment.id}>
+                <span>{payment.vendorName}</span>
+                <span>{PAYMENT_TYPE_LABELS[payment.paymentType]}</span>
+                <span>₪{payment.amount.toLocaleString()}</span>
+                <span>{payment.dueDate}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  )
+}
