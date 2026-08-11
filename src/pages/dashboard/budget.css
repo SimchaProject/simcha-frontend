@@ -1,3 +1,10 @@
+.dash-budget-hint {
+  font-size: 12px;
+  margin-top: -6px;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
 .dash-budget-total-row {
   display: flex;
   gap: 10px;
@@ -84,6 +91,7 @@
 }
 
 .dash-budget-bar {
+  position: relative;
   height: 8px;
   border-radius: 6px;
   background: var(--simcha-paper-dark);
@@ -91,13 +99,55 @@
 }
 
 .dash-budget-bar__fill {
+  position: absolute;
+  inset: 0;
   height: 100%;
-  background: var(--simcha-green);
   transition: width 0.3s ease;
+}
+
+/* Committed (contracted, not-yet-paid) sits underneath, lighter - the
+   solid "paid" fill draws on top of it up to however much of that
+   commitment has actually been paid. */
+.dash-budget-bar__fill--committed {
+  background: var(--simcha-gold);
+  opacity: 0.45;
+}
+
+.dash-budget-bar__fill--paid {
+  background: var(--simcha-green);
 }
 
 .dash-budget-bar__fill--over {
   background: var(--simcha-red);
+}
+
+.dash-budget-category__legend {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--simcha-ink-muted);
+  margin-top: 4px;
+}
+
+.dash-budget-category__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dash-budget-category__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dash-budget-category__legend-dot--paid {
+  background: var(--simcha-green);
+}
+
+.dash-budget-category__legend-dot--committed {
+  background: var(--simcha-gold);
 }
 
 .dash-budget-add-category-row {

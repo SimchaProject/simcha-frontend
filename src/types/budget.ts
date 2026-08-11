@@ -26,6 +26,7 @@ export interface BudgetCategorySummary {
   name: string
   allocatedAmount: number
   actualAmount: number
+  committedAmount: number
 }
 
 export interface BudgetPaymentSummary {
@@ -41,7 +42,9 @@ export interface BudgetPaymentSummary {
 export interface BudgetSummary {
   totalAmount: number
   totalPaid: number
+  totalCommitted: number
   totalRemaining: number
+  remainingAfterCommitments: number
   categories: BudgetCategorySummary[]
   upcomingPayments: BudgetPaymentSummary[]
   overduePayments: BudgetPaymentSummary[]

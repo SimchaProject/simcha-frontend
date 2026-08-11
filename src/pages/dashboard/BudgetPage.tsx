@@ -120,10 +120,18 @@ export function BudgetPage() {
           <p className="dash-stat-card__label">שולם בפועל</p>
         </div>
         <div className="dash-stat-card">
-          <p className="dash-stat-card__value">₪{summary.totalRemaining.toLocaleString()}</p>
-          <p className="dash-stat-card__label">נותר</p>
+          <p className="dash-stat-card__value">₪{summary.totalCommitted.toLocaleString()}</p>
+          <p className="dash-stat-card__label">מחויב לספקים</p>
+        </div>
+        <div className="dash-stat-card">
+          <p className="dash-stat-card__value">₪{summary.remainingAfterCommitments.toLocaleString()}</p>
+          <p className="dash-stat-card__label">נותר להקצאה</p>
         </div>
       </div>
+      <p className="dash-page-sub dash-budget-hint">
+        &ldquo;מחויב לספקים&rdquo; = סכום החוזה של כל ספק שסטטוסו &ldquo;הוזמן&rdquo; או &ldquo;שולם&rdquo;, גם אם עוד לא נרשם
+        תשלום בפועל. &ldquo;שולם בפועל&rdquo; מבוסס רק על תשלומים שסומנו כשולמו בלשונית התשלומים של הספק.
+      </p>
 
       <div className="dash-budget-total-row">
         <input
@@ -144,11 +152,15 @@ export function BudgetPage() {
         ) : (
           <div className="dash-budget-categories">
             {summary.categories.map((category) => {
-              const percent =
+              const paidPercent =
                 category.allocatedAmount > 0
                   ? Math.min(100, Math.round((category.actualAmount / category.allocatedAmount) * 100))
                   : 0
-              const over = category.actualAmount > category.allocatedAmount
+              const committedPercent =
+                category.allocatedAmount > 0
+                  ? Math.min(100, Math.round((category.committedAmount / category.allocatedAmount) * 100))
+                  : 0
+              const over = category.committedAmount > category.allocatedAmount
               return (
                 <div className="dash-budget-category" key={category.id}>
                   <div className="dash-budget-category__header">
@@ -162,9 +174,23 @@ export function BudgetPage() {
                   </div>
                   <div className="dash-budget-bar">
                     <div
-                      className={`dash-budget-bar__fill${over ? ' dash-budget-bar__fill--over' : ''}`}
-                      style={{ width: `${percent}%` }}
+                      className="dash-budget-bar__fill dash-budget-bar__fill--committed"
+                      style={{ width: `${committedPercent}%` }}
                     />
+                    <div
+                      className={`dash-budget-bar__fill dash-budget-bar__fill--paid${over ? ' dash-budget-bar__fill--over' : ''}`}
+                      style={{ width: `${paidPercent}%` }}
+                    />
+                  </div>
+                  <div className="dash-budget-category__legend">
+                    <span>
+                      <span className="dash-budget-category__legend-dot dash-budget-category__legend-dot--paid" />
+                      שולם ₪{category.actualAmount.toLocaleString()}
+                    </span>
+                    <span>
+                      <span className="dash-budget-category__legend-dot dash-budget-category__legend-dot--committed" />
+                      מחויב ₪{category.committedAmount.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               )
