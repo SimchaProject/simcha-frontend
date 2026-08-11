@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   // FormData bodies need the browser to set their own multipart boundary in
