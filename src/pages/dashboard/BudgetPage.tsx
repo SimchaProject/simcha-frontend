@@ -23,6 +23,11 @@ export function BudgetPage() {
   const [newCategoryAmount, setNewCategoryAmount] = useState('')
   const [addingCategory, setAddingCategory] = useState(false)
 
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
+  const [editCategoryName, setEditCategoryName] = useState('')
+  const [editCategoryAmount, setEditCategoryAmount] = useState('')
+  const [savingCategory, setSavingCategory] = useState(false)
+
   // Several actions on this page (save total, add/remove category) all
   // call load() to refresh, so more than one request can be in flight at
   // once - guard against an older, slower response overwriting a newer
@@ -86,6 +91,35 @@ export function BudgetPage() {
     if (!window.confirm('להסיר את הקטגוריה?')) return
     await budgetApi.removeCategory(wedding.id, categoryId)
     load()
+  }
+
+  const startEditCategory = (category: BudgetSummary['categories'][number]) => {
+    setEditingCategoryId(category.id)
+    setEditCategoryName(category.name)
+    setEditCategoryAmount(String(category.allocatedAmount))
+  }
+
+  const cancelEditCategory = () => {
+    setEditingCategoryId(null)
+    setEditCategoryName('')
+    setEditCategoryAmount('')
+  }
+
+  const handleSaveCategory = async (categoryId: string) => {
+    if (!editCategoryName.trim() || !editCategoryAmount) return
+    setSavingCategory(true)
+    try {
+      await budgetApi.updateCategory(wedding.id, categoryId, {
+        name: editCategoryName.trim(),
+        allocatedAmount: Number(editCategoryAmount),
+      })
+      cancelEditCategory()
+      load()
+    } catch {
+      setError('לא הצלחנו לשמור את הקטגוריה.')
+    } finally {
+      setSavingCategory(false)
+    }
   }
 
   if (loading || !summary) {
@@ -162,13 +196,53 @@ export function BudgetPage() {
                   ? Math.min(100, Math.round((category.committedAmount / category.allocatedAmount) * 100))
                   : 0
               const over = category.committedAmount > category.allocatedAmount
+              const overAmount = category.committedAmount - category.allocatedAmount
+
+              if (editingCategoryId === category.id) {
+                return (
+                  <div className="dash-budget-category" key={category.id}>
+                    <div className="dash-budget-category__edit-row">
+                      <input
+                        type="text"
+                        value={editCategoryName}
+                        onChange={(e) => setEditCategoryName(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        value={editCategoryAmount}
+                        onChange={(e) => setEditCategoryAmount(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSaveCategory(category.id)}
+                        disabled={savingCategory || !editCategoryName.trim() || !editCategoryAmount}
+                      >
+                        שמרו
+                      </button>
+                      <button type="button" onClick={cancelEditCategory}>
+                        ביטול
+                      </button>
+                    </div>
+                  </div>
+                )
+              }
+
               return (
                 <div className="dash-budget-category" key={category.id}>
                   <div className="dash-budget-category__header">
                     <span>{category.name}</span>
+                    {over && (
+                      <span className="dash-budget-category__over-badge">
+                        בחריגה של ₪{overAmount.toLocaleString()}
+                      </span>
+                    )}
                     <span>
                       ₪{category.actualAmount.toLocaleString()} / ₪{category.allocatedAmount.toLocaleString()}
                     </span>
+                    <button type="button" onClick={() => startEditCategory(category)}>
+                      ערכו
+                    </button>
                     <button type="button" onClick={() => handleDeleteCategory(category.id)}>
                       הסירו
                     </button>

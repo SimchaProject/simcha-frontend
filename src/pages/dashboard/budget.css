@@ -90,6 +90,56 @@
   color: var(--simcha-red);
 }
 
+.dash-budget-category__over-badge {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--simcha-paper);
+  background: var(--simcha-red);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.dash-budget-category__edit-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.dash-budget-category__edit-row input {
+  border: none;
+  border-bottom: 1px solid var(--simcha-gold);
+  background: transparent;
+  padding: 6px 0;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  color: var(--simcha-ink);
+  outline: none;
+}
+
+.dash-budget-category__edit-row input[type='number'] {
+  width: 120px;
+}
+
+.dash-budget-category__edit-row button {
+  border: 1.5px solid var(--simcha-red);
+  color: var(--simcha-red);
+  background: transparent;
+  border-radius: 18px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-family: 'Rubik', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dash-budget-category__edit-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .dash-budget-bar {
   position: relative;
   height: 8px;
