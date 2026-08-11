@@ -130,7 +130,8 @@ export function BudgetPage() {
       </div>
       <p className="dash-page-sub dash-budget-hint">
         &ldquo;מחויב לספקים&rdquo; = סכום החוזה של כל ספק שסטטוסו &ldquo;הוזמן&rdquo; או &ldquo;שולם&rdquo;, גם אם עוד לא נרשם
-        תשלום בפועל. &ldquo;שולם בפועל&rdquo; מבוסס רק על תשלומים שסומנו כשולמו בלשונית התשלומים של הספק.
+        תשלום בפועל. &ldquo;שולם בפועל&rdquo; מבוסס על תשלומים שסומנו כשולמו בלשונית התשלומים של הספק — אם אין לו אף
+        תשלום רשום, אבל סימנתם את הספק עצמו כ&ldquo;שולם&rdquo;, כל סכום החוזה שלו יחשב כשולם.
       </p>
 
       <div className="dash-budget-total-row">
