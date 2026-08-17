@@ -45,6 +45,13 @@ export interface BulkImportResult {
   errors: Array<{ row: number; message: string }>
 }
 
+export interface InviteSendResult {
+  sentCount: number
+  failedCount: number
+  skippedNoPhoneCount: number
+  errors: Array<{ guestId: string; name: string; message: string }>
+}
+
 export interface GuestGroup {
   id: string
   weddingId: string

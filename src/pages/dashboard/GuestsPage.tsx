@@ -5,6 +5,7 @@ import { guestGroupsApi } from '../../api/guestGroups'
 import type { Guest, GuestGroup, RsvpStatus } from '../../types/guests'
 import type { RsvpSubmittedEvent } from '../../types/rsvp'
 import { ImportModal } from '../../components/guests/ImportModal'
+import { InviteModal } from '../../components/guests/InviteModal'
 import { RsvpLiveFeed } from '../../components/guests/RsvpLiveFeed'
 import './guests.css'
 
@@ -84,6 +85,7 @@ export function GuestsPage() {
   const [groupView, setGroupView] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
   const [showCsvModal, setShowCsvModal] = useState(false)
+  const [showInviteModal, setShowInviteModal] = useState(false)
 
   const load = () => {
     guestsApi.list(wedding.id).then((fresh) => {
@@ -512,6 +514,9 @@ export function GuestsPage() {
         <button type="button" className="dash-guest-btn" onClick={() => setShowCsvModal(true)}>
           ייבוא מ-CSV
         </button>
+        <button type="button" className="dash-guest-btn" onClick={() => setShowInviteModal(true)}>
+          שלחו הזמנות ב-SMS
+        </button>
       </div>
       {addError && <p className="dash-guest-error">{addError}</p>}
 
@@ -633,6 +638,14 @@ export function GuestsPage() {
           weddingId={wedding.id}
           onClose={() => setShowCsvModal(false)}
           onImported={load}
+        />
+      )}
+
+      {showInviteModal && (
+        <InviteModal
+          weddingId={wedding.id}
+          recipientCount={guests.filter((g) => g.phone).length}
+          onClose={() => setShowInviteModal(false)}
         />
       )}
     </div>
