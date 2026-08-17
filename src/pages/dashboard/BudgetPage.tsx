@@ -154,6 +154,10 @@ export function BudgetPage() {
           <p className="dash-stat-card__label">שולם בפועל</p>
         </div>
         <div className="dash-stat-card">
+          <p className="dash-stat-card__value">₪{summary.totalRemaining.toLocaleString()}</p>
+          <p className="dash-stat-card__label">נותר לאחר תשלומים</p>
+        </div>
+        <div className="dash-stat-card">
           <p className="dash-stat-card__value">₪{summary.totalCommitted.toLocaleString()}</p>
           <p className="dash-stat-card__label">מחויב לספקים</p>
         </div>
