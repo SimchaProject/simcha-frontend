@@ -13,10 +13,6 @@ export interface Guest {
   respondedAt: string | null
   createdAt: string
   updatedAt: string
-  // Computed server-side by the reminder cron - read-only, never toggled
-  // manually. The button just appears when due.
-  isReminderDue: boolean
-  reminderWaMeLink: string | null
 }
 
 export interface CreateGuestPayload {
@@ -47,6 +43,13 @@ export interface BulkImportResult {
   updatedCount: number
   skippedCount: number
   errors: Array<{ row: number; message: string }>
+}
+
+export interface InviteSendResult {
+  sentCount: number
+  failedCount: number
+  skippedNoPhoneCount: number
+  errors: Array<{ guestId: string; name: string; message: string }>
 }
 
 export interface GuestGroup {

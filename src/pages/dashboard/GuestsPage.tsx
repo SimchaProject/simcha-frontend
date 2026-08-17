@@ -5,9 +5,8 @@ import { guestGroupsApi } from '../../api/guestGroups'
 import type { Guest, GuestGroup, RsvpStatus } from '../../types/guests'
 import type { RsvpSubmittedEvent } from '../../types/rsvp'
 import { ImportModal } from '../../components/guests/ImportModal'
-import { ReminderButton } from '../../components/guests/ReminderButton'
+import { InviteModal } from '../../components/guests/InviteModal'
 import { RsvpLiveFeed } from '../../components/guests/RsvpLiveFeed'
-import { buildWaLink } from '../../utils/whatsapp'
 import './guests.css'
 
 const STATUS_LABELS: Record<RsvpStatus, string> = {
@@ -86,6 +85,7 @@ export function GuestsPage() {
   const [groupView, setGroupView] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
   const [showCsvModal, setShowCsvModal] = useState(false)
+  const [showInviteModal, setShowInviteModal] = useState(false)
 
   const load = () => {
     guestsApi.list(wedding.id).then((fresh) => {
@@ -165,16 +165,6 @@ export function GuestsPage() {
       return a.rsvpStatus.localeCompare(b.rsvpStatus) * dir
     })
   }, [guests, search, statusFilter, sortKey, sortDir])
-
-  const selectedGuests = useMemo(
-    () => guests.filter((g) => selectedIds.has(g.id)),
-    [guests, selectedIds],
-  )
-  const selectedWithPhone = useMemo(
-    () => selectedGuests.filter((g): g is Guest & { phone: string } => Boolean(g.phone)),
-    [selectedGuests],
-  )
-  const inviteUrl = `${window.location.origin}/w/${wedding.slug}`
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -385,7 +375,6 @@ export function GuestsPage() {
           </td>
           <td>
             <div className="dash-guest-table__actions">
-              <ReminderButton guest={guest} />
               <button type="button" onClick={() => startEdit(guest)}>
                 ערכו
               </button>
@@ -525,6 +514,9 @@ export function GuestsPage() {
         <button type="button" className="dash-guest-btn" onClick={() => setShowCsvModal(true)}>
           ייבוא מ-CSV
         </button>
+        <button type="button" className="dash-guest-btn" onClick={() => setShowInviteModal(true)}>
+          שלחו הזמנות ב-SMS
+        </button>
       </div>
       {addError && <p className="dash-guest-error">{addError}</p>}
 
@@ -588,26 +580,6 @@ export function GuestsPage() {
         </div>
       )}
 
-      {selectedIds.size > 0 && selectedWithPhone.length > 0 && (
-        <div className="dash-bulk-wa-row">
-          <span>שליחת הזמנה בוואטסאפ:</span>
-          {selectedWithPhone.map((guest) => (
-            <a
-              key={guest.id}
-              className="dash-guest-btn"
-              href={buildWaLink(
-                guest.phone,
-                `היי ${guest.name}! מוזמנים לחתונה של ${wedding.coupleNameA} ו${wedding.coupleNameB}. לאישור הגעה: ${inviteUrl}`,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {guest.name}
-            </a>
-          ))}
-        </div>
-      )}
-
       {error && <p className="dash-guest-error">{error}</p>}
 
       {guests.length === 0 && (
@@ -666,6 +638,14 @@ export function GuestsPage() {
           weddingId={wedding.id}
           onClose={() => setShowCsvModal(false)}
           onImported={load}
+        />
+      )}
+
+      {showInviteModal && (
+        <InviteModal
+          weddingId={wedding.id}
+          recipientCount={guests.filter((g) => g.phone).length}
+          onClose={() => setShowInviteModal(false)}
         />
       )}
     </div>

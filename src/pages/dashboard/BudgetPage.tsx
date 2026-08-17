@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useDashboard } from './dashboard-context'
 import { budgetApi } from '../../api/budget'
 import type { BudgetSummary } from '../../types/budget'
+import { VENDOR_CATEGORY_PRESETS } from '../../constants/vendorCategories'
 import './budget.css'
 
 const PAYMENT_TYPE_LABELS: Record<string, string> = {
@@ -22,6 +23,7 @@ export function BudgetPage() {
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryAmount, setNewCategoryAmount] = useState('')
   const [addingCategory, setAddingCategory] = useState(false)
+  const categoryAmountRef = useRef<HTMLInputElement>(null)
 
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
   const [editCategoryName, setEditCategoryName] = useState('')
@@ -154,6 +156,10 @@ export function BudgetPage() {
           <p className="dash-stat-card__label">שולם בפועל</p>
         </div>
         <div className="dash-stat-card">
+          <p className="dash-stat-card__value">₪{summary.totalRemaining.toLocaleString()}</p>
+          <p className="dash-stat-card__label">נותר לאחר תשלומים</p>
+        </div>
+        <div className="dash-stat-card">
           <p className="dash-stat-card__value">₪{summary.totalCommitted.toLocaleString()}</p>
           <p className="dash-stat-card__label">מחויב לספקים</p>
         </div>
@@ -182,9 +188,30 @@ export function BudgetPage() {
 
       <div className="dash-budget-section">
         <p className="dash-budget-section__title">קטגוריות</p>
-        {summary.categories.length === 0 ? (
-          <p className="dash-page-sub">עדיין אין קטגוריות. הוסיפו למטה.</p>
-        ) : (
+        {summary.categories.length === 0 && (
+          <div className="dash-budget-empty">
+            <p className="dash-budget-empty__icon" aria-hidden="true">
+              💰
+            </p>
+            <p className="dash-page-sub">עדיין אין קטגוריות תקציב. בחרו אחת מהרשימה כדי להתחיל, או הוסיפו קטגוריה משלכם למטה.</p>
+          </div>
+        )}
+        <div className="dash-budget-preset-row">
+          {VENDOR_CATEGORY_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              className="dash-budget-preset-chip"
+              onClick={() => {
+                setNewCategoryName(preset.label)
+                categoryAmountRef.current?.focus()
+              }}
+            >
+              <span>{preset.icon}</span> {preset.label}
+            </button>
+          ))}
+        </div>
+        {summary.categories.length > 0 && (
           <div className="dash-budget-categories">
             {summary.categories.map((category) => {
               const paidPercent =
@@ -281,6 +308,7 @@ export function BudgetPage() {
             onChange={(e) => setNewCategoryName(e.target.value)}
           />
           <input
+            ref={categoryAmountRef}
             type="number"
             min="0"
             placeholder="סכום מתוקצב"

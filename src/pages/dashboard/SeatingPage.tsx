@@ -18,6 +18,7 @@ import { UnseatedBucket, UNSEATED_DROPPABLE_ID } from '../../components/seating/
 import { SeatingDiff } from '../../components/seating/SeatingDiff'
 import { GuestChipContent } from '../../components/seating/GuestChip'
 import { TableSetupModal } from '../../components/seating/TableSetupModal'
+import { ConstraintAssistant } from '../../components/seating/ConstraintAssistant'
 import { WaxSealButton } from '../../components/motifs/WaxSealButton'
 import './seating.css'
 
@@ -39,6 +40,7 @@ export function SeatingPage() {
   const [error, setError] = useState<string | null>(null)
   const [showDiff, setShowDiff] = useState(false)
   const [showTableModal, setShowTableModal] = useState(false)
+  const [showAssistant, setShowAssistant] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [zoom, setZoom] = useState(1)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
@@ -224,6 +226,13 @@ export function SeatingPage() {
         >
           {showDiff ? 'הסתירו' : 'הציגו'} שינויים ידניים
         </button>
+        <button
+          type="button"
+          className="dash-seating__btn"
+          onClick={() => setShowAssistant((v) => !v)}
+        >
+          {showAssistant ? 'סגרו' : 'עוזר הושבה חכם'}
+        </button>
 
         <div className="dash-seating__zoom">
           <button type="button" onClick={() => adjustZoom(-ZOOM_STEP)} disabled={zoom <= ZOOM_MIN} title="הקטינו">
@@ -237,6 +246,16 @@ export function SeatingPage() {
           </button>
         </div>
       </div>
+
+      {showAssistant && (
+        <ConstraintAssistant
+          weddingId={weddingId}
+          onApplied={() => {
+            setShowAssistant(false)
+            runOptimize(true)
+          }}
+        />
+      )}
 
       {error && <p className="dash-guest-error">{error}</p>}
       {report && (

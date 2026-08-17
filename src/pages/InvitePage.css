@@ -141,6 +141,11 @@
   margin: 0 0 22px;
 }
 
+.invite-section-sub--note {
+  color: var(--simcha-gold);
+  margin-top: -14px;
+}
+
 .invite-form {
   max-width: 420px;
   margin: 0 auto;
@@ -393,14 +398,6 @@
   display: flex;
   justify-content: center;
   padding-top: 8px;
-}
-
-.wa-note,
-.invite-wa-note {
-  text-align: center;
-  font-size: 11px;
-  color: var(--simcha-green);
-  margin: 2px 0 0;
 }
 
 .invite-success {

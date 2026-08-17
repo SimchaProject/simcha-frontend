@@ -4,6 +4,7 @@ import type {
   CreateGuestPayload,
   Guest,
   GuestListFilters,
+  InviteSendResult,
   UpdateGuestPayload,
 } from '../types/guests'
 
@@ -31,4 +32,6 @@ export const guestsApi = {
     form.append('file', file)
     return http.postForm<BulkImportResult>(`/weddings/${weddingId}/guests/import`, form)
   },
+  sendInvites: (weddingId: string) =>
+    http.post<InviteSendResult>(`/weddings/${weddingId}/guests/invite`),
 }
