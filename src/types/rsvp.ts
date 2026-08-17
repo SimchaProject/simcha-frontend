@@ -9,9 +9,10 @@ export interface RsvpPayload {
 
 export interface RsvpResponse {
   id: string
-  // null when the couple hasn't set a contact phone in their wedding
-  // settings yet - there's no number to notify.
-  whatsappUrl: string | null
+  // The guest's status before this submission - 'ATTENDING' or 'DECLINED'
+  // only if they'd already given a real answer before; null on a first
+  // response (including a couple-loaded placeholder that was still PENDING).
+  previousStatus: 'ATTENDING' | 'DECLINED' | null
 }
 
 // A locally-detected guest change, surfaced by diffing successive polls of

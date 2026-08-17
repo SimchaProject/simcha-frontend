@@ -13,10 +13,6 @@ export interface Guest {
   respondedAt: string | null
   createdAt: string
   updatedAt: string
-  // Computed server-side by the reminder cron - read-only, never toggled
-  // manually. The button just appears when due.
-  isReminderDue: boolean
-  reminderWaMeLink: string | null
 }
 
 export interface CreateGuestPayload {

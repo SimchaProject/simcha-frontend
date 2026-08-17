@@ -65,18 +65,6 @@
   cursor: help;
 }
 
-/* bulk WhatsApp row */
-
-.dash-bulk-wa-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  font-size: 12px;
-  color: var(--simcha-ink-muted);
-}
-
 .dash-guest-btn {
   display: inline-flex;
   align-items: center;

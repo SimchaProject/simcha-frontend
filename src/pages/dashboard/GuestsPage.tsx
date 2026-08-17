@@ -5,9 +5,7 @@ import { guestGroupsApi } from '../../api/guestGroups'
 import type { Guest, GuestGroup, RsvpStatus } from '../../types/guests'
 import type { RsvpSubmittedEvent } from '../../types/rsvp'
 import { ImportModal } from '../../components/guests/ImportModal'
-import { ReminderButton } from '../../components/guests/ReminderButton'
 import { RsvpLiveFeed } from '../../components/guests/RsvpLiveFeed'
-import { buildWaLink } from '../../utils/whatsapp'
 import './guests.css'
 
 const STATUS_LABELS: Record<RsvpStatus, string> = {
@@ -165,16 +163,6 @@ export function GuestsPage() {
       return a.rsvpStatus.localeCompare(b.rsvpStatus) * dir
     })
   }, [guests, search, statusFilter, sortKey, sortDir])
-
-  const selectedGuests = useMemo(
-    () => guests.filter((g) => selectedIds.has(g.id)),
-    [guests, selectedIds],
-  )
-  const selectedWithPhone = useMemo(
-    () => selectedGuests.filter((g): g is Guest & { phone: string } => Boolean(g.phone)),
-    [selectedGuests],
-  )
-  const inviteUrl = `${window.location.origin}/w/${wedding.slug}`
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -385,7 +373,6 @@ export function GuestsPage() {
           </td>
           <td>
             <div className="dash-guest-table__actions">
-              <ReminderButton guest={guest} />
               <button type="button" onClick={() => startEdit(guest)}>
                 ערכו
               </button>
@@ -585,26 +572,6 @@ export function GuestsPage() {
           <button type="button" className="dash-bulk-bar__clear" onClick={() => setSelectedIds(new Set())}>
             נקו בחירה
           </button>
-        </div>
-      )}
-
-      {selectedIds.size > 0 && selectedWithPhone.length > 0 && (
-        <div className="dash-bulk-wa-row">
-          <span>שליחת הזמנה בוואטסאפ:</span>
-          {selectedWithPhone.map((guest) => (
-            <a
-              key={guest.id}
-              className="dash-guest-btn"
-              href={buildWaLink(
-                guest.phone,
-                `היי ${guest.name}! מוזמנים לחתונה של ${wedding.coupleNameA} ו${wedding.coupleNameB}. לאישור הגעה: ${inviteUrl}`,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {guest.name}
-            </a>
-          ))}
         </div>
       )}
 

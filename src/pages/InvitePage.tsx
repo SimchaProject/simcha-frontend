@@ -52,7 +52,7 @@ export function InvitePage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
-  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null)
+  const [previousStatus, setPreviousStatus] = useState<'ATTENDING' | 'DECLINED' | null>(null)
 
   useEffect(() => {
     if (!weddingSlug) return
@@ -109,7 +109,7 @@ export function InvitePage() {
         dietaryNotes: attending === true ? dietaryNotes.trim() || undefined : undefined,
         needsTransport: attending === true ? needsTransport : undefined,
       })
-      setWhatsappUrl(result.whatsappUrl)
+      setPreviousStatus(result.previousStatus)
       setSubmitted(true)
     } catch {
       setSubmitError('משהו השתבש, נסו שוב.')
@@ -162,21 +162,12 @@ export function InvitePage() {
             <p className="invite-section-sub">
               {attending ? 'שומרים לכם מקום, מתרגשים לראותכם' : 'חבל שלא תוכלו להגיע, נתגעגע'}
             </p>
-            {whatsappUrl && (
-              <>
-                <div className="invite-seal-wrap">
-                  <a
-                    className="wax-seal"
-                    style={{ transform: 'rotate(4deg)' }}
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    וואטסאפ
-                  </a>
-                </div>
-                <p className="invite-wa-note">לחצו לעדכן את הזוג בוואטסאפ</p>
-              </>
+            {previousStatus && (
+              <p className="invite-section-sub invite-section-sub--note">
+                שימו לב: כבר עדכנתם בעבר ש
+                {previousStatus === 'ATTENDING' ? 'תגיעו' : 'לא תוכלו להגיע'}. התשובה שלכם עודכנה בהתאם לבחירה
+                הנוכחית.
+              </p>
             )}
           </div>
         ) : (
@@ -295,7 +286,6 @@ export function InvitePage() {
                   אישור
                 </WaxSealButton>
               </div>
-              <p className="invite-wa-note">נעדכן את הזוג בוואטסאפ עם תשובתכם</p>
             </form>
           </>
         )}
