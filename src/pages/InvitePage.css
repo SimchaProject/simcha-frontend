@@ -506,16 +506,6 @@
   color: var(--simcha-ink);
 }
 
-.invite-nav-card__badge {
-  font-family: 'Rubik', sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  color: var(--simcha-paper);
-  background: var(--simcha-red);
-  border-radius: 999px;
-  padding: 2px 8px;
-}
-
 .invite-nav-card__sub {
   font-size: 12px;
   color: var(--simcha-ink-muted);

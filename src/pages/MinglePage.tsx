@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { mingleApi } from '../api/mingle'
-import type { MingleList } from '../types/rsvp'
+import type { MingleList, MinglePerson } from '../types/rsvp'
 import { VineDivider } from '../components/motifs/VineDivider'
+import { resizeImage } from '../utils/resizeImage'
 import './MinglePage.css'
 import './InvitePage.css'
 
@@ -12,27 +13,64 @@ export function MinglePage() {
   const [loading, setLoading] = useState(true)
   const [denied, setDenied] = useState(false)
 
-  useEffect(() => {
+  const [busy, setBusy] = useState(false)
+  const [photoError, setPhotoError] = useState<string | null>(null)
+  // Bumped after an upload so the browser refetches an image whose URL didn't
+  // change.
+  const [photoVersion, setPhotoVersion] = useState(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const load = () => {
     if (!weddingSlug || !token) return
-    let cancelled = false
     mingleApi
       .list(weddingSlug, token)
       .then((result) => {
-        if (!cancelled) {
-          setList(result)
-          setLoading(false)
-        }
+        setList(result)
+        setLoading(false)
       })
       .catch(() => {
-        if (!cancelled) {
-          setDenied(true)
-          setLoading(false)
-        }
+        setDenied(true)
+        setLoading(false)
       })
-    return () => {
-      cancelled = true
-    }
+  }
+
+  useEffect(() => {
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weddingSlug, token])
+
+  const handlePhotoPicked = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || !weddingSlug || !token) return
+    setBusy(true)
+    setPhotoError(null)
+    try {
+      const resized = await resizeImage(file)
+      await mingleApi.uploadPhoto(weddingSlug, token, resized)
+      setPhotoVersion((v) => v + 1)
+      load()
+    } catch {
+      setPhotoError('לא הצלחנו להעלות את התמונה, נסו שוב')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleRemovePhoto = async () => {
+    if (!weddingSlug || !token) return
+    setBusy(true)
+    setPhotoError(null)
+    try {
+      await mingleApi.removePhoto(weddingSlug, token)
+      setPhotoVersion((v) => v + 1)
+      load()
+    } catch {
+      setPhotoError('לא הצלחנו להסיר את התמונה')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -65,7 +103,22 @@ export function MinglePage() {
     )
   }
 
+  const you = list.people.find((person) => person.isYou) ?? null
   const others = list.people.filter((person) => !person.isYou)
+
+  const avatar = (person: MinglePerson) =>
+    person.hasPhoto && weddingSlug && token ? (
+      <img
+        className="mingle-card__photo"
+        src={`${mingleApi.photoUrl(weddingSlug, token, person.id)}?v=${photoVersion}`}
+        alt={person.firstName}
+        loading="lazy"
+      />
+    ) : (
+      <span className="mingle-card__photo mingle-card__photo--empty" aria-hidden="true">
+        {person.firstName.slice(0, 1)}
+      </span>
+    )
 
   return (
     <div className="invite-page">
@@ -84,6 +137,44 @@ export function MinglePage() {
 
         <VineDivider />
 
+        {you && (
+          <div className="mingle-you">
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handlePhotoPicked}
+            />
+            {avatar(you)}
+            <div className="mingle-you__text">
+              <p className="mingle-you__title">
+                {you.hasPhoto ? 'ככה אתם מופיעים כאן' : 'הוסיפו תמונה'}
+              </p>
+              <p className="mingle-you__sub">
+                {you.hasPhoto
+                  ? 'רק מי שנמצא בפינה הזאת רואה אותה.'
+                  : 'לא חובה — אבל שם בלי פנים קשה לזהות בין מאתיים אורחים.'}
+              </p>
+              <div className="mingle-you__actions">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={busy}
+                >
+                  {busy ? 'רגע...' : you.hasPhoto ? 'החלפת תמונה' : 'העלאת תמונה'}
+                </button>
+                {you.hasPhoto && (
+                  <button type="button" onClick={handleRemovePhoto} disabled={busy}>
+                    הסרה
+                  </button>
+                )}
+              </div>
+              {photoError && <p className="invite-field__error">{photoError}</p>}
+            </div>
+          </div>
+        )}
+
         {others.length === 0 ? (
           <p className="invite-section-sub">
             כרגע אתם הראשונים כאן. שווה לחזור לקישור הזה קרוב יותר לאירוע.
@@ -92,11 +183,14 @@ export function MinglePage() {
           <ul className="mingle-list">
             {others.map((person) => (
               <li key={person.id} className="mingle-card">
-                <div className="mingle-card__head">
-                  <span className="mingle-card__name">{person.firstName}</span>
-                  {person.age !== null && <span className="mingle-card__age">{person.age}</span>}
+                {avatar(person)}
+                <div className="mingle-card__body">
+                  <div className="mingle-card__head">
+                    <span className="mingle-card__name">{person.firstName}</span>
+                    {person.age !== null && <span className="mingle-card__age">{person.age}</span>}
+                  </div>
+                  {person.bio && <p className="mingle-card__bio">{person.bio}</p>}
                 </div>
-                {person.bio && <p className="mingle-card__bio">{person.bio}</p>}
               </li>
             ))}
           </ul>

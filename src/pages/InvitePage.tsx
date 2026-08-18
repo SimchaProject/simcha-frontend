@@ -172,16 +172,6 @@ export function InvitePage() {
                 הנוכחית.
               </p>
             )}
-            {mingleToken && (
-              <div className="invite-mingle-link">
-                <p className="invite-section-sub">
-                  הצטרפתם לפינת הרווקים. שמרו את הקישור — הוא אישי, וזו הדרך היחידה להיכנס:
-                </p>
-                <Link to={`/w/${weddingSlug}/mingle/${mingleToken}`} className="invite-mingle-link__cta">
-                  לפינת הרווקים ✨
-                </Link>
-              </div>
-            )}
           </div>
         ) : (
           <>
@@ -349,22 +339,30 @@ export function InvitePage() {
           </>
         )}
 
-        <VineDivider />
-
-        {/* The corner is reachable from the invitation itself, not only from
-            the one-time link on the confirmation screen - guests lose that
-            link, and the phone gate behind this is how they get back in. */}
+        {/* One way in, and it belongs to the RSVP block rather than to the
+            day-of details: joining the corner happens on this form, so the
+            way back to it sits with the form. A guest who just opted in goes
+            straight through on their token; everyone else lands on the phone
+            gate. */}
         {wedding.guestPageConfig.mingleEnabled && (
-          <Link to={`/w/${weddingSlug}/singles`} className="invite-nav-card">
+          <Link
+            to={
+              mingleToken
+                ? `/w/${weddingSlug}/mingle/${mingleToken}`
+                : `/w/${weddingSlug}/singles`
+            }
+            className="invite-nav-card"
+          >
             <span className="invite-nav-card__icon" aria-hidden="true">
               ♡
             </span>
             <span className="invite-nav-card__text">
-              <span className="invite-nav-card__title">
-                רווקים ורווקות
-                <span className="invite-nav-card__badge">חדש</span>
+              <span className="invite-nav-card__title">רווקים ורווקות</span>
+              <span className="invite-nav-card__sub">
+                {mingleToken
+                  ? 'הצטרפתם — אפשר להציץ מי עוד שם'
+                  : 'מי מגיע/ה לבד, ופתוח/ה להכיר'}
               </span>
-              <span className="invite-nav-card__sub">מי מגיע/ה לבד, ופתוח/ה להכיר</span>
             </span>
             {/* dir=ltr so the bidi algorithm doesn't mirror the glyph back to
                 pointing the way we came from. */}
@@ -373,6 +371,8 @@ export function InvitePage() {
             </span>
           </Link>
         )}
+
+        <VineDivider />
 
         <ScheduleList entries={wedding.guestPageConfig.schedule} />
         <ArrivalSection

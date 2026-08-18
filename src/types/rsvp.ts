@@ -29,6 +29,9 @@ export interface MinglePerson {
   firstName: string
   age: number | null
   bio: string | null
+  // The bytes come from their own route, one person at a time - this only
+  // says whether there's anything to fetch.
+  hasPhoto: boolean
   isYou: boolean
 }
 

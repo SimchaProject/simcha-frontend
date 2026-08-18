@@ -6,15 +6,44 @@
   margin: 0 0 22px;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 12px;
 }
 
 .mingle-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   border: 1px solid var(--simcha-line);
   border-radius: 12px;
   padding: 14px 16px;
   background: rgba(255, 255, 255, 0.35);
+}
+
+.mingle-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mingle-card__photo {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--simcha-line);
+  background: var(--simcha-paper-dark);
+}
+
+/* No photo: the first letter of the name, so the row still has an anchor
+   rather than a grey hole. */
+.mingle-card__photo--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 22px;
+  color: var(--simcha-gold);
 }
 
 .mingle-card__head {
@@ -42,6 +71,67 @@
   margin: 6px 0 0;
 }
 
+/* your own row, with the photo controls */
+
+.mingle-you {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border: 1px dashed var(--simcha-line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  text-align: start;
+}
+
+.mingle-you__text {
+  flex: 1;
+}
+
+.mingle-you__title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--simcha-ink);
+  margin: 0 0 2px;
+}
+
+.mingle-you__sub {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--simcha-ink-muted);
+  margin: 0 0 10px;
+}
+
+.mingle-you__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mingle-you__actions button {
+  border: 1px solid var(--simcha-red);
+  color: var(--simcha-red);
+  background: transparent;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-family: 'Rubik', sans-serif;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.mingle-you__actions button:hover:not(:disabled) {
+  background: var(--simcha-red);
+  color: var(--simcha-paper);
+}
+
+.mingle-you__actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* The shared note style pulls itself up under a section title; here it
    follows a card grid, so it needs its own spacing instead. */
