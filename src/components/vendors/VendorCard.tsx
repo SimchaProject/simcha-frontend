@@ -146,7 +146,10 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
   }
 
   return (
-    <div className="dash-vendor-card">
+    // The payments table needs more room than a card-width column has, so an
+    // open card takes the whole row instead of letting the table spill over
+    // its neighbour.
+    <div className={`dash-vendor-card${expanded ? ' dash-vendor-card--expanded' : ''}`}>
       <input
         type="file"
         accept=".pdf,.doc,.docx,image/*"

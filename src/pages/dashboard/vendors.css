@@ -69,6 +69,13 @@
   padding: 14px 16px;
   background: var(--admin-surface);
   box-shadow: var(--admin-shadow);
+  /* Grid items default to min-content width, which lets wide children push
+     the card out over its neighbours instead of being contained. */
+  min-width: 0;
+}
+
+.dash-vendor-card--expanded {
+  grid-column: 1 / -1;
 }
 
 .dash-vendor-card--editing {
@@ -180,12 +187,23 @@
   border-radius: 10px;
   padding: 12px 14px;
   margin-top: 12px;
+  /* Belt and braces: on a narrow screen the row-wide card is still narrower
+     than the table, and scrolling it beats overlapping the page. */
+  overflow-x: auto;
 }
 
 .dash-vendor-payments-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+  /* Dates and the "שולם (תאריך)" button must not wrap mid-value - that's
+     what made the cells look garbled when the table was squeezed. */
+  white-space: nowrap;
+}
+
+.dash-vendor-payments-table td:first-child,
+.dash-vendor-payments-table th:first-child {
+  white-space: normal;
 }
 
 .dash-vendor-payments-table th {
