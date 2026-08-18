@@ -12,6 +12,17 @@
   --simcha-gold: #8c7038;
   --simcha-green: #4f5c3a;
 
+  /* Admin surfaces. The spec calls for the guest-facing side to read as
+     paper and the couple's dashboard to read as a modern app on a neutral
+     ground, sharing only the ink and the three accents - so the paper tokens
+     above stay for /w/:slug and the wizard, and the dashboard uses these. */
+  --admin-bg: #f7f6f4;
+  --admin-surface: #ffffff;
+  --admin-surface-sunken: #f2f0ec;
+  --admin-line: #e7e3db;
+  --admin-line-strong: #d5cfc2;
+  --admin-shadow: 0 1px 2px rgba(36, 26, 20, 0.04), 0 1px 3px rgba(36, 26, 20, 0.06);
+
   color-scheme: light;
 }
 

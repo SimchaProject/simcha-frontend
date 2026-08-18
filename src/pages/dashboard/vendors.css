@@ -1,147 +1,74 @@
-.dash-vendor-categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 10px;
+/* Category filter chips. This replaced a grid of ten large tiles that was
+   both the category menu and the add-vendor entry point - adding now lives
+   in the page header, so this row only has to do one job: filter. */
+.dash-vendor-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 16px;
 }
 
-.dash-vendor-category-tile {
-  display: flex;
-  flex-direction: column;
+.dash-vendor-filter {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  border: 1.5px solid var(--simcha-line);
-  border-radius: 14px;
-  background: var(--simcha-paper);
-  padding: 14px 8px 10px;
-  cursor: pointer;
-  position: relative;
+  gap: 6px;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 999px;
+  background: var(--admin-surface);
+  padding: 6px 12px;
+  font-size: 12px;
   font-family: 'Rubik', sans-serif;
+  color: var(--simcha-ink-muted);
+  cursor: pointer;
   transition:
     border-color 0.15s ease,
+    color 0.15s ease,
     background 0.15s ease;
 }
 
-.dash-vendor-category-tile:hover {
+.dash-vendor-filter:hover {
+  color: var(--simcha-ink);
   border-color: var(--simcha-gold);
 }
 
-.dash-vendor-category-tile.is-active {
+.dash-vendor-filter.is-active {
   border-color: var(--simcha-red);
-  background: var(--simcha-paper-dark);
+  color: var(--simcha-red);
+  background: rgba(178, 58, 46, 0.07);
 }
 
-.dash-vendor-category-tile__icon {
-  font-size: 26px;
-  line-height: 1;
+.dash-vendor-filter__count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
 }
 
-.dash-vendor-category-tile__label {
-  font-size: 12px;
-  color: var(--simcha-ink);
-  text-align: center;
-}
-
-.dash-vendor-category-tile__count {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  background: var(--simcha-red);
-  color: var(--simcha-paper);
-  font-size: 10px;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-}
-
-.dash-vendor-add-panel {
-  border: 1.5px solid var(--simcha-gold);
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 20px;
-  background: var(--simcha-paper-dark);
-}
-
-.dash-vendor-add-panel__title {
-  font-family: 'Rubik', sans-serif;
-  font-weight: 600;
-  color: var(--simcha-ink);
-  margin: 0 0 10px;
-}
-
-.dash-vendor-add-panel__row {
+.dash-vendor-add-row {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.dash-vendor-add-panel__row input {
-  border: none;
-  border-bottom: 1px solid var(--simcha-gold);
-  background: transparent;
-  padding: 6px 0;
-  font-family: 'Rubik', sans-serif;
-  font-size: 13px;
-  color: var(--simcha-ink);
-  outline: none;
-  flex: 1;
-  min-width: 120px;
-}
-
-.dash-vendor-add-panel__row button {
-  border: 1.5px solid var(--simcha-red);
-  color: var(--simcha-red);
-  background: transparent;
-  border-radius: 18px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-family: 'Rubik', sans-serif;
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
-
-.dash-vendor-add-panel__row button:hover:not(:disabled) {
-  background: var(--simcha-red);
-  color: var(--simcha-paper);
-}
-
-.dash-vendor-add-panel__row button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.dash-vendor-group {
-  margin-bottom: 22px;
-}
-
-.dash-vendor-group__title {
-  font-family: 'Rubik', sans-serif;
-  font-weight: 600;
-  color: var(--simcha-ink);
-  margin: 0 0 10px;
-  display: flex;
   align-items: center;
-  gap: 6px;
 }
 
+.dash-vendor-add-row .dash-field {
+  flex: 1;
+  min-width: 130px;
+}
+
+/* auto-fit, not auto-fill: with a single card in the grid, auto-fill keeps
+   the empty tracks and the card renders a quarter of the width. */
 .dash-vendor-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 12px;
+  align-items: start;
 }
 
 .dash-vendor-card {
-  border: 1px solid var(--simcha-line);
+  border: 1px solid var(--admin-line);
   border-radius: 12px;
-  padding: 14px;
-  background: var(--simcha-paper);
+  padding: 14px 16px;
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
 }
 
 .dash-vendor-card--editing {
@@ -152,10 +79,10 @@
 
 .dash-vendor-card--editing input,
 .dash-vendor-card--editing select {
-  border: none;
-  border-bottom: 1px solid var(--simcha-gold);
-  background: transparent;
-  padding: 4px 0;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  padding: 7px 10px;
   font-family: 'Rubik', sans-serif;
   font-size: 13px;
   color: var(--simcha-ink);
@@ -167,13 +94,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .dash-vendor-card__name {
   font-weight: 600;
   color: var(--simcha-ink);
   margin: 0;
+}
+
+.dash-vendor-card__category {
+  font-size: 11px;
+  color: var(--simcha-ink-muted);
+  margin: 0 0 8px;
 }
 
 .dash-vendor-card__detail {
@@ -185,36 +118,50 @@
 .dash-vendor-card__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--admin-line);
+  opacity: 0.55;
+  transition: opacity 0.12s ease;
+}
+
+/* Four underlined links on every card, times eight cards, was most of what
+   made this page feel busy. They fade up on the card you're actually on. */
+.dash-vendor-card:hover .dash-vendor-card__actions,
+.dash-vendor-card__actions:focus-within {
+  opacity: 1;
 }
 
 .dash-vendor-card__actions a,
 .dash-vendor-card__actions button {
-  border: none;
-  background: transparent;
+  border: 1px solid var(--admin-line-strong);
+  background: var(--admin-surface);
   color: var(--simcha-ink-muted);
   font-size: 12px;
   font-family: 'Rubik', sans-serif;
   cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
+  padding: 4px 10px;
+  border-radius: 7px;
+  text-decoration: none;
 }
 
 .dash-vendor-card__actions a:hover,
 .dash-vendor-card__actions button:hover {
   color: var(--simcha-red);
+  border-color: var(--simcha-red);
 }
 
 .dash-vendor-status-select {
-  border: 1px solid var(--simcha-line);
-  border-radius: 14px;
-  background: transparent;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 999px;
+  background: var(--admin-surface);
   font-family: 'Rubik', sans-serif;
   font-size: 12px;
   padding: 4px 10px;
   color: var(--simcha-ink-muted);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .dash-vendor-status-select--quoted {
@@ -229,10 +176,10 @@
 }
 
 .dash-vendor-payments {
-  background: var(--simcha-paper-dark);
+  background: var(--admin-surface-sunken);
   border-radius: 10px;
-  padding: 14px 16px;
-  margin-top: 10px;
+  padding: 12px 14px;
+  margin-top: 12px;
 }
 
 .dash-vendor-payments-table {
@@ -244,16 +191,16 @@
 .dash-vendor-payments-table th {
   text-align: right;
   font-size: 10px;
-  color: var(--simcha-gold);
+  color: var(--simcha-ink-muted);
   letter-spacing: 0.5px;
   font-weight: 500;
   padding: 6px;
-  border-bottom: 1px solid var(--simcha-line);
+  border-bottom: 1px solid var(--admin-line-strong);
 }
 
 .dash-vendor-payments-table td {
   padding: 8px 6px;
-  border-bottom: 0.5px solid var(--simcha-line);
+  border-bottom: 1px solid var(--admin-line);
   vertical-align: middle;
 }
 
@@ -285,10 +232,10 @@
 
 .dash-vendor-payments-add-row select,
 .dash-vendor-payments-add-row input {
-  border: none;
-  border-bottom: 1px solid var(--simcha-gold);
-  background: transparent;
-  padding: 4px 0;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  padding: 6px 10px;
   font-family: 'Rubik', sans-serif;
   font-size: 12px;
   color: var(--simcha-ink);
@@ -296,10 +243,10 @@
 }
 
 .dash-vendor-payments-add-row button {
-  border: 1.5px solid var(--simcha-red);
-  color: var(--simcha-red);
-  background: transparent;
-  border-radius: 18px;
+  border: 1px solid var(--simcha-red);
+  background: var(--simcha-red);
+  color: #fff;
+  border-radius: 8px;
   padding: 6px 14px;
   font-size: 12px;
   font-family: 'Rubik', sans-serif;
@@ -315,5 +262,11 @@
 @media (max-width: 720px) {
   .dash-vendor-cards {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .dash-vendor-card__actions {
+    opacity: 1;
   }
 }

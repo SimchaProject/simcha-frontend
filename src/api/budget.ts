@@ -1,5 +1,6 @@
 import { http } from './http'
 import type {
+  BudgetBurndown,
   BudgetCategory,
   BudgetSummary,
   CreateBudgetCategoryPayload,
@@ -9,6 +10,8 @@ import type {
 
 export const budgetApi = {
   getSummary: (weddingId: string) => http.get<BudgetSummary>(`/weddings/${weddingId}/budget/summary`),
+  getBurndown: (weddingId: string) =>
+    http.get<BudgetBurndown>(`/weddings/${weddingId}/budget/burndown`),
   listCategories: (weddingId: string) =>
     http.get<BudgetCategory[]>(`/weddings/${weddingId}/budget/categories`),
   updateBudget: (weddingId: string, payload: UpdateBudgetPayload) =>

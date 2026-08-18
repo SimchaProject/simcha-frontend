@@ -49,3 +49,21 @@ export interface BudgetSummary {
   upcomingPayments: BudgetPaymentSummary[]
   overduePayments: BudgetPaymentSummary[]
 }
+
+export interface BurndownPoint {
+  date: string
+  planned: number
+  // null for dates past today - the actual line stops at the present rather
+  // than flat-lining into the future.
+  actual: number | null
+}
+
+export interface BudgetBurndown {
+  totalAmount: number
+  weddingDate: string
+  today: string
+  // Spend recorded by marking a vendor PAID without any itemized payment, so
+  // it has no date to sit on. Both curves open already reduced by it.
+  undatedPaid: number
+  points: BurndownPoint[]
+}

@@ -86,6 +86,7 @@ export function GuestsPage() {
   const [newGroupName, setNewGroupName] = useState('')
   const [showCsvModal, setShowCsvModal] = useState(false)
   const [showInviteModal, setShowInviteModal] = useState(false)
+  const [showAddRow, setShowAddRow] = useState(false)
 
   const load = () => {
     guestsApi.list(wedding.id).then((fresh) => {
@@ -145,8 +146,10 @@ export function GuestsPage() {
     return {
       total: guests.length,
       totalParty: guests.reduce((sum, g) => sum + g.partySize, 0),
+      confirmed: confirmed.length,
       confirmedParty: confirmed.reduce((sum, g) => sum + g.partySize, 0),
       pending: pending.length,
+      pendingParty: pending.reduce((sum, g) => sum + g.partySize, 0),
       declined: declined.length,
     }
   }, [guests])
@@ -185,6 +188,9 @@ export function GuestsPage() {
       const created = await guestsApi.create(wedding.id, guestPayload(newGuest))
       setGuests((prev) => [...prev, created])
       previousGuestsRef.current = [...(previousGuestsRef.current ?? []), created]
+      // Keep the row open between adds - entering a guest list is a repeated
+      // action, and re-opening the panel for each name would be worse than
+      // leaving it up.
       setNewGuest(emptyDraft)
     } catch {
       setAddError('נא לוודא שהשם והטלפון תקינים.')
@@ -356,6 +362,11 @@ export function GuestsPage() {
                 🚌
               </span>
             )}
+            {guest.openToMingle && (
+              <span className="dash-guest-note" title="הצטרף/ה לפינת הרווקים">
+                ✨
+              </span>
+            )}
           </td>
           <td dir="ltr">{guest.phone ?? '—'}</td>
           <td>{guest.partySize}</td>
@@ -446,79 +457,96 @@ export function GuestsPage() {
 
   return (
     <div className="dash-guests">
-      <div className="dash-page-header">
-        <p className="dash-page-title">אורחים</p>
-        <p className="dash-page-sub">{guests.length} אורחים ברשימה</p>
+      <div className="dash-page-header dash-page-header--row">
+        <div>
+          <p className="dash-page-title">אורחים</p>
+          <p className="dash-page-sub">
+            {stats.total} רשומות · {stats.totalParty} באי חתונה
+          </p>
+        </div>
+        <div className="dash-page-actions">
+          <button type="button" className="dash-btn" onClick={() => setShowCsvModal(true)}>
+            ייבוא מ-CSV
+          </button>
+          <button type="button" className="dash-btn" onClick={() => setShowInviteModal(true)}>
+            שליחת הזמנות
+          </button>
+          <button
+            type="button"
+            className="dash-btn dash-btn--primary"
+            onClick={() => setShowAddRow((v) => !v)}
+          >
+            {showAddRow ? 'סגירה' : '+ הוספת אורח'}
+          </button>
+        </div>
       </div>
 
       <RsvpLiveFeed events={recentEvents} />
 
+      {/* Three figures that actually drive a decision. The list total and the
+          head count moved up into the page subtitle - they're context, not
+          numbers anyone acts on. */}
       <div className="dash-stats-grid">
-        <div className="dash-stat-card">
-          <p className="dash-stat-card__value">{stats.total}</p>
-          <p className="dash-stat-card__label">אורחים ברשימה</p>
-        </div>
-        <div className="dash-stat-card">
-          <p className="dash-stat-card__value">{stats.totalParty}</p>
-          <p className="dash-stat-card__label">סה״כ באי חתונה</p>
-        </div>
-        <div className="dash-stat-card">
+        <div className="dash-stat-card dash-stat-card--good">
+          <p className="dash-stat-card__label">אישרו הגעה</p>
           <p className="dash-stat-card__value">{stats.confirmedParty}</p>
-          <p className="dash-stat-card__label">מגיעים מאושרים</p>
+          <p className="dash-stat-card__note">{stats.confirmed} רשומות</p>
         </div>
         <div className="dash-stat-card">
+          <p className="dash-stat-card__label">ממתינים לתשובה</p>
           <p className="dash-stat-card__value">{stats.pending}</p>
-          <p className="dash-stat-card__label">ממתינים לאישור</p>
+          <p className="dash-stat-card__note">{stats.pendingParty} מוזמנים</p>
         </div>
-        <div className="dash-stat-card">
-          <p className="dash-stat-card__value">{stats.declined}</p>
+        <div className="dash-stat-card dash-stat-card--alert">
           <p className="dash-stat-card__label">לא מגיעים</p>
+          <p className="dash-stat-card__value">{stats.declined}</p>
+          <p className="dash-stat-card__note">רשומות</p>
         </div>
       </div>
 
-      <div className="dash-guest-add-row">
-        <input
-          type="text"
-          placeholder="שם מלא"
-          value={newGuest.name}
-          onChange={(e) => setNewGuest((prev) => ({ ...prev, name: e.target.value }))}
-        />
-        <input
-          type="tel"
-          placeholder="טלפון (לא חובה)"
-          dir="ltr"
-          value={newGuest.phone}
-          onChange={(e) => setNewGuest((prev) => ({ ...prev, phone: e.target.value }))}
-        />
-        <input
-          type="number"
-          min="1"
-          placeholder="כמות"
-          value={newGuest.partySize}
-          onChange={(e) => setNewGuest((prev) => ({ ...prev, partySize: e.target.value }))}
-        />
-        <select
-          value={newGuest.groupId}
-          onChange={(e) => setNewGuest((prev) => ({ ...prev, groupId: e.target.value }))}
-        >
-          <option value={NO_GROUP}>ללא קבוצה</option>
-          {groups.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.name}
-            </option>
-          ))}
-        </select>
-        <button type="button" onClick={handleAdd} disabled={adding || !newGuest.name.trim()}>
-          + הוסיפו אורח
-        </button>
-        <button type="button" className="dash-guest-btn" onClick={() => setShowCsvModal(true)}>
-          ייבוא מ-CSV
-        </button>
-        <button type="button" className="dash-guest-btn" onClick={() => setShowInviteModal(true)}>
-          שלחו הזמנות ב-SMS
-        </button>
-      </div>
-      {addError && <p className="dash-guest-error">{addError}</p>}
+      {showAddRow && (
+        <div className="dash-panel">
+          <p className="dash-panel__title">אורח חדש</p>
+          <div className="dash-guest-add-row">
+            <input
+              type="text"
+              placeholder="שם מלא"
+              autoFocus
+              value={newGuest.name}
+              onChange={(e) => setNewGuest((prev) => ({ ...prev, name: e.target.value }))}
+            />
+            <input
+              type="tel"
+              placeholder="טלפון (לא חובה)"
+              dir="ltr"
+              value={newGuest.phone}
+              onChange={(e) => setNewGuest((prev) => ({ ...prev, phone: e.target.value }))}
+            />
+            <input
+              type="number"
+              min="1"
+              placeholder="כמות"
+              value={newGuest.partySize}
+              onChange={(e) => setNewGuest((prev) => ({ ...prev, partySize: e.target.value }))}
+            />
+            <select
+              value={newGuest.groupId}
+              onChange={(e) => setNewGuest((prev) => ({ ...prev, groupId: e.target.value }))}
+            >
+              <option value={NO_GROUP}>ללא קבוצה</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+            <button type="button" onClick={handleAdd} disabled={adding || !newGuest.name.trim()}>
+              הוסיפו
+            </button>
+          </div>
+          {addError && <p className="dash-guest-error">{addError}</p>}
+        </div>
+      )}
 
       <div className="dash-guest-toolbar">
         <input
@@ -587,10 +615,12 @@ export function GuestsPage() {
       )}
 
       {guests.length > 0 && !groupView && (
-        <table className="dash-guest-table">
-          {tableHeader}
-          <tbody>{visibleGuests.map(renderRow)}</tbody>
-        </table>
+        <div className="dash-table-card">
+          <table className="dash-guest-table">
+            {tableHeader}
+            <tbody>{visibleGuests.map(renderRow)}</tbody>
+          </table>
+        </div>
       )}
 
       {guests.length > 0 && groupView && groupedSections && (
@@ -611,10 +641,12 @@ export function GuestsPage() {
                     מחקו קבוצה
                   </button>
                 </div>
-                <table className="dash-guest-table">
-                  {tableHeader}
-                  <tbody>{groupGuests.map(renderRow)}</tbody>
-                </table>
+                <div className="dash-table-card">
+                  <table className="dash-guest-table">
+                    {tableHeader}
+                    <tbody>{groupGuests.map(renderRow)}</tbody>
+                  </table>
+                </div>
               </div>
             )
           })}
@@ -624,10 +656,12 @@ export function GuestsPage() {
                 <strong>ללא קבוצה</strong>
                 <span className="dash-page-sub">{groupedSections.ungrouped.length} אורחים</span>
               </div>
-              <table className="dash-guest-table">
-                {tableHeader}
-                <tbody>{groupedSections.ungrouped.map(renderRow)}</tbody>
-              </table>
+              <div className="dash-table-card">
+                <table className="dash-guest-table">
+                  {tableHeader}
+                  <tbody>{groupedSections.ungrouped.map(renderRow)}</tbody>
+                </table>
+              </div>
             </div>
           )}
         </>

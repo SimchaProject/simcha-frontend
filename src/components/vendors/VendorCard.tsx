@@ -3,6 +3,7 @@ import { vendorsApi } from '../../api/vendors'
 import type { Vendor, VendorStatus } from '../../types/vendors'
 import type { BudgetCategory } from '../../types/budget'
 import { VendorPaymentsPanel } from './VendorPaymentsPanel'
+import { iconForCategory } from '../../constants/vendorCategories'
 
 const STATUS_LABELS: Record<VendorStatus, string> = {
   CONTACTED: 'יצרנו קשר',
@@ -168,6 +169,15 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
         </select>
       </div>
 
+      {/* The list is no longer grouped under category headings, so the card
+          carries its own category. */}
+      <p className="dash-vendor-card__category">
+        {iconForCategory(vendor.category) && (
+          <span aria-hidden="true">{iconForCategory(vendor.category)} </span>
+        )}
+        {vendor.category}
+      </p>
+
       {vendor.contactInfo && <p className="dash-vendor-card__detail">{vendor.contactInfo}</p>}
       {vendor.totalContractAmount != null && (
         <p className="dash-vendor-card__detail">חוזה: ₪{vendor.totalContractAmount.toLocaleString()}</p>
@@ -186,7 +196,7 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
           </a>
         ) : null}
         <button type="button" onClick={() => contractInputRef.current?.click()}>
-          {vendor.hasContract ? 'החלפת חוזה' : 'העלאת חוזה'}
+          {vendor.hasContract ? 'החלפה' : 'חוזה'}
         </button>
         <button type="button" onClick={() => setExpanded((v) => !v)}>
           {expanded ? 'הסתירו תשלומים' : 'תשלומים'}

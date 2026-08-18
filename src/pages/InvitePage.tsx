@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { rsvpApi } from '../api/rsvp'
 import { weddingApi } from '../api/wedding'
 import type { PublicWeddingInfo } from '../types/wedding'
@@ -48,11 +48,15 @@ export function InvitePage() {
   const [attending, setAttending] = useState<boolean | null>(null)
   const [dietaryNotes, setDietaryNotes] = useState('')
   const [needsTransport, setNeedsTransport] = useState(false)
+  const [openToMingle, setOpenToMingle] = useState(false)
+  const [mingleAge, setMingleAge] = useState('')
+  const [mingleBio, setMingleBio] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [previousStatus, setPreviousStatus] = useState<'ATTENDING' | 'DECLINED' | null>(null)
+  const [mingleToken, setMingleToken] = useState<string | null>(null)
 
   useEffect(() => {
     if (!weddingSlug) return
@@ -108,8 +112,13 @@ export function InvitePage() {
         attending: attending === true,
         dietaryNotes: attending === true ? dietaryNotes.trim() || undefined : undefined,
         needsTransport: attending === true ? needsTransport : undefined,
+        openToMingle: attending === true ? openToMingle : undefined,
+        mingleAge: attending === true && openToMingle && mingleAge ? Number(mingleAge) : undefined,
+        mingleBio:
+          attending === true && openToMingle ? mingleBio.trim() || undefined : undefined,
       })
       setPreviousStatus(result.previousStatus)
+      setMingleToken(result.mingleToken)
       setSubmitted(true)
     } catch {
       setSubmitError('משהו השתבש, נסו שוב.')
@@ -142,18 +151,12 @@ export function InvitePage() {
         )}
 
         <Countdown targetDate={wedding.date} />
-        <ScheduleList entries={wedding.guestPageConfig.schedule} />
-        <ArrivalSection
-          mapUrl={wedding.guestPageConfig.mapUrl}
-          parkingInfo={wedding.guestPageConfig.parkingInfo}
-        />
-        <GiftSection
-          payboxLink={wedding.guestPageConfig.payboxLink}
-          bankTransferDetails={wedding.guestPageConfig.bankTransferDetails}
-        />
 
         <VineDivider />
 
+        {/* The RSVP form comes before the day-of details on purpose: answering
+            is the one thing this page asks of a guest, and it used to sit
+            below the schedule, arrival and gift sections. */}
         {submitted ? (
           <div className="invite-success">
             <p className="invite-section-title">
@@ -168,6 +171,16 @@ export function InvitePage() {
                 {previousStatus === 'ATTENDING' ? 'תגיעו' : 'לא תוכלו להגיע'}. התשובה שלכם עודכנה בהתאם לבחירה
                 הנוכחית.
               </p>
+            )}
+            {mingleToken && (
+              <div className="invite-mingle-link">
+                <p className="invite-section-sub">
+                  הצטרפתם לפינת הרווקים. שמרו את הקישור — הוא אישי, וזו הדרך היחידה להיכנס:
+                </p>
+                <Link to={`/w/${weddingSlug}/mingle/${mingleToken}`} className="invite-mingle-link__cta">
+                  לפינת הרווקים ✨
+                </Link>
+              </div>
             )}
           </div>
         ) : (
@@ -276,6 +289,52 @@ export function InvitePage() {
                       צריך/ה הסעה מאורגנת
                     </label>
                   </div>
+
+                  {wedding.guestPageConfig.mingleEnabled && (
+                    <div className="invite-mingle">
+                      <label className="invite-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={openToMingle}
+                          onChange={(e) => setOpenToMingle(e.target.checked)}
+                        />
+                        מגיע/ה לבד ופתוח/ה להכיר אנשים חדשים
+                      </label>
+                      <p className="invite-mingle__note">
+                        לגמרי אופציונלי. אם תסמנו, תקבלו קישור לפינת הרווקים של האירוע ותופיעו בה
+                        לשאר מי שסימנו — שם פרטי בלבד, בלי טלפון.
+                      </p>
+
+                      {openToMingle && (
+                        <div className="invite-mingle__fields">
+                          <div className="invite-field">
+                            <label htmlFor="rsvp-mingle-age">גיל (אופציונלי)</label>
+                            <input
+                              id="rsvp-mingle-age"
+                              type="number"
+                              min={18}
+                              max={120}
+                              value={mingleAge}
+                              onChange={(e) => setMingleAge(e.target.value)}
+                              placeholder="29"
+                            />
+                          </div>
+                          <div className="invite-field">
+                            <label htmlFor="rsvp-mingle-bio">משהו קטן עליכם (אופציונלי)</label>
+                            <textarea
+                              id="rsvp-mingle-bio"
+                              className="invite-dietary"
+                              rows={2}
+                              maxLength={280}
+                              value={mingleBio}
+                              onChange={(e) => setMingleBio(e.target.value)}
+                              placeholder="חברה של הכלה מהאוניברסיטה, אוהבת לטייל ולבשל"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
 
@@ -289,6 +348,18 @@ export function InvitePage() {
             </form>
           </>
         )}
+
+        <VineDivider />
+
+        <ScheduleList entries={wedding.guestPageConfig.schedule} />
+        <ArrivalSection
+          mapUrl={wedding.guestPageConfig.mapUrl}
+          parkingInfo={wedding.guestPageConfig.parkingInfo}
+        />
+        <GiftSection
+          payboxLink={wedding.guestPageConfig.payboxLink}
+          bankTransferDetails={wedding.guestPageConfig.bankTransferDetails}
+        />
       </div>
     </div>
   )

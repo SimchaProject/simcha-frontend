@@ -403,3 +403,46 @@
 .invite-success {
   animation: invite-fade-in 0.4s ease both;
 }
+
+/* SIM-15 singles-corner opt-in, inside the RSVP form */
+
+.invite-mingle {
+  border: 1px dashed var(--simcha-line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 4px;
+}
+
+.invite-mingle__note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--simcha-ink-muted);
+  margin: 6px 0 0;
+}
+
+.invite-mingle__fields {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invite-mingle-link {
+  margin-top: 14px;
+}
+
+.invite-mingle-link__cta {
+  display: inline-block;
+  margin-top: 8px;
+  border: 1.5px solid var(--simcha-red);
+  border-radius: 999px;
+  padding: 8px 20px;
+  color: var(--simcha-red);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.invite-mingle-link__cta:hover {
+  background: var(--simcha-red);
+  color: var(--simcha-paper);
+}

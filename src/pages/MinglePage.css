@@ -1,0 +1,51 @@
+/* Guest-facing, so it stays on the paper surface with the invitation - the
+   neutral admin palette is for the couple's dashboard only. */
+
+.mingle-list {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.mingle-card {
+  border: 1px solid var(--simcha-line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.mingle-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.mingle-card__name {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--simcha-ink);
+}
+
+.mingle-card__age {
+  font-size: 13px;
+  color: var(--simcha-gold);
+}
+
+.mingle-card__bio {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--simcha-ink-muted);
+  margin: 6px 0 0;
+}
+
+
+/* The shared note style pulls itself up under a section title; here it
+   follows a card grid, so it needs its own spacing instead. */
+.mingle-footnote {
+  margin-top: 0;
+  line-height: 1.6;
+}
