@@ -12,16 +12,18 @@
   --simcha-gold: #8c7038;
   --simcha-green: #4f5c3a;
 
-  /* Admin surfaces. The spec calls for the guest-facing side to read as
-     paper and the couple's dashboard to read as a modern app on a neutral
-     ground, sharing only the ink and the three accents - so the paper tokens
-     above stay for /w/:slug and the wizard, and the dashboard uses these. */
-  --admin-bg: #f7f6f4;
-  --admin-surface: #ffffff;
-  --admin-surface-sunken: #f2f0ec;
-  --admin-line: #e7e3db;
-  --admin-line-strong: #d5cfc2;
-  --admin-shadow: 0 1px 2px rgba(36, 26, 20, 0.04), 0 1px 3px rgba(36, 26, 20, 0.06);
+  /* Admin surfaces. The dashboard keeps the paper palette rather than the
+     neutral one the spec suggests - the couple's side is meant to feel like
+     the same product as the invitation, not a separate SaaS tool.
+     Structurally it's still a modern dashboard: these are the surfaces that
+     give it card-on-ground depth, just mixed from paper instead of grey.
+     Every dashboard rule reads these, so the whole shell repalettes here. */
+  --admin-bg: #e5d9bf;
+  --admin-surface: var(--simcha-paper);
+  --admin-surface-sunken: var(--simcha-paper-dark);
+  --admin-line: #d6c69c;
+  --admin-line-strong: var(--simcha-line);
+  --admin-shadow: 0 1px 2px rgba(90, 77, 58, 0.06), 0 1px 3px rgba(90, 77, 58, 0.08);
 
   color-scheme: light;
 }

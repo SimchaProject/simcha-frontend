@@ -88,7 +88,7 @@
 
 .dash-sidebar__link.active {
   background: var(--simcha-red);
-  color: #fff;
+  color: var(--simcha-paper);
 }
 
 .dash-sidebar__logout {
@@ -216,13 +216,13 @@
 .dash-btn--primary {
   background: var(--simcha-red);
   border-color: var(--simcha-red);
-  color: #fff;
+  color: var(--simcha-paper);
 }
 
 .dash-btn--primary:hover:not(:disabled) {
   background: #9c3226;
   border-color: #9c3226;
-  color: #fff;
+  color: var(--simcha-paper);
 }
 
 /* Creation forms stay folded away until asked for - the page opens on the
@@ -369,7 +369,7 @@
 
 .dash-invite-link-card__row button:hover {
   background: var(--simcha-red);
-  color: #fff;
+  color: var(--simcha-paper);
 }
 
 /* guests */
@@ -420,7 +420,7 @@
 .dash-guest-add-row button {
   border: 1px solid var(--simcha-red);
   background: var(--simcha-red);
-  color: #fff;
+  color: var(--simcha-paper);
   border-radius: 9px;
   padding: 8px 16px;
   font-size: 13px;

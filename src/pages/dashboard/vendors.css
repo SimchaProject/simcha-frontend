@@ -263,7 +263,7 @@
 .dash-vendor-payments-add-row button {
   border: 1px solid var(--simcha-red);
   background: var(--simcha-red);
-  color: #fff;
+  color: var(--simcha-paper);
   border-radius: 8px;
   padding: 6px 14px;
   font-size: 12px;
