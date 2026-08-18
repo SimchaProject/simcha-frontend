@@ -27,5 +27,5 @@ export const seatingApi = {
     http.patch<SeatingTable>(`/weddings/${weddingId}/seating/tables/${tableId}`, payload),
 
   deleteTable: (weddingId: string, tableId: string) =>
-    http.delete<void>(`/weddings/${weddingId}/seating/tables/${tableId}`),
+    http.del<void>(`/weddings/${weddingId}/seating/tables/${tableId}`),
 }
