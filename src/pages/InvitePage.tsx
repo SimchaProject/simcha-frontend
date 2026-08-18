@@ -351,6 +351,29 @@ export function InvitePage() {
 
         <VineDivider />
 
+        {/* The corner is reachable from the invitation itself, not only from
+            the one-time link on the confirmation screen - guests lose that
+            link, and the phone gate behind this is how they get back in. */}
+        {wedding.guestPageConfig.mingleEnabled && (
+          <Link to={`/w/${weddingSlug}/singles`} className="invite-nav-card">
+            <span className="invite-nav-card__icon" aria-hidden="true">
+              ♡
+            </span>
+            <span className="invite-nav-card__text">
+              <span className="invite-nav-card__title">
+                רווקים ורווקות
+                <span className="invite-nav-card__badge">חדש</span>
+              </span>
+              <span className="invite-nav-card__sub">מי מגיע/ה לבד, ופתוח/ה להכיר</span>
+            </span>
+            {/* dir=ltr so the bidi algorithm doesn't mirror the glyph back to
+                pointing the way we came from. */}
+            <span className="invite-nav-card__chevron" dir="ltr" aria-hidden="true">
+              ‹
+            </span>
+          </Link>
+        )}
+
         <ScheduleList entries={wedding.guestPageConfig.schedule} />
         <ArrivalSection
           mapUrl={wedding.guestPageConfig.mapUrl}

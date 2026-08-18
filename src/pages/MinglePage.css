@@ -49,3 +49,30 @@
   margin-top: 0;
   line-height: 1.6;
 }
+
+/* singles-corner entry (phone gate) */
+
+.mingle-entry {
+  text-align: center;
+}
+
+.mingle-heart {
+  font-size: 30px;
+  color: var(--simcha-red);
+  margin: 0 0 10px;
+}
+
+.mingle-entry__headline {
+  font-size: 38px;
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.mingle-entry__form {
+  margin: 26px auto 0;
+}
+
+.mingle-entry__note {
+  margin-top: 22px;
+  line-height: 1.6;
+}

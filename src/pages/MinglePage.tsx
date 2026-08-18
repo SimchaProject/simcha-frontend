@@ -51,11 +51,12 @@ export function MinglePage() {
         <div className="invite-card">
           <p className="invite-section-title">הקישור לא פעיל</p>
           <p className="invite-section-sub">
-            פינת הרווקים פתוחה רק למי שסימנו בטופס אישור ההגעה שהם מגיעים לבד ופתוחים להכיר. אם
-            סימנתם ואיבדתם את הקישור, אפשר פשוט למלא את הטופס שוב עם אותו מספר טלפון.
+            פינת הרווקים פתוחה רק למי שסימנו בטופס אישור ההגעה שהם מגיעים לבד ופתוחים להכיר.
           </p>
           {weddingSlug && (
             <p className="invite-section-sub">
+              <Link to={`/w/${weddingSlug}/singles`}>הצטרפתם והקישור אבד? היכנסו עם הטלפון</Link>
+              {' · '}
               <Link to={`/w/${weddingSlug}`}>חזרה לדף האירוע</Link>
             </p>
           )}
@@ -69,13 +70,16 @@ export function MinglePage() {
   return (
     <div className="invite-page">
       <div className="invite-card">
-        <p className="invite-eyebrow">פינת הרווקים</p>
+        <p className="mingle-heart" aria-hidden="true">
+          ♡
+        </p>
+        <p className="invite-eyebrow">רווקים ורווקות</p>
         <p className="invite-names">
           {list.coupleNameA} <span className="invite-amp">&amp;</span> {list.coupleNameB}
         </p>
         <p className="invite-section-sub">
           כל מי שסימנ/ה בטופס שהוא מגיע/ה לבד ופתוח/ה להכיר. אף אחד לא מופיע כאן בלי שבחר בזה
-          בעצמו, ואין כאן מספרי טלפון — ההיכרות עצמה קורית באירוע.
+          בעצמו, ואין כאן מספרי טלפון — את השאר תעשו באירוע.
         </p>
 
         <VineDivider />
