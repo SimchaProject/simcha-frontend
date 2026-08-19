@@ -403,3 +403,117 @@
 .invite-success {
   animation: invite-fade-in 0.4s ease both;
 }
+
+/* SIM-15 singles-corner opt-in, inside the RSVP form */
+
+.invite-mingle {
+  border: 1px dashed var(--simcha-line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 4px;
+}
+
+.invite-mingle__note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--simcha-ink-muted);
+  margin: 6px 0 0;
+}
+
+.invite-mingle__fields {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invite-mingle-link {
+  margin-top: 14px;
+}
+
+.invite-mingle-link__cta {
+  display: inline-block;
+  margin-top: 8px;
+  border: 1.5px solid var(--simcha-red);
+  border-radius: 999px;
+  padding: 8px 20px;
+  color: var(--simcha-red);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.invite-mingle-link__cta:hover {
+  background: var(--simcha-red);
+  color: var(--simcha-paper);
+}
+
+/* Nav card into the singles corner (SIM-15). Sits on the invitation itself
+   so the corner is a place you can go back to, not a link you had one shot
+   at keeping. */
+
+.invite-nav-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 22px;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid var(--simcha-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.35);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.invite-nav-card:hover {
+  border-color: var(--simcha-red);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.invite-nav-card__icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--simcha-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  color: var(--simcha-red);
+}
+
+.invite-nav-card__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: start;
+}
+
+.invite-nav-card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--simcha-ink);
+}
+
+.invite-nav-card__sub {
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+}
+
+.invite-nav-card__chevron {
+  flex: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--simcha-gold);
+}

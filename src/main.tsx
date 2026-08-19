@@ -14,6 +14,8 @@ import { GuestsPage } from './pages/dashboard/GuestsPage.tsx'
 import { SettingsPage } from './pages/dashboard/SettingsPage.tsx'
 import { WizardPage } from './pages/WizardPage.tsx'
 import { InvitePage } from './pages/InvitePage.tsx'
+import { MinglePage } from './pages/MinglePage.tsx'
+import { SinglesEntryPage } from './pages/SinglesEntryPage.tsx'
 import { SeatingPage } from './pages/dashboard/SeatingPage.tsx'
 import { VendorsPage } from './pages/dashboard/VendorsPage.tsx'
 import { BudgetPage } from './pages/dashboard/BudgetPage.tsx'
@@ -50,6 +52,8 @@ createRoot(document.getElementById('root')!).render(
             }
           />
           <Route path="/w/:weddingSlug" element={<InvitePage />} />
+          <Route path="/w/:weddingSlug/singles" element={<SinglesEntryPage />} />
+          <Route path="/w/:weddingSlug/mingle/:token" element={<MinglePage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

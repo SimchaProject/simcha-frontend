@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { rsvpApi } from '../api/rsvp'
 import { weddingApi } from '../api/wedding'
 import type { PublicWeddingInfo } from '../types/wedding'
@@ -48,11 +48,15 @@ export function InvitePage() {
   const [attending, setAttending] = useState<boolean | null>(null)
   const [dietaryNotes, setDietaryNotes] = useState('')
   const [needsTransport, setNeedsTransport] = useState(false)
+  const [openToMingle, setOpenToMingle] = useState(false)
+  const [mingleAge, setMingleAge] = useState('')
+  const [mingleBio, setMingleBio] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [previousStatus, setPreviousStatus] = useState<'ATTENDING' | 'DECLINED' | null>(null)
+  const [mingleToken, setMingleToken] = useState<string | null>(null)
 
   useEffect(() => {
     if (!weddingSlug) return
@@ -108,8 +112,13 @@ export function InvitePage() {
         attending: attending === true,
         dietaryNotes: attending === true ? dietaryNotes.trim() || undefined : undefined,
         needsTransport: attending === true ? needsTransport : undefined,
+        openToMingle: attending === true ? openToMingle : undefined,
+        mingleAge: attending === true && openToMingle && mingleAge ? Number(mingleAge) : undefined,
+        mingleBio:
+          attending === true && openToMingle ? mingleBio.trim() || undefined : undefined,
       })
       setPreviousStatus(result.previousStatus)
+      setMingleToken(result.mingleToken)
       setSubmitted(true)
     } catch {
       setSubmitError('משהו השתבש, נסו שוב.')
@@ -142,18 +151,12 @@ export function InvitePage() {
         )}
 
         <Countdown targetDate={wedding.date} />
-        <ScheduleList entries={wedding.guestPageConfig.schedule} />
-        <ArrivalSection
-          mapUrl={wedding.guestPageConfig.mapUrl}
-          parkingInfo={wedding.guestPageConfig.parkingInfo}
-        />
-        <GiftSection
-          payboxLink={wedding.guestPageConfig.payboxLink}
-          bankTransferDetails={wedding.guestPageConfig.bankTransferDetails}
-        />
 
         <VineDivider />
 
+        {/* The RSVP form comes before the day-of details on purpose: answering
+            is the one thing this page asks of a guest, and it used to sit
+            below the schedule, arrival and gift sections. */}
         {submitted ? (
           <div className="invite-success">
             <p className="invite-section-title">
@@ -276,6 +279,52 @@ export function InvitePage() {
                       צריך/ה הסעה מאורגנת
                     </label>
                   </div>
+
+                  {wedding.guestPageConfig.mingleEnabled && (
+                    <div className="invite-mingle">
+                      <label className="invite-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={openToMingle}
+                          onChange={(e) => setOpenToMingle(e.target.checked)}
+                        />
+                        מגיע/ה לבד ופתוח/ה להכיר אנשים חדשים
+                      </label>
+                      <p className="invite-mingle__note">
+                        לגמרי אופציונלי. אם תסמנו, תקבלו קישור לפינת הרווקים של האירוע ותופיעו בה
+                        לשאר מי שסימנו — שם פרטי בלבד, בלי טלפון.
+                      </p>
+
+                      {openToMingle && (
+                        <div className="invite-mingle__fields">
+                          <div className="invite-field">
+                            <label htmlFor="rsvp-mingle-age">גיל (אופציונלי)</label>
+                            <input
+                              id="rsvp-mingle-age"
+                              type="number"
+                              min={18}
+                              max={120}
+                              value={mingleAge}
+                              onChange={(e) => setMingleAge(e.target.value)}
+                              placeholder="29"
+                            />
+                          </div>
+                          <div className="invite-field">
+                            <label htmlFor="rsvp-mingle-bio">משהו קטן עליכם (אופציונלי)</label>
+                            <textarea
+                              id="rsvp-mingle-bio"
+                              className="invite-dietary"
+                              rows={2}
+                              maxLength={280}
+                              value={mingleBio}
+                              onChange={(e) => setMingleBio(e.target.value)}
+                              placeholder="חברה של הכלה מהאוניברסיטה, אוהבת לטייל ולבשל"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
 
@@ -289,6 +338,51 @@ export function InvitePage() {
             </form>
           </>
         )}
+
+        {/* One way in, and it belongs to the RSVP block rather than to the
+            day-of details: joining the corner happens on this form, so the
+            way back to it sits with the form. A guest who just opted in goes
+            straight through on their token; everyone else lands on the phone
+            gate. */}
+        {wedding.guestPageConfig.mingleEnabled && (
+          <Link
+            to={
+              mingleToken
+                ? `/w/${weddingSlug}/mingle/${mingleToken}`
+                : `/w/${weddingSlug}/singles`
+            }
+            className="invite-nav-card"
+          >
+            <span className="invite-nav-card__icon" aria-hidden="true">
+              ♡
+            </span>
+            <span className="invite-nav-card__text">
+              <span className="invite-nav-card__title">רווקים ורווקות</span>
+              <span className="invite-nav-card__sub">
+                {mingleToken
+                  ? 'הצטרפתם — אפשר להציץ מי עוד שם'
+                  : 'מי מגיע/ה לבד, ופתוח/ה להכיר'}
+              </span>
+            </span>
+            {/* dir=ltr so the bidi algorithm doesn't mirror the glyph back to
+                pointing the way we came from. */}
+            <span className="invite-nav-card__chevron" dir="ltr" aria-hidden="true">
+              ‹
+            </span>
+          </Link>
+        )}
+
+        <VineDivider />
+
+        <ScheduleList entries={wedding.guestPageConfig.schedule} />
+        <ArrivalSection
+          mapUrl={wedding.guestPageConfig.mapUrl}
+          parkingInfo={wedding.guestPageConfig.parkingInfo}
+        />
+        <GiftSection
+          payboxLink={wedding.guestPageConfig.payboxLink}
+          bankTransferDetails={wedding.guestPageConfig.bankTransferDetails}
+        />
       </div>
     </div>
   )

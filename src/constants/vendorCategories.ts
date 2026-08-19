@@ -22,7 +22,10 @@ export const VENDOR_CATEGORY_PRESETS: VendorCategoryPreset[] = [
 
 export const OTHER_CATEGORY: VendorCategoryPreset = { id: 'other', label: 'אחר', icon: '➕' }
 
-export function iconForCategory(categoryLabel: string): string {
+// null rather than a generic fallback icon: a couple's own category ("רב
+// וטקס", "הסעות מהצפון") gets no icon at all, which reads better than a
+// meaningless "➕" sitting next to it.
+export function iconForCategory(categoryLabel: string): string | null {
   const preset = VENDOR_CATEGORY_PRESETS.find((p) => p.label === categoryLabel)
-  return preset?.icon ?? OTHER_CATEGORY.icon
+  return preset?.icon ?? null
 }

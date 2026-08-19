@@ -18,6 +18,9 @@ export interface GuestPageConfig {
   parkingInfo: string | null
   payboxLink: string | null
   bankTransferDetails: string | null
+  // SIM-15: opens the singles-corner opt-in on the RSVP form. Off unless the
+  // couple turns it on in settings.
+  mingleEnabled: boolean
   // Used server-side to build the guest's post-RSVP wa.me link. Never sent
   // to the public invite page.
   contactPhone: string | null
@@ -55,6 +58,7 @@ export interface PublicGuestPageConfig {
   parkingInfo: string | null
   payboxLink: string | null
   bankTransferDetails: string | null
+  mingleEnabled: boolean
 }
 
 export interface PublicWeddingInfo {
@@ -79,6 +83,7 @@ export interface GuestPageConfigInput {
   parkingInfo?: string
   payboxLink?: string
   bankTransferDetails?: string
+  mingleEnabled?: boolean
   contactPhone?: string
 }
 

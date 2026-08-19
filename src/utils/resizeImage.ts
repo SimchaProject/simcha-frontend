@@ -1,0 +1,31 @@
+const MAX_EDGE = 640
+const JPEG_QUALITY = 0.82
+
+// Phone cameras produce 3-6MB files; the singles list shows them at about
+// 90px. Downscaling in the browser before upload keeps a few hundred rows of
+// photos in Postgres from turning into hundreds of megabytes, and means a
+// guest on hotel wifi isn't uploading a full-size original.
+export async function resizeImage(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file)
+  try {
+    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height))
+    const width = Math.round(bitmap.width * scale)
+    const height = Math.round(bitmap.height * scale)
+
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const context = canvas.getContext('2d')
+    if (!context) return file
+    context.drawImage(bitmap, 0, 0, width, height)
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY),
+    )
+    // If the browser won't give us a blob, sending the original beats
+    // failing the upload - the server's size limit still applies.
+    return blob ?? file
+  } finally {
+    bitmap.close()
+  }
+}

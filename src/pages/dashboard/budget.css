@@ -1,37 +1,148 @@
-.dash-budget-hint {
+/* Section card - the page is a stack of these rather than one long scroll of
+   loose headings, so each block reads as a unit on the neutral ground. */
+.dash-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--admin-shadow);
+}
+
+.dash-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dash-card__title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--simcha-ink);
+  margin: 0;
+}
+
+.dash-card__flag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--simcha-red);
+  background: rgba(178, 58, 46, 0.1);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+/* burn-down chart */
+
+.dash-burndown__legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   font-size: 12px;
-  margin-top: -6px;
-  margin-bottom: 18px;
-  line-height: 1.5;
+  color: var(--simcha-ink-muted);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
-.dash-budget-empty {
-  border: 1.5px dashed var(--simcha-line);
-  border-radius: 14px;
-  padding: 24px 16px;
-  text-align: center;
-  margin-bottom: 14px;
+.dash-burndown__legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.dash-budget-empty__icon {
-  font-size: 28px;
-  margin: 0 0 6px;
+.dash-burndown__swatch {
+  width: 14px;
+  height: 0;
+  border-top-width: 2px;
+  border-top-style: solid;
 }
+
+.dash-burndown__swatch--planned {
+  border-top-color: var(--simcha-gold);
+  border-top-style: dashed;
+}
+
+.dash-burndown__swatch--actual {
+  border-top-color: var(--simcha-red);
+}
+
+.dash-burndown__flag {
+  margin-inline-start: auto;
+  color: var(--simcha-red);
+  font-weight: 500;
+}
+
+/* The time axis reads left-to-right like every other chart, so the SVG opts
+   out of the page's RTL rather than mirroring into a confusing timeline. */
+.dash-burndown__svg {
+  width: 100%;
+  height: auto;
+  direction: ltr;
+  display: block;
+}
+
+.dash-burndown__grid {
+  stroke: var(--admin-line);
+  stroke-width: 1;
+}
+
+.dash-burndown__tick {
+  font-family: 'Rubik', sans-serif;
+  font-size: 11px;
+  fill: var(--simcha-ink-muted);
+}
+
+.dash-burndown__line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.dash-burndown__line--planned {
+  stroke: var(--simcha-gold);
+  stroke-dasharray: 5 4;
+}
+
+.dash-burndown__line--actual {
+  stroke: var(--simcha-red);
+}
+
+.dash-burndown__marker {
+  stroke-width: 1;
+}
+
+.dash-burndown__marker--today {
+  stroke: var(--simcha-ink-muted);
+  stroke-dasharray: 3 3;
+}
+
+.dash-burndown__marker--wedding {
+  stroke: var(--simcha-green);
+}
+
+.dash-burndown__marker-label {
+  font-family: 'Rubik', sans-serif;
+  font-size: 10px;
+  fill: var(--simcha-green);
+}
+
+/* categories */
 
 .dash-budget-preset-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .dash-budget-preset-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--simcha-line);
-  border-radius: 16px;
-  background: var(--simcha-paper);
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 999px;
+  background: var(--admin-surface);
   padding: 6px 12px;
   font-size: 12px;
   font-family: 'Rubik', sans-serif;
@@ -51,85 +162,77 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  margin: 16px 0 24px;
 }
 
 .dash-budget-total-row input {
-  border: none;
-  border-bottom: 1px solid var(--simcha-gold);
-  background: transparent;
-  padding: 6px 0;
-  font-family: 'Rubik', sans-serif;
-  font-size: 14px;
-  color: var(--simcha-ink);
-  outline: none;
-  width: 140px;
+  width: 160px;
 }
 
-.dash-budget-total-row button {
-  border: 1.5px solid var(--simcha-red);
-  color: var(--simcha-red);
-  background: transparent;
-  border-radius: 18px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-family: 'Rubik', sans-serif;
-  cursor: pointer;
-  white-space: nowrap;
+.dash-budget-add-category {
+  border-bottom: 1px solid var(--admin-line);
+  padding-bottom: 14px;
+  margin-bottom: 14px;
 }
 
-.dash-budget-total-row button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.dash-budget-section {
-  margin-bottom: 28px;
-}
-
-.dash-budget-section__title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--simcha-gold);
-  letter-spacing: 0.5px;
-  margin: 0 0 10px;
-}
-
-.dash-budget-section__title--overdue {
-  color: var(--simcha-red);
+.dash-budget-add-category-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .dash-budget-categories {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .dash-budget-category__header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 12px;
   font-size: 13px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-.dash-budget-category__header span:first-child {
+.dash-budget-category__name {
   font-weight: 600;
-  flex: 1;
 }
 
-.dash-budget-category__header button {
-  border: none;
-  background: transparent;
+.dash-budget-category__figures {
+  margin-inline-start: auto;
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+  white-space: nowrap;
+}
+
+/* Same treatment as the guest table: row-level edit/remove only surfaces
+   when you're on the row. */
+.dash-budget-category__actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.dash-budget-category:hover .dash-budget-category__actions,
+.dash-budget-category__actions:focus-within {
+  opacity: 1;
+}
+
+.dash-budget-category__actions button {
+  border: 1px solid var(--admin-line-strong);
+  background: var(--admin-surface);
   color: var(--simcha-ink-muted);
   font-size: 12px;
   font-family: 'Rubik', sans-serif;
   cursor: pointer;
-  text-decoration: underline;
+  padding: 3px 9px;
+  border-radius: 7px;
 }
 
-.dash-budget-category__header button:hover {
+.dash-budget-category__actions button:hover {
   color: var(--simcha-red);
+  border-color: var(--simcha-red);
 }
 
 .dash-budget-category__over-badge {
@@ -150,43 +253,15 @@
   align-items: center;
 }
 
-.dash-budget-category__edit-row input {
-  border: none;
-  border-bottom: 1px solid var(--simcha-gold);
-  background: transparent;
-  padding: 6px 0;
-  font-family: 'Rubik', sans-serif;
-  font-size: 13px;
-  color: var(--simcha-ink);
-  outline: none;
-}
-
 .dash-budget-category__edit-row input[type='number'] {
   width: 120px;
-}
-
-.dash-budget-category__edit-row button {
-  border: 1.5px solid var(--simcha-red);
-  color: var(--simcha-red);
-  background: transparent;
-  border-radius: 18px;
-  padding: 6px 14px;
-  font-size: 12px;
-  font-family: 'Rubik', sans-serif;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.dash-budget-category__edit-row button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .dash-budget-bar {
   position: relative;
   height: 8px;
   border-radius: 6px;
-  background: var(--simcha-paper-dark);
+  background: var(--admin-surface-sunken);
   overflow: hidden;
 }
 
@@ -213,69 +288,7 @@
   background: var(--simcha-red);
 }
 
-.dash-budget-category__legend {
-  display: flex;
-  gap: 14px;
-  font-size: 11px;
-  color: var(--simcha-ink-muted);
-  margin-top: 4px;
-}
-
-.dash-budget-category__legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.dash-budget-category__legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.dash-budget-category__legend-dot--paid {
-  background: var(--simcha-green);
-}
-
-.dash-budget-category__legend-dot--committed {
-  background: var(--simcha-gold);
-}
-
-.dash-budget-add-category-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-
-.dash-budget-add-category-row input {
-  border: none;
-  border-bottom: 1px solid var(--simcha-gold);
-  background: transparent;
-  padding: 6px 0;
-  font-family: 'Rubik', sans-serif;
-  font-size: 13px;
-  color: var(--simcha-ink);
-  outline: none;
-}
-
-.dash-budget-add-category-row button {
-  border: 1.5px solid var(--simcha-red);
-  color: var(--simcha-red);
-  background: transparent;
-  border-radius: 18px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-family: 'Rubik', sans-serif;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.dash-budget-add-category-row button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* payments */
 
 .dash-budget-payment-list {
   list-style: none;
@@ -283,23 +296,65 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
   font-size: 13px;
 }
 
 .dash-budget-payment-list li {
   display: flex;
-  gap: 16px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: var(--simcha-paper-dark);
+  align-items: center;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--admin-line);
 }
 
-.dash-budget-payment-list li span:first-child {
+.dash-budget-payment-list li:last-child {
+  border-bottom: none;
+}
+
+.dash-budget-payment__vendor {
   font-weight: 600;
   flex: 1;
+  min-width: 120px;
 }
 
-.dash-budget-payment-list--overdue li {
+.dash-budget-payment__type,
+.dash-budget-payment__date {
+  color: var(--simcha-ink-muted);
+  font-size: 12px;
+}
+
+.dash-budget-payment__amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-budget-payment-list li.is-overdue .dash-budget-payment__date {
   color: var(--simcha-red);
+  font-weight: 500;
+}
+
+.dash-budget-payment__action {
+  padding: 4px 10px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.dash-budget-payment-list li:hover .dash-budget-payment__action,
+.dash-budget-payment__action:focus {
+  opacity: 1;
+}
+
+/* An overdue payment is the one thing on this page that should ask to be
+   dealt with, so its action doesn't wait for a hover. */
+.dash-budget-payment-list li.is-overdue .dash-budget-payment__action {
+  opacity: 1;
+  border-color: var(--simcha-red);
+  color: var(--simcha-red);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .dash-budget-category__actions,
+  .dash-budget-payment__action {
+    opacity: 1;
+  }
 }

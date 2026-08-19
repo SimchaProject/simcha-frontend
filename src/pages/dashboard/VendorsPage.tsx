@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDashboard } from './dashboard-context'
 import { vendorsApi } from '../../api/vendors'
 import { budgetApi } from '../../api/budget'
 import type { Vendor } from '../../types/vendors'
 import type { BudgetCategory } from '../../types/budget'
 import { VendorCard } from '../../components/vendors/VendorCard'
-import { VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY, iconForCategory } from '../../constants/vendorCategories'
+import { VENDOR_CATEGORY_PRESETS, iconForCategory } from '../../constants/vendorCategories'
 import './vendors.css'
+
+const ALL = '__all__'
+const CUSTOM = '__custom__'
+const NO_BUDGET_CATEGORY = ''
 
 export function VendorsPage() {
   const { wedding } = useDashboard()
@@ -15,11 +19,14 @@ export function VendorsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [activeTileId, setActiveTileId] = useState<string | null>(null)
+  const [filter, setFilter] = useState<string>(ALL)
+  const [showAdd, setShowAdd] = useState(false)
+  const [categoryChoice, setCategoryChoice] = useState(VENDOR_CATEGORY_PRESETS[0].label)
   const [customCategory, setCustomCategory] = useState('')
   const [newVendorName, setNewVendorName] = useState('')
   const [newContactInfo, setNewContactInfo] = useState('')
   const [newContractAmount, setNewContractAmount] = useState('')
+  const [newBudgetCategoryId, setNewBudgetCategoryId] = useState(NO_BUDGET_CATEGORY)
   const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
 
@@ -47,26 +54,25 @@ export function VendorsPage() {
     budgetApi.listCategories(wedding.id).then(setBudgetCategories).catch(() => undefined)
   }, [wedding.id])
 
-  const countForCategory = (label: string) => vendors.filter((v) => v.category === label).length
-
-  const activeTile = [...VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY].find((t) => t.id === activeTileId) ?? null
-
-  const openTile = (tileId: string) => {
-    if (activeTileId === tileId) {
-      setActiveTileId(null)
-      return
+  // Only categories the couple actually has vendors in - a filter row of
+  // empty categories is a menu, not a filter.
+  const usedCategories = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const vendor of vendors) {
+      counts.set(vendor.category, (counts.get(vendor.category) ?? 0) + 1)
     }
-    setActiveTileId(tileId)
-    setAddError(null)
-    setNewVendorName('')
-    setNewContactInfo('')
-    setNewContractAmount('')
-    setCustomCategory('')
-  }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])
+  }, [vendors])
+
+  const visibleVendors = useMemo(
+    () => (filter === ALL ? vendors : vendors.filter((v) => v.category === filter)),
+    [vendors, filter],
+  )
+
+  const bookedCount = vendors.filter((v) => v.status === 'BOOKED' || v.status === 'PAID').length
 
   const handleAdd = async () => {
-    if (!activeTile) return
-    const category = activeTile.id === 'other' ? customCategory.trim() : activeTile.label
+    const category = categoryChoice === CUSTOM ? customCategory.trim() : categoryChoice
     if (!newVendorName.trim() || !category) return
 
     setAdding(true)
@@ -77,9 +83,14 @@ export function VendorsPage() {
         category,
         contactInfo: newContactInfo.trim() || undefined,
         totalContractAmount: newContractAmount ? Number(newContractAmount) : undefined,
+        budgetCategoryId: newBudgetCategoryId || null,
       })
       setVendors((prev) => [...prev, created])
-      setActiveTileId(null)
+      setNewVendorName('')
+      setNewContactInfo('')
+      setNewContractAmount('')
+      setCustomCategory('')
+      setShowAdd(false)
     } catch {
       setAddError('נא לוודא שהשם והקטגוריה תקינים.')
     } finally {
@@ -108,53 +119,48 @@ export function VendorsPage() {
     )
   }
 
-  // Group existing vendors by their category string - vendors added via a
-  // preset tile share that tile's exact label, so they group together
-  // automatically; custom ("אחר") categories just group under whatever the
-  // couple typed, each becoming its own section.
-  const categoryOrder = [...VENDOR_CATEGORY_PRESETS.map((p) => p.label), ...new Set(vendors.map((v) => v.category))]
-  const seenCategories = new Set<string>()
-  const orderedCategories = categoryOrder.filter((c) => {
-    if (seenCategories.has(c)) return false
-    seenCategories.add(c)
-    return true
-  })
-
   return (
     <div className="dash-vendors">
-      <div className="dash-page-header">
-        <p className="dash-page-title">ספקים</p>
-        <p className="dash-page-sub">{vendors.length} ספקים ברשימה</p>
+      <div className="dash-page-header dash-page-header--row">
+        <div>
+          <p className="dash-page-title">ספקים</p>
+          <p className="dash-page-sub">
+            {vendors.length} ספקים · {bookedCount} כבר הוזמנו
+          </p>
+        </div>
+        <div className="dash-page-actions">
+          <button
+            type="button"
+            className="dash-btn dash-btn--primary"
+            onClick={() => setShowAdd((v) => !v)}
+          >
+            {showAdd ? 'סגירה' : '+ הוספת ספק'}
+          </button>
+        </div>
       </div>
 
       {error && <p className="dash-guest-error">{error}</p>}
 
-      <div className="dash-vendor-categories-grid">
-        {[...VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY].map((preset) => (
-          <button
-            key={preset.id}
-            type="button"
-            className={`dash-vendor-category-tile${activeTileId === preset.id ? ' is-active' : ''}`}
-            onClick={() => openTile(preset.id)}
-          >
-            <span className="dash-vendor-category-tile__icon">{preset.icon}</span>
-            <span className="dash-vendor-category-tile__label">{preset.label}</span>
-            {preset.id !== 'other' && countForCategory(preset.label) > 0 && (
-              <span className="dash-vendor-category-tile__count">{countForCategory(preset.label)}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {activeTile && (
-        <div className="dash-vendor-add-panel">
-          <p className="dash-vendor-add-panel__title">
-            {activeTile.icon} הוספת ספק{activeTile.id !== 'other' ? ` - ${activeTile.label}` : ''}
-          </p>
-          <div className="dash-vendor-add-panel__row">
-            {activeTile.id === 'other' && (
+      {showAdd && (
+        <div className="dash-panel">
+          <p className="dash-panel__title">ספק חדש</p>
+          <div className="dash-vendor-add-row">
+            <select
+              className="dash-field"
+              value={categoryChoice}
+              onChange={(e) => setCategoryChoice(e.target.value)}
+            >
+              {VENDOR_CATEGORY_PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.label}>
+                  {preset.icon} {preset.label}
+                </option>
+              ))}
+              <option value={CUSTOM}>קטגוריה אחרת...</option>
+            </select>
+            {categoryChoice === CUSTOM && (
               <input
                 type="text"
+                className="dash-field"
                 placeholder="שם הקטגוריה"
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value)}
@@ -162,12 +168,15 @@ export function VendorsPage() {
             )}
             <input
               type="text"
+              className="dash-field"
               placeholder="שם הספק"
+              autoFocus
               value={newVendorName}
               onChange={(e) => setNewVendorName(e.target.value)}
             />
             <input
               type="text"
+              className="dash-field"
               placeholder="פרטי קשר (לא חובה)"
               value={newContactInfo}
               onChange={(e) => setNewContactInfo(e.target.value)}
@@ -175,18 +184,32 @@ export function VendorsPage() {
             <input
               type="number"
               min="0"
+              className="dash-field"
               placeholder="סכום חוזה (לא חובה)"
               value={newContractAmount}
               onChange={(e) => setNewContractAmount(e.target.value)}
             />
+            <select
+              className="dash-field"
+              value={newBudgetCategoryId}
+              onChange={(e) => setNewBudgetCategoryId(e.target.value)}
+            >
+              <option value={NO_BUDGET_CATEGORY}>ללא קטגוריית תקציב</option>
+              {budgetCategories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
             <button
               type="button"
+              className="dash-btn dash-btn--primary"
               onClick={handleAdd}
               disabled={
-                adding || !newVendorName.trim() || (activeTile.id === 'other' && !customCategory.trim())
+                adding || !newVendorName.trim() || (categoryChoice === CUSTOM && !customCategory.trim())
               }
             >
-              + הוסיפו
+              הוסיפו
             </button>
           </div>
           {addError && <p className="dash-guest-error">{addError}</p>}
@@ -194,31 +217,50 @@ export function VendorsPage() {
       )}
 
       {vendors.length === 0 ? (
-        <p className="dash-page-sub">עדיין אין ספקים ברשימה. בחרו קטגוריה למעלה כדי להוסיף את הראשון.</p>
+        <p className="dash-page-sub">עדיין אין ספקים ברשימה. הוסיפו את הראשון למעלה.</p>
       ) : (
-        orderedCategories.map((category) => {
-          const vendorsInCategory = vendors.filter((v) => v.category === category)
-          if (vendorsInCategory.length === 0) return null
-          return (
-            <div className="dash-vendor-group" key={category}>
-              <p className="dash-vendor-group__title">
-                <span>{iconForCategory(category)}</span> {category} ({vendorsInCategory.length})
-              </p>
-              <div className="dash-vendor-cards">
-                {vendorsInCategory.map((vendor) => (
-                  <VendorCard
-                    key={vendor.id}
-                    weddingId={wedding.id}
-                    vendor={vendor}
-                    budgetCategories={budgetCategories}
-                    onUpdated={handleUpdated}
-                    onDeleted={handleDeleted}
-                  />
-                ))}
-              </div>
-            </div>
-          )
-        })
+        <>
+          <div className="dash-vendor-filters">
+            <button
+              type="button"
+              className={`dash-vendor-filter${filter === ALL ? ' is-active' : ''}`}
+              onClick={() => setFilter(ALL)}
+            >
+              הכל <span className="dash-vendor-filter__count">{vendors.length}</span>
+            </button>
+            {usedCategories.map(([category, count]) => (
+              <button
+                key={category}
+                type="button"
+                className={`dash-vendor-filter${filter === category ? ' is-active' : ''}`}
+                onClick={() => setFilter(category)}
+              >
+                {iconForCategory(category) && (
+                  <span aria-hidden="true">{iconForCategory(category)}</span>
+                )}{' '}
+                {category}{' '}
+                <span className="dash-vendor-filter__count">{count}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* One grid for every visible vendor. The old layout gave each
+              category its own auto-fill grid, so a category with a single
+              vendor rendered that card at a quarter width with three empty
+              tracks beside it. */}
+          <div className="dash-vendor-cards">
+            {visibleVendors.map((vendor) => (
+              <VendorCard
+                key={vendor.id}
+                weddingId={wedding.id}
+                vendor={vendor}
+                budgetCategories={budgetCategories}
+                onUpdated={handleUpdated}
+                onDeleted={handleDeleted}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

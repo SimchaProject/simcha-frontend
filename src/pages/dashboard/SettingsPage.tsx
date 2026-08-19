@@ -30,6 +30,7 @@ export function SettingsPage() {
   const [payboxLink, setPayboxLink] = useState('')
   const [bankTransferDetails, setBankTransferDetails] = useState('')
   const [contactPhone, setContactPhone] = useState('')
+  const [mingleEnabled, setMingleEnabled] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -49,6 +50,7 @@ export function SettingsPage() {
       setPayboxLink(config.payboxLink ?? '')
       setBankTransferDetails(config.bankTransferDetails ?? '')
       setContactPhone(config.contactPhone ?? '')
+      setMingleEnabled(config.mingleEnabled)
       setLoading(false)
     })
     return () => {
@@ -89,6 +91,7 @@ export function SettingsPage() {
         parkingInfo: parkingInfo.trim() || undefined,
         payboxLink: payboxLink.trim() || undefined,
         bankTransferDetails: bankTransferDetails.trim() || undefined,
+        mingleEnabled,
         contactPhone: contactPhone.replace(/[\s-]/g, '') || undefined,
       })
       setSaved(true)
@@ -269,6 +272,22 @@ export function SettingsPage() {
             value={bankTransferDetails}
             onChange={(e) => setBankTransferDetails(e.target.value)}
           />
+        </div>
+
+        <div className="wizard-field">
+          <label className="settings-toggle">
+            <input
+              type="checkbox"
+              checked={mingleEnabled}
+              onChange={(e) => setMingleEnabled(e.target.checked)}
+            />
+            פינת רווקים בדף האורחים
+          </label>
+          <p className="settings-toggle__note">
+            מוסיף לטופס אישור ההגעה תיבת סימון אופציונלית &ldquo;מגיע/ה לבד ופתוח/ה להכיר&rdquo;. מי
+            שמסמן מקבל קישור אישי לרשימה של שאר מי שסימנו — שם פרטי, גיל ומשפט חופשי בלבד, בלי
+            טלפונים. אורחים שלא סימנו לא רואים את הרשימה ולא מופיעים בה.
+          </p>
         </div>
 
         {error && <p className="dash-guest-error">{error}</p>}
