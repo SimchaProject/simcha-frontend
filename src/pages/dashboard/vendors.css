@@ -140,6 +140,17 @@
   opacity: 1;
 }
 
+/* A contract keeps its real file name, and those run long ("מסמך דרישות -
+   Shopping Cart Simulation - דף שער.docx"). Cap it and let the title
+   attribute carry the rest rather than letting one vendor's paperwork set
+   the width of the card. */
+.dash-vendor-card__contract {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dash-vendor-card__actions a,
 .dash-vendor-card__actions button {
   border: 1px solid var(--admin-line-strong);

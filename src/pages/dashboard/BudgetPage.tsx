@@ -204,13 +204,6 @@ export function BudgetPage() {
           <button type="button" className="dash-btn" onClick={() => setEditingTotal((v) => !v)}>
             עדכון תקציב
           </button>
-          <button
-            type="button"
-            className="dash-btn dash-btn--primary"
-            onClick={() => setShowAddCategory((v) => !v)}
-          >
-            {showAddCategory ? 'סגירה' : '+ קטגוריה'}
-          </button>
         </div>
       </div>
 
@@ -293,8 +286,18 @@ export function BudgetPage() {
       </div>
 
       <div className="dash-card">
+        {/* Adding a category belongs beside the list it adds to, not up in the
+            page header - the header action is for the page, this is for this
+            card. */}
         <div className="dash-card__header">
           <p className="dash-card__title">קטגוריות</p>
+          <button
+            type="button"
+            className="dash-btn dash-btn--primary dash-btn--sm"
+            onClick={() => setShowAddCategory((v) => !v)}
+          >
+            {showAddCategory ? 'סגירה' : '+ קטגוריה'}
+          </button>
         </div>
 
         {showAddCategory && (

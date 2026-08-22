@@ -194,7 +194,13 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
 
       <div className="dash-vendor-card__actions">
         {vendor.hasContract ? (
-          <a href={vendorsApi.contractUrl(weddingId, vendor.id)} target="_blank" rel="noopener noreferrer">
+          <a
+            className="dash-vendor-card__contract"
+            href={vendorsApi.contractUrl(weddingId, vendor.id)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={vendor.contractFileName ?? undefined}
+          >
             {vendor.contractFileName ?? 'החוזה'}
           </a>
         ) : null}

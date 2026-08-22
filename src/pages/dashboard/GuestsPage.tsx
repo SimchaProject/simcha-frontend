@@ -469,7 +469,7 @@ export function GuestsPage() {
             ייבוא מ-CSV
           </button>
           <button type="button" className="dash-btn" onClick={() => setShowInviteModal(true)}>
-            שליחת הזמנות
+            שליחה בוואטסאפ
           </button>
           <button
             type="button"
@@ -677,8 +677,10 @@ export function GuestsPage() {
 
       {showInviteModal && (
         <InviteModal
-          weddingId={wedding.id}
-          recipientCount={guests.filter((g) => g.phone).length}
+          guests={guests}
+          coupleNameA={wedding.coupleNameA}
+          coupleNameB={wedding.coupleNameB}
+          weddingSlug={wedding.slug}
           onClose={() => setShowInviteModal(false)}
         />
       )}
