@@ -58,6 +58,18 @@ export interface BurndownPoint {
   actual: number | null
 }
 
+// One scheduled payment on the same axis as the curves - what the step is,
+// and who it's to.
+export interface BurndownEvent {
+  id: string
+  date: string
+  amount: number
+  vendorName: string
+  paymentType: 'DEPOSIT' | 'INSTALLMENT' | 'FINAL'
+  status: 'PENDING' | 'PAID'
+  isOverdue: boolean
+}
+
 export interface BudgetBurndown {
   totalAmount: number
   weddingDate: string
@@ -66,4 +78,5 @@ export interface BudgetBurndown {
   // it has no date to sit on. Both curves open already reduced by it.
   undatedPaid: number
   points: BurndownPoint[]
+  events: BurndownEvent[]
 }

@@ -16,6 +16,17 @@
   margin-bottom: 12px;
 }
 
+/* Pushes a card-level action ("+ קטגוריה") to the far edge of its own
+   header, so it reads as belonging to this card rather than to the page. */
+.dash-card__header > .dash-btn {
+  margin-inline-start: auto;
+}
+
+.dash-btn--sm {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
 .dash-card__title {
   font-family: 'Frank Ruhl Libre', serif;
   font-weight: 500;
@@ -69,8 +80,29 @@
 
 .dash-burndown__flag {
   margin-inline-start: auto;
-  color: var(--simcha-red);
   font-weight: 500;
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+.dash-burndown__flag.is-behind {
+  color: var(--simcha-red);
+  background: rgba(178, 58, 46, 0.1);
+}
+
+/* Said out loud rather than left to be inferred from two lines sitting on
+   top of each other - "on track" is the answer most visits are looking for. */
+.dash-burndown__flag.is-ontrack {
+  color: var(--simcha-green);
+  background: rgba(79, 92, 58, 0.12);
+}
+
+.dash-burndown__due {
+  color: var(--simcha-ink-muted);
+}
+
+.dash-burndown__plot {
+  position: relative;
 }
 
 /* The time axis reads left-to-right like every other chart, so the SVG opts
@@ -125,6 +157,58 @@
   font-family: 'Rubik', sans-serif;
   font-size: 10px;
   fill: var(--simcha-green);
+}
+
+/* One dot per payment. Colour carries the status so the chart answers
+   "what's already gone out and what hasn't" without reading the list below. */
+.dash-burndown__dot {
+  cursor: pointer;
+  stroke: var(--admin-surface);
+  stroke-width: 1.5;
+  transition: r 0.12s ease;
+}
+
+.dash-burndown__dot--paid {
+  fill: var(--simcha-red);
+}
+
+.dash-burndown__dot--pending {
+  fill: var(--simcha-gold);
+}
+
+.dash-burndown__dot--overdue {
+  fill: var(--simcha-red);
+  stroke: var(--simcha-red);
+  stroke-opacity: 0.35;
+  stroke-width: 5;
+}
+
+.dash-burndown__tooltip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 12px));
+  background: var(--simcha-ink);
+  color: var(--simcha-paper);
+  border-radius: 8px;
+  padding: 7px 11px;
+  font-size: 11px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: 0 4px 14px rgba(36, 26, 20, 0.22);
+}
+
+.dash-burndown__tooltip-date {
+  opacity: 0.7;
+}
+
+.dash-burndown__note {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--simcha-ink-muted);
+  margin: 10px 0 0;
 }
 
 /* categories */
