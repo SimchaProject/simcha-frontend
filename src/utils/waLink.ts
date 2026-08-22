@@ -18,7 +18,11 @@ export function buildInviteMessage(
   coupleNameB: string,
   inviteUrl: string,
 ): string {
-  return `היי ${guestName}! מוזמנים לחתונה של ${coupleNameA} ו${coupleNameB} 💍\nכל הפרטים ואישור הגעה כאן: ${inviteUrl}`
+  // Plain text only, no emoji. A ring emoji here came out as a replacement
+  // character on a real send - it survives our encoding fine, but not every
+  // step between wa.me and the recipient's WhatsApp, and a broken glyph in
+  // the couple's own invitation isn't worth the decoration.
+  return `היי ${guestName}! מוזמנים לחתונה של ${coupleNameA} ו${coupleNameB}.\nכל הפרטים ואישור הגעה כאן: ${inviteUrl}`
 }
 
 export function buildReminderMessage(
