@@ -1,118 +1,88 @@
-import { useMemo, useState } from 'react'
-import type { Guest } from '../../types/guests'
-import { buildInviteMessage, buildReminderMessage, buildWaMeLink } from '../../utils/waLink'
+import { useState } from 'react'
+import { guestsApi } from '../../api/guests'
+import type { InviteSendResult } from '../../types/guests'
 import './import-modal.css'
 
 interface InviteModalProps {
-  guests: Guest[]
-  coupleNameA: string
-  coupleNameB: string
-  weddingSlug: string
+  weddingId: string
+  recipientCount: number
   onClose: () => void
 }
 
-type Mode = 'invite' | 'reminder'
+// WhatsApp sends cost real money per guest - this is a confirm-then-send
+// flow, never a single-click fire, so a couple can't blast 200+ guests by
+// accident.
+export function InviteModal({ weddingId, recipientCount, onClose }: InviteModalProps) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [result, setResult] = useState<InviteSendResult | null>(null)
 
-// WhatsApp, via wa.me links built here in the browser - no Business API, no
-// per-message cost, and nothing to configure. The trade-off is that WhatsApp
-// can't be driven from a server: each message opens in the couple's own
-// WhatsApp with the text prefilled, and they press send. So this is a
-// work-through-the-list screen rather than a fire-once button, and it
-// remembers who's been done.
-export function InviteModal({
-  guests,
-  coupleNameA,
-  coupleNameB,
-  weddingSlug,
-  onClose,
-}: InviteModalProps) {
-  const [mode, setMode] = useState<Mode>('invite')
-  const [sent, setSent] = useState<Set<string>>(new Set())
-
-  const inviteUrl = `${window.location.origin}/w/${weddingSlug}`
-
-  const recipients = useMemo(() => {
-    const withPhone = guests.filter((g) => g.phone)
-    // Chasing non-responders is the other half of this job, and the couple
-    // shouldn't have to filter the guest list by hand to do it.
-    return mode === 'reminder'
-      ? withPhone.filter((g) => g.rsvpStatus === 'PENDING')
-      : withPhone
-  }, [guests, mode])
-
-  const withoutPhone = guests.filter((g) => !g.phone).length
-
-  const messageFor = (guest: Guest) =>
-    mode === 'invite'
-      ? buildInviteMessage(guest.name, coupleNameA, coupleNameB, inviteUrl)
-      : buildReminderMessage(guest.name, coupleNameA, coupleNameB, inviteUrl)
-
-  const openFor = (guest: Guest) => {
-    window.open(buildWaMeLink(guest.phone!, messageFor(guest)), '_blank', 'noopener')
-    setSent((prev) => new Set(prev).add(guest.id))
+  const handleConfirm = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      const sendResult = await guestsApi.sendInvites(weddingId)
+      setResult(sendResult)
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setBusy(false)
+    }
   }
-
-  const remaining = recipients.filter((g) => !sent.has(g.id))
 
   return (
     <div className="import-modal-overlay" onClick={onClose}>
-      <div className="import-modal wa-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="import-modal" onClick={(e) => e.stopPropagation()}>
         <h2>שליחת הזמנות בוואטסאפ</h2>
 
-        <div className="wa-modal__tabs">
-          <button
-            type="button"
-            className={mode === 'invite' ? 'is-active' : ''}
-            onClick={() => setMode('invite')}
-          >
-            הזמנה
-          </button>
-          <button
-            type="button"
-            className={mode === 'reminder' ? 'is-active' : ''}
-            onClick={() => setMode('reminder')}
-          >
-            תזכורת למי שלא ענה
-          </button>
-        </div>
-
-        <p className="import-modal__hint">
-          כל לחיצה פותחת וואטסאפ עם ההודעה מוכנה — אתם רק לוחצים שלח. ההודעות נשלחות מהמספר שלכם,
-          בלי עלות ובלי הגדרות.
-          {withoutPhone > 0 && ` ${withoutPhone} אורחים ללא טלפון לא מופיעים כאן.`}
-        </p>
-
-        <p className="wa-modal__progress">
-          {sent.size} מתוך {recipients.length} נפתחו
-          {remaining.length === 0 && recipients.length > 0 && ' · סיימתם 🎉'}
-        </p>
-
-        {recipients.length === 0 ? (
+        {!result && (
           <p className="import-modal__hint">
-            {mode === 'reminder'
-              ? 'כל מי שיש לו טלפון כבר ענה. אין למי לשלוח תזכורת.'
-              : 'אין אורחים עם מספר טלפון ברשימה.'}
+            הודעה עם קישור לאישור הגעה תישלח ל-{recipientCount} אורחים עם מספר טלפון. פעולה זו
+            כרוכה בעלות שליחה בפועל - ודאו שרשימת האורחים מוכנה לפני האישור.
           </p>
-        ) : (
-          <ul className="wa-modal__list">
-            {recipients.map((guest) => (
-              <li key={guest.id} className={sent.has(guest.id) ? 'is-sent' : ''}>
-                <span className="wa-modal__name">{guest.name}</span>
-                <span className="wa-modal__phone" dir="ltr">
-                  {guest.phone}
-                </span>
-                <button type="button" onClick={() => openFor(guest)}>
-                  {sent.has(guest.id) ? 'שלחו שוב' : 'פתחו בוואטסאפ'}
-                </button>
-              </li>
-            ))}
-          </ul>
+        )}
+
+        {error && <p className="import-modal__error">{error}</p>}
+
+        {result && (
+          <div className="import-modal__result">
+            <p>
+              נשלחו {result.sentCount} בהצלחה
+              {result.failedCount > 0 && ` · נכשלו ${result.failedCount}`}
+              {result.skippedNoPhoneCount > 0 && ` · דולגו ${result.skippedNoPhoneCount} ללא מספר טלפון`}
+            </p>
+            {result.errors.length > 0 && (
+              <ul className="import-modal__preview-list">
+                {result.errors.map((e) => (
+                  <li key={e.guestId} className="import-modal__row--invalid">
+                    {e.name}: {e.message}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
 
         <div className="import-modal__actions">
-          <button type="button" className="dash-btn" onClick={onClose}>
-            סגירה
-          </button>
+          {result ? (
+            <button className="dash-btn" onClick={onClose}>
+              סגירה
+            </button>
+          ) : (
+            <>
+              <button
+                className="dash-btn dash-btn--primary"
+                onClick={handleConfirm}
+                disabled={busy || recipientCount === 0}
+              >
+                {busy && <span className="dash-guest-spinner" />}
+                שלחו ל-{recipientCount} אורחים
+              </button>
+              <button className="dash-btn" onClick={onClose} disabled={busy}>
+                ביטול
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

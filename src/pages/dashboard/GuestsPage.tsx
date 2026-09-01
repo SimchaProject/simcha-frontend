@@ -677,10 +677,8 @@ export function GuestsPage() {
 
       {showInviteModal && (
         <InviteModal
-          guests={guests}
-          coupleNameA={wedding.coupleNameA}
-          coupleNameB={wedding.coupleNameB}
-          weddingSlug={wedding.slug}
+          weddingId={wedding.id}
+          recipientCount={guests.filter((g) => g.phone).length}
           onClose={() => setShowInviteModal(false)}
         />
       )}
