@@ -515,7 +515,7 @@ export function GuestsPage() {
           ייבוא מ-CSV
         </button>
         <button type="button" className="dash-guest-btn" onClick={() => setShowInviteModal(true)}>
-          שלחו הזמנות ב-SMS
+          שלחו הזמנות ב-WhatsApp
         </button>
       </div>
       {addError && <p className="dash-guest-error">{addError}</p>}

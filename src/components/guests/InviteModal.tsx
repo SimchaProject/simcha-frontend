@@ -9,8 +9,9 @@ interface InviteModalProps {
   onClose: () => void
 }
 
-// SMS costs real money per guest - this is a confirm-then-send flow, never
-// a single-click fire, so a couple can't blast 200+ guests by accident.
+// WhatsApp sends cost real money per guest - this is a confirm-then-send
+// flow, never a single-click fire, so a couple can't blast 200+ guests by
+// accident.
 export function InviteModal({ weddingId, recipientCount, onClose }: InviteModalProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +33,7 @@ export function InviteModal({ weddingId, recipientCount, onClose }: InviteModalP
   return (
     <div className="import-modal-overlay" onClick={onClose}>
       <div className="import-modal" onClick={(e) => e.stopPropagation()}>
-        <h2>שליחת הזמנות ב-SMS</h2>
+        <h2>שליחת הזמנות ב-WhatsApp</h2>
 
         {!result && (
           <p className="import-modal__hint">
