@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { vendorsApi } from '../../api/vendors'
+import { DatePicker } from '../ui/DatePicker'
 import type { PaymentType, VendorPayment } from '../../types/vendors'
 
 const TYPE_LABELS: Record<PaymentType, string> = {
@@ -117,63 +118,65 @@ export function VendorPaymentsPanel({ weddingId, vendorId }: VendorPaymentsPanel
       {payments.length === 0 ? (
         <p className="dash-page-sub">אין תשלומים מתוזמנים. הוסיפו למטה.</p>
       ) : (
-        <table className="dash-vendor-payments-table">
-          <thead>
-            <tr>
-              <th>סוג</th>
-              <th>סכום</th>
-              <th>לתשלום עד</th>
-              <th>סטטוס</th>
-              <th>קבלה</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((payment) => (
-              <tr
-                key={payment.id}
-                className={payment.isOverdue ? 'dash-vendor-payments-row--overdue' : ''}
-              >
-                <td>{TYPE_LABELS[payment.paymentType]}</td>
-                <td>₪{payment.amount.toLocaleString()}</td>
-                <td>
-                  {payment.dueDate}
-                  {payment.isOverdue && ' (באיחור)'}
-                </td>
-                <td>
-                  {payment.status === 'PAID' ? (
-                    <button type="button" onClick={() => markPending(payment.id)}>
-                      שולם ({payment.paidDate})
-                    </button>
-                  ) : (
-                    <button type="button" onClick={() => markPaid(payment.id)}>
-                      סמנו כשולם
-                    </button>
-                  )}
-                </td>
-                <td>
-                  {payment.hasReceipt && (
-                    <a
-                      href={vendorsApi.receiptUrl(weddingId, vendorId, payment.id)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {payment.receiptFileName ?? 'הצגה'}
-                    </a>
-                  )}
-                  <button type="button" onClick={() => triggerReceiptUpload(payment.id)}>
-                    {payment.hasReceipt ? 'החלפה' : 'העלאה'}
-                  </button>
-                </td>
-                <td>
-                  <button type="button" onClick={() => handleDelete(payment.id)}>
-                    הסירו
-                  </button>
-                </td>
+        <div className="dash-vendor-payments-table-wrap">
+          <table className="dash-vendor-payments-table">
+            <thead>
+              <tr>
+                <th>סוג</th>
+                <th>סכום</th>
+                <th>לתשלום עד</th>
+                <th>סטטוס</th>
+                <th>קבלה</th>
+                <th />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {payments.map((payment) => (
+                <tr
+                  key={payment.id}
+                  className={payment.isOverdue ? 'dash-vendor-payments-row--overdue' : ''}
+                >
+                  <td>{TYPE_LABELS[payment.paymentType]}</td>
+                  <td>₪{payment.amount.toLocaleString()}</td>
+                  <td>
+                    {payment.dueDate}
+                    {payment.isOverdue && ' (באיחור)'}
+                  </td>
+                  <td>
+                    {payment.status === 'PAID' ? (
+                      <button type="button" onClick={() => markPending(payment.id)}>
+                        שולם ({payment.paidDate})
+                      </button>
+                    ) : (
+                      <button type="button" onClick={() => markPaid(payment.id)}>
+                        סמנו כשולם
+                      </button>
+                    )}
+                  </td>
+                  <td>
+                    {payment.hasReceipt && (
+                      <a
+                        href={vendorsApi.receiptUrl(weddingId, vendorId, payment.id)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {payment.receiptFileName ?? 'הצגה'}
+                      </a>
+                    )}
+                    <button type="button" onClick={() => triggerReceiptUpload(payment.id)}>
+                      {payment.hasReceipt ? 'החלפה' : 'העלאה'}
+                    </button>
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => handleDelete(payment.id)}>
+                      הסירו
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <div className="dash-vendor-payments-add-row">
@@ -191,8 +194,15 @@ export function VendorPaymentsPanel({ weddingId, vendorId }: VendorPaymentsPanel
           value={newAmount}
           onChange={(e) => setNewAmount(e.target.value)}
         />
-        <input type="date" value={newDueDate} onChange={(e) => setNewDueDate(e.target.value)} />
-        <button type="button" onClick={handleAdd} disabled={adding || !newAmount || !newDueDate}>
+        <div className="dash-vendor-payments-add-row__date">
+          <DatePicker value={newDueDate} onChange={setNewDueDate} placeholder="לתשלום עד" />
+        </div>
+        <button
+          type="button"
+          className="dash-vendor-payments-add-row__submit"
+          onClick={handleAdd}
+          disabled={adding || !newAmount || !newDueDate}
+        >
           + הוסיפו תשלום
         </button>
       </div>

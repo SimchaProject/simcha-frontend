@@ -198,8 +198,14 @@
   border-radius: 10px;
   padding: 12px 14px;
   margin-top: 12px;
-  /* Belt and braces: on a narrow screen the row-wide card is still narrower
-     than the table, and scrolling it beats overlapping the page. */
+}
+
+.dash-vendor-payments-table-wrap {
+  /* Scoped to just the table (not the add-row below it) - overflow-x:auto
+     here implicitly forces overflow-y to auto too, which would clip the
+     DatePicker's popover if it applied to the whole card. Belt and braces:
+     on a narrow screen the row-wide card is still narrower than the table,
+     and scrolling it beats overlapping the page. */
   overflow-x: auto;
 }
 
@@ -257,6 +263,7 @@
   gap: 10px;
   margin-top: 10px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .dash-vendor-payments-add-row select,
@@ -271,7 +278,25 @@
   outline: none;
 }
 
-.dash-vendor-payments-add-row button {
+.dash-vendor-payments-add-row__date {
+  width: 160px;
+}
+
+.dash-vendor-payments-add-row__date .date-picker__trigger {
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  padding: 6px 10px;
+  font-size: 12px;
+  text-align: right;
+}
+
+.dash-vendor-payments-add-row__date .date-picker__trigger:hover,
+.dash-vendor-payments-add-row__date .date-picker__trigger:focus-visible {
+  border-color: var(--simcha-red);
+}
+
+.dash-vendor-payments-add-row__submit {
   border: 1px solid var(--simcha-red);
   background: var(--simcha-red);
   color: var(--simcha-paper);
@@ -283,7 +308,7 @@
   white-space: nowrap;
 }
 
-.dash-vendor-payments-add-row button:disabled {
+.dash-vendor-payments-add-row__submit:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
