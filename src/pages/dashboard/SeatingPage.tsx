@@ -3,6 +3,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  pointerWithin,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -11,9 +12,9 @@ import {
 import { useDashboard } from './dashboard-context'
 import { seatingApi } from '../../api/seating'
 import { guestsApi } from '../../api/guests'
-import type { SeatAssignment, SeatingReport, SeatingSnapshot } from '../../types/seating'
+import type { SeatAssignment, SeatingSnapshot } from '../../types/seating'
 import type { Guest } from '../../types/guests'
-import { SeatingTableCard, TABLE_DRAG_PREFIX } from '../../components/seating/SeatingTableCard'
+import { SeatingTableCard, TABLE_DRAG_PREFIX, SEAT_DROP_PREFIX } from '../../components/seating/SeatingTableCard'
 import { UnseatedBucket, UNSEATED_DROPPABLE_ID } from '../../components/seating/UnseatedBucket'
 import { SeatingDiff } from '../../components/seating/SeatingDiff'
 import { GuestChipContent } from '../../components/seating/GuestChip'
@@ -22,7 +23,7 @@ import { ConstraintAssistant } from '../../components/seating/ConstraintAssistan
 import { WaxSealButton } from '../../components/motifs/WaxSealButton'
 import './seating.css'
 
-type BusyAction = 'optimize' | 'reoptimize' | null
+type BusyAction = 'optimize' | null
 
 const ZOOM_MIN = 0.4
 const ZOOM_MAX = 1.6
@@ -34,7 +35,6 @@ export function SeatingPage() {
 
   const [snapshot, setSnapshot] = useState<SeatingSnapshot | null>(null)
   const [guests, setGuests] = useState<Guest[] | null>(null)
-  const [report, setReport] = useState<SeatingReport | null>(null)
   const [busyAction, setBusyAction] = useState<BusyAction>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -75,19 +75,17 @@ export function SeatingPage() {
           tableId: null,
           originalTableId: null,
           locked: false,
+          seatIndex: null,
         },
     )
   }, [snapshot, guests])
 
-  const runOptimize = async (reoptimize: boolean) => {
-    setBusyAction(reoptimize ? 'reoptimize' : 'optimize')
+  const runOptimize = async () => {
+    setBusyAction('optimize')
     setError(null)
     try {
-      const result = reoptimize
-        ? await seatingApi.reoptimize(weddingId)
-        : await seatingApi.optimize(weddingId)
+      const result = await seatingApi.reoptimize(weddingId)
       setSnapshot({ tables: result.tables, assignments: result.assignments })
-      setReport(result.report)
     } catch (e) {
       setError(String(e))
     } finally {
@@ -95,22 +93,18 @@ export function SeatingPage() {
     }
   }
 
-  const assignGuestToTable = async (guestId: string, tableId: string | null) => {
-    if (!snapshot || !guests) return
-    const guestName = guests.find((g) => g.id === guestId)?.name ?? ''
-    const previous = snapshot
-    setSnapshot({
-      ...snapshot,
-      assignments: snapshot.assignments.some((a) => a.guestId === guestId)
-        ? snapshot.assignments.map((a) => (a.guestId === guestId ? { ...a, tableId, locked: true } : a))
-        : [...snapshot.assignments, { guestId, guestName, tableId, originalTableId: null, locked: true }],
-    })
-
+  // A specific-seat assignment can swap the guest already sitting there, which
+  // touches two rows at once - simplest to re-fetch the true snapshot after
+  // the call rather than try to hand-patch both rows optimistically.
+  const assignGuestToTable = async (guestId: string, tableId: string | null, seatIndex?: number | null) => {
+    if (!snapshot) return
+    setError(null)
     try {
-      await seatingApi.assignGuest(weddingId, guestId, tableId)
+      await seatingApi.assignGuest(weddingId, guestId, tableId, seatIndex)
+      const fresh = await seatingApi.getSnapshot(weddingId)
+      setSnapshot(fresh)
     } catch (e) {
       setError(String(e))
-      setSnapshot(previous)
     }
   }
 
@@ -150,10 +144,21 @@ export function SeatingPage() {
     const assignment = mergedAssignments.find((a) => a.guestId === activeIdStr)
     if (!assignment) return
 
-    const newTableId = over.id === UNSEATED_DROPPABLE_ID ? null : String(over.id)
-    if (newTableId === assignment.tableId) return
+    const overId = String(over.id)
+    if (overId === UNSEATED_DROPPABLE_ID) {
+      if (assignment.tableId === null) return
+      await assignGuestToTable(assignment.guestId, null)
+      return
+    }
 
-    await assignGuestToTable(assignment.guestId, newTableId)
+    if (overId.startsWith(SEAT_DROP_PREFIX)) {
+      const rest = overId.slice(SEAT_DROP_PREFIX.length)
+      const sepIndex = rest.lastIndexOf(':')
+      const tableId = rest.slice(0, sepIndex)
+      const seatIndex = Number(rest.slice(sepIndex + 1))
+      if (assignment.tableId === tableId && assignment.seatIndex === seatIndex) return
+      await assignGuestToTable(assignment.guestId, tableId, seatIndex)
+    }
   }
 
   const activeAssignment = mergedAssignments.find((a) => a.guestId === activeId)
@@ -195,7 +200,7 @@ export function SeatingPage() {
           )}
         </div>
         <WaxSealButton
-          onClick={() => runOptimize(false)}
+          onClick={() => runOptimize()}
           loading={busyAction === 'optimize'}
           disabled={busyAction !== null || !snapshot || snapshot.tables.length === 0}
         >
@@ -208,15 +213,6 @@ export function SeatingPage() {
       <div className="dash-seating__toolbar">
         <button type="button" className="dash-seating__btn" onClick={() => setShowTableModal(true)}>
           ניהול שולחנות
-        </button>
-        <button
-          type="button"
-          className="dash-seating__btn"
-          onClick={() => runOptimize(true)}
-          disabled={busyAction !== null || !snapshot}
-        >
-          {busyAction === 'reoptimize' && <span className="dash-seating__spinner" />}
-          אופטימיזציה מחדש למקומות פנויים
         </button>
         <button
           type="button"
@@ -252,18 +248,12 @@ export function SeatingPage() {
           weddingId={weddingId}
           onApplied={() => {
             setShowAssistant(false)
-            runOptimize(true)
+            runOptimize()
           }}
         />
       )}
 
       {error && <p className="dash-guest-error">{error}</p>}
-      {report && (
-        <p className="dash-page-sub">
-          ציון <strong>{report.initialScore}</strong> ← <strong>{report.finalScore}</strong> אחרי{' '}
-          {report.iterations} איטרציות ({report.durationMs} מילישניות)
-        </p>
-      )}
 
       <div className={`dash-seating-diff-wrapper${showDiff ? ' is-open' : ''}`}>
         {snapshot && <SeatingDiff tables={snapshot.tables} assignments={mergedAssignments} />}
@@ -277,7 +267,12 @@ export function SeatingPage() {
           </button>
         </div>
       ) : snapshot ? (
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={pointerWithin}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
           <UnseatedBucket assignments={mergedAssignments.filter((a) => a.tableId === null)} />
 
           <div className="dash-seating__canvas" onWheel={handleCanvasWheel}>

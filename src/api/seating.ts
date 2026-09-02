@@ -17,8 +17,16 @@ export const seatingApi = {
   reoptimize: (weddingId: string) =>
     http.post<OptimizeResponse>(`/weddings/${weddingId}/seating/reoptimize`),
 
-  assignGuest: (weddingId: string, guestId: string, tableId: string | null) =>
-    http.patch(`/weddings/${weddingId}/seating/guests/${guestId}/assignment`, { tableId }),
+  assignGuest: (
+    weddingId: string,
+    guestId: string,
+    tableId: string | null,
+    seatIndex?: number | null,
+  ) =>
+    http.patch(`/weddings/${weddingId}/seating/guests/${guestId}/assignment`, {
+      tableId,
+      seatIndex: seatIndex ?? null,
+    }),
 
   createTable: (weddingId: string, payload: CreateTablePayload) =>
     http.post<SeatingTable>(`/weddings/${weddingId}/seating/tables`, payload),

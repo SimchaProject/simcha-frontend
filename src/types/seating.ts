@@ -1,3 +1,5 @@
+export type TableShape = 'round' | 'square' | 'rectangular'
+
 export interface SeatingTable {
   id: string
   weddingId: string
@@ -5,6 +7,9 @@ export interface SeatingTable {
   capacity: number
   x: number
   y: number
+  shape: TableShape
+  width: number | null
+  height: number | null
 }
 
 export interface CreateTablePayload {
@@ -12,6 +17,9 @@ export interface CreateTablePayload {
   capacity: number
   x?: number
   y?: number
+  shape?: TableShape
+  width?: number
+  height?: number
 }
 
 export interface UpdateTablePayload {
@@ -19,6 +27,9 @@ export interface UpdateTablePayload {
   capacity?: number
   x?: number
   y?: number
+  shape?: TableShape
+  width?: number
+  height?: number
 }
 
 export interface SeatAssignment {
@@ -27,6 +38,7 @@ export interface SeatAssignment {
   tableId: string | null
   originalTableId: string | null
   locked: boolean
+  seatIndex: number | null
 }
 
 export interface SeatingReport {

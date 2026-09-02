@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { seatingApi } from '../../api/seating'
-import type { SeatingTable } from '../../types/seating'
+import type { SeatingTable, TableShape } from '../../types/seating'
 
 interface Props {
   weddingId: string
@@ -12,9 +12,45 @@ interface Props {
 interface Draft {
   label: string
   capacity: string
+  shape: TableShape
+  size: string
+  width: string
+  height: string
 }
 
-const emptyDraft: Draft = { label: '', capacity: '10' }
+const emptyDraft: Draft = { label: '', capacity: '10', shape: 'round', size: '', width: '', height: '' }
+
+const SHAPE_LABELS: Record<TableShape, string> = {
+  round: 'עגול',
+  square: 'מרובע',
+  rectangular: 'מלבני (שולחן ארוך)',
+}
+
+function shapeFields(draft: Draft) {
+  if (draft.shape === 'square') {
+    const size = Number(draft.size) || undefined
+    return { shape: draft.shape, width: size, height: size }
+  }
+  if (draft.shape === 'rectangular') {
+    return {
+      shape: draft.shape,
+      width: Number(draft.width) || undefined,
+      height: Number(draft.height) || undefined,
+    }
+  }
+  return { shape: draft.shape, width: undefined, height: undefined }
+}
+
+function draftFromTable(table: SeatingTable): Draft {
+  return {
+    label: table.label,
+    capacity: String(table.capacity),
+    shape: table.shape,
+    size: table.shape === 'square' && table.width ? String(table.width) : '',
+    width: table.shape === 'rectangular' && table.width ? String(table.width) : '',
+    height: table.shape === 'rectangular' && table.height ? String(table.height) : '',
+  }
+}
 
 function nextPosition(index: number) {
   const col = index % 4
@@ -22,11 +58,58 @@ function nextPosition(index: number) {
   return { x: 60 + col * 420, y: 60 + row * 420 }
 }
 
+interface ShapeInputsProps {
+  draft: Draft
+  onChange: (draft: Draft) => void
+}
+
+function ShapeInputs({ draft, onChange }: ShapeInputsProps) {
+  return (
+    <>
+      <select value={draft.shape} onChange={(e) => onChange({ ...draft, shape: e.target.value as TableShape })}>
+        {Object.entries(SHAPE_LABELS).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+      {draft.shape === 'square' && (
+        <input
+          type="number"
+          min="1"
+          placeholder="גודל (אופציונלי)"
+          value={draft.size}
+          onChange={(e) => onChange({ ...draft, size: e.target.value })}
+        />
+      )}
+      {draft.shape === 'rectangular' && (
+        <>
+          <input
+            type="number"
+            min="1"
+            placeholder="אורך (אופציונלי)"
+            value={draft.width}
+            onChange={(e) => onChange({ ...draft, width: e.target.value })}
+          />
+          <input
+            type="number"
+            min="1"
+            placeholder="רוחב (אופציונלי)"
+            value={draft.height}
+            onChange={(e) => onChange({ ...draft, height: e.target.value })}
+          />
+        </>
+      )}
+    </>
+  )
+}
+
 export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: Props) {
   const [newTable, setNewTable] = useState<Draft>(emptyDraft)
   const [adding, setAdding] = useState(false)
   const [bulkCount, setBulkCount] = useState('8')
   const [bulkCapacity, setBulkCapacity] = useState('10')
+  const [bulkShape, setBulkShape] = useState<TableShape>('round')
   const [bulkAdding, setBulkAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState<Draft>(emptyDraft)
@@ -53,7 +136,13 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
     setError(null)
     try {
       const { x, y } = nextPosition(tables.length)
-      const created = await seatingApi.createTable(weddingId, { label, capacity, x, y })
+      const created = await seatingApi.createTable(weddingId, {
+        label,
+        capacity,
+        x,
+        y,
+        ...shapeFields(newTable),
+      })
       onTablesChange([...tables, created])
       setNewTable(emptyDraft)
     } catch {
@@ -78,6 +167,7 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
           capacity,
           x,
           y,
+          shape: bulkShape,
         })
         created.push(table)
       }
@@ -91,7 +181,7 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
 
   const startEdit = (table: SeatingTable) => {
     setEditingId(table.id)
-    setEditDraft({ label: table.label, capacity: String(table.capacity) })
+    setEditDraft(draftFromTable(table))
   }
 
   const cancelEdit = () => {
@@ -104,7 +194,11 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
     const capacity = Number(editDraft.capacity)
     if (!label || !capacity || capacity < 1) return
     try {
-      const updated = await seatingApi.updateTable(weddingId, tableId, { label, capacity })
+      const updated = await seatingApi.updateTable(weddingId, tableId, {
+        label,
+        capacity,
+        ...shapeFields(editDraft),
+      })
       onTablesChange(tables.map((t) => (t.id === tableId ? updated : t)))
       cancelEdit()
     } catch {
@@ -130,7 +224,8 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
         </button>
         <p className="dash-page-title">ניהול שולחנות</p>
         <p className="dash-page-sub">
-          הוסיפו, ערכו או הסירו שולחנות. את המיקום שלהם על הלוח אפשר לגרור בחופשיות.
+          הוסיפו, ערכו או הסירו שולחנות. בחרו צורה (עגול / מרובע / מלבני לשולחנות ארוכים) וגודל, ואת המיקום שלהם על
+          הלוח אפשר לגרור בחופשיות.
         </p>
 
         <div className="dash-table-modal-add-row">
@@ -147,6 +242,7 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
             value={newTable.capacity}
             onChange={(e) => setNewTable((prev) => ({ ...prev, capacity: e.target.value }))}
           />
+          <ShapeInputs draft={newTable} onChange={setNewTable} />
           <button type="button" onClick={handleAdd} disabled={adding || !newTable.label.trim()}>
             + הוסיפו שולחן
           </button>
@@ -158,6 +254,13 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
           <span>שולחנות של</span>
           <input type="number" min="1" value={bulkCapacity} onChange={(e) => setBulkCapacity(e.target.value)} />
           <span>מקומות</span>
+          <select value={bulkShape} onChange={(e) => setBulkShape(e.target.value as TableShape)}>
+            {Object.entries(SHAPE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
           <button type="button" onClick={handleBulkAdd} disabled={bulkAdding}>
             הוסיפו בבת אחת
           </button>
@@ -184,6 +287,7 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
                       value={editDraft.capacity}
                       onChange={(e) => setEditDraft((prev) => ({ ...prev, capacity: e.target.value }))}
                     />
+                    <ShapeInputs draft={editDraft} onChange={setEditDraft} />
                     <button type="button" onClick={() => saveEdit(table.id)}>
                       שמרו
                     </button>
@@ -195,6 +299,7 @@ export function TableSetupModal({ weddingId, tables, onClose, onTablesChange }: 
                   <>
                     <span className="dash-table-modal-list__label">{table.label}</span>
                     <span className="dash-table-modal-list__capacity">{table.capacity} מקומות</span>
+                    <span className="dash-table-modal-list__shape">{SHAPE_LABELS[table.shape]}</span>
                     <button type="button" onClick={() => startEdit(table)}>
                       ערכו
                     </button>

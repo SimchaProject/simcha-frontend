@@ -438,6 +438,10 @@
   box-shadow: 0 8px 24px rgba(178, 58, 46, 0.2);
 }
 
+.dash-table--rect {
+  border-radius: 14px;
+}
+
 .dash-table__handle {
   position: absolute;
   top: -10px;
@@ -544,6 +548,12 @@
 
 .dash-seat--dragging {
   opacity: 0.35;
+}
+
+.dash-seat--over {
+  outline: 2px solid var(--simcha-red);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(178, 58, 46, 0.18);
 }
 
 .dash-seat__lock {
@@ -787,6 +797,28 @@
   text-align: center;
 }
 
+.dash-table-modal-add-row select,
+.dash-table-modal-bulk-row select,
+.dash-table-modal-list li select {
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  padding: 6px 10px;
+  color: var(--simcha-ink-muted);
+  cursor: pointer;
+}
+
+.dash-table-modal-add-row input[placeholder*='אורך'],
+.dash-table-modal-add-row input[placeholder*='רוחב'],
+.dash-table-modal-add-row input[placeholder*='גודל'],
+.dash-table-modal-list li input[placeholder*='אורך'],
+.dash-table-modal-list li input[placeholder*='רוחב'],
+.dash-table-modal-list li input[placeholder*='גודל'] {
+  width: 100px;
+}
+
 .dash-table-modal-add-row button,
 .dash-table-modal-bulk-row button {
   border: 1.5px solid var(--simcha-red);
@@ -851,6 +883,14 @@
 
 .dash-table-modal-list__capacity {
   color: var(--simcha-ink-muted);
+}
+
+.dash-table-modal-list__shape {
+  color: var(--simcha-ink-muted);
+  font-size: 11px;
+  border: 1px solid var(--simcha-line);
+  border-radius: 999px;
+  padding: 2px 9px;
 }
 
 .dash-table-modal-list li button {
