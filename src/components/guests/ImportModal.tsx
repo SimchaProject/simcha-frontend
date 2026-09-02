@@ -15,8 +15,17 @@ interface PreviewRow {
 
 const EXCEL_EXTENSION = /\.xlsx?$/i
 
+// Mirrors the backend's Hebrew header aliases (csv-row.dto.ts) so this
+// preview doesn't flag a CSV as broken that the real import - the source of
+// truth - would actually accept fine.
+const FIELD_ALIASES: Record<string, string[]> = {
+  name: ['name', 'שם', 'שם מלא', 'שם האורח', 'שם אורח'],
+  phone: ['phone', 'טלפון', 'נייד', 'טלפון נייד', 'מספר טלפון', 'פלאפון'],
+}
+
 function getField(record: Record<string, string>, field: string): string {
-  const key = Object.keys(record).find((k) => k.trim().toLowerCase() === field)
+  const aliases = FIELD_ALIASES[field] ?? [field]
+  const key = Object.keys(record).find((k) => aliases.includes(k.trim().toLowerCase()))
   return key ? (record[key] ?? '').trim() : ''
 }
 
@@ -38,8 +47,10 @@ interface ImportModalProps {
 
 // Client-side parsing here is purely a preview/UX aid - the raw file is what
 // actually gets sent, the backend is the source of truth for real import
-// validation and dedup (including Hebrew header aliases and title-row
-// detection, which this preview doesn't attempt to replicate).
+// validation and dedup. Name/phone header aliases are mirrored above so the
+// preview doesn't wrongly flag a valid Hebrew-header CSV as broken, but
+// title-row detection isn't replicated - a leading title row can still make
+// this preview look wrong even though the real import handles it fine.
 export function ImportModal({ weddingId, onClose, onImported }: ImportModalProps) {
   const [file, setFile] = useState<File | null>(null)
   const [previewRows, setPreviewRows] = useState<PreviewRow[] | null>(null)
