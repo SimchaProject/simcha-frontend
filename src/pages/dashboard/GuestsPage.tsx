@@ -33,9 +33,16 @@ interface GuestDraft {
   phone: string
   partySize: string
   groupId: string
+  needsTransport: boolean
 }
 
-const emptyDraft: GuestDraft = { name: '', phone: '', partySize: '1', groupId: NO_GROUP }
+const emptyDraft: GuestDraft = {
+  name: '',
+  phone: '',
+  partySize: '1',
+  groupId: NO_GROUP,
+  needsTransport: false,
+}
 
 type SortKey = 'name' | 'partySize' | 'rsvpStatus'
 
@@ -45,6 +52,7 @@ function guestPayload(draft: GuestDraft) {
     phone: draft.phone.trim() || undefined,
     partySize: Number(draft.partySize) || 1,
     groupId: draft.groupId || null,
+    needsTransport: draft.needsTransport,
   }
 }
 
@@ -206,6 +214,7 @@ export function GuestsPage() {
       phone: guest.phone ?? '',
       partySize: String(guest.partySize),
       groupId: guest.groupId ?? NO_GROUP,
+      needsTransport: guest.needsTransport,
     })
   }
 
@@ -307,6 +316,16 @@ export function GuestsPage() {
               value={editDraft.name}
               onChange={(e) => setEditDraft((prev) => ({ ...prev, name: e.target.value }))}
             />
+            <label className="dash-guest-transport-toggle">
+              <input
+                type="checkbox"
+                checked={editDraft.needsTransport}
+                onChange={(e) =>
+                  setEditDraft((prev) => ({ ...prev, needsTransport: e.target.checked }))
+                }
+              />
+              🚌 צריך/ה הסעה
+            </label>
           </td>
           <td>
             <input

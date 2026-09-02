@@ -67,6 +67,17 @@
   cursor: help;
 }
 
+.dash-guest-transport-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--simcha-ink-muted, #837c74);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .dash-guest-btn {
   display: inline-flex;
   align-items: center;
