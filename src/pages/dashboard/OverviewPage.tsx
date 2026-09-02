@@ -69,7 +69,7 @@ export function OverviewPage() {
   }
   if (withoutPhone.length > 0) {
     todos.push({
-      text: `${withoutPhone.length} אורחים בלי מספר טלפון — לא יקבלו הזמנה ב-SMS`,
+      text: `${withoutPhone.length} אורחים בלי מספר טלפון — לא יקבלו הזמנה בוואטסאפ`,
       action: 'להשלמה',
       to: '/dashboard/guests',
       urgent: false,

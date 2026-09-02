@@ -9,6 +9,13 @@ interface InviteModalProps {
   onClose: () => void
 }
 
+// WhatsApp caps a business number at 250 unique numbers messaged per
+// rolling 24h - this is just a client-side heads-up so a couple sending a
+// huge list isn't surprised by the backend's hard block; the backend is the
+// real source of truth since it also accounts for numbers already messaged
+// today by other sends.
+const WHATSAPP_ROLLING_LIMIT = 250
+
 // WhatsApp sends cost real money per guest - this is a confirm-then-send
 // flow, never a single-click fire, so a couple can't blast 200+ guests by
 // accident.
@@ -39,6 +46,13 @@ export function InviteModal({ weddingId, recipientCount, onClose }: InviteModalP
           <p className="import-modal__hint">
             הודעה עם קישור לאישור הגעה תישלח ל-{recipientCount} אורחים עם מספר טלפון. פעולה זו
             כרוכה בעלות שליחה בפועל - ודאו שרשימת האורחים מוכנה לפני האישור.
+          </p>
+        )}
+
+        {!result && recipientCount > WHATSAPP_ROLLING_LIMIT && (
+          <p className="import-modal__error">
+            וואטסאפ מגביל שליחה ל-{WHATSAPP_ROLLING_LIMIT} מספרים שונים בכל 24 שעות, ורשימה זו
+            חורגת מהמגבלה - השליחה תיחסם. שלחו לחלקים מהרשימה בכל פעם.
           </p>
         )}
 
