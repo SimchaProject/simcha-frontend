@@ -1,3 +1,8 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/api/auth/:path*", "destination": "https://simcha-backend.onrender.com/api/auth/:path*" },
+    { "source": "/weddings/:path*", "destination": "https://simcha-backend.onrender.com/weddings/:path*" },
+    { "source": "/me", "destination": "https://simcha-backend.onrender.com/me" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
