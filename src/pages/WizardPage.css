@@ -47,6 +47,50 @@
   }
 }
 
+/* topbar (logout escape hatch) */
+
+.wizard-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.wizard-topbar__logo {
+  font-family: 'Bellefair', serif;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  color: var(--simcha-red);
+}
+
+.wizard-logout-link {
+  border: none;
+  background: transparent;
+  color: var(--simcha-ink-muted);
+  font-size: 12px;
+  font-family: 'Rubik', sans-serif;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.wizard-logout-link:hover {
+  color: var(--simcha-red);
+}
+
+/* load-failure screen */
+
+.wizard-card--error {
+  text-align: center;
+}
+
+.wizard-error-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+}
+
 /* stepper */
 
 .wizard-stepper {

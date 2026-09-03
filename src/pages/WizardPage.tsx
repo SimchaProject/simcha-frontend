@@ -16,7 +16,7 @@ import { initialWizardData, WIZARD_STEP_COUNT, type WizardData } from '../compon
 import './WizardPage.css'
 
 export function WizardPage() {
-  const { couple } = useAuth()
+  const { couple, logout } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState<WizardData>(() =>
     couple ? (loadWizardData(couple.id) ?? initialWizardData) : initialWizardData,
@@ -29,8 +29,15 @@ export function WizardPage() {
   // stale bookmark, and would otherwise fill out the whole wizard just to
   // hit that error on submit.
   const [checkingExisting, setCheckingExisting] = useState(true)
+  // A failed check (a flaky request, a backend redeploy mid-request) must
+  // not be treated as "no wedding yet" - that would drop a couple who
+  // already has one into a blank wizard with nothing on it to undo that.
+  const [checkFailed, setCheckFailed] = useState(false)
+  const [checkAttempt, setCheckAttempt] = useState(0)
   useEffect(() => {
     let cancelled = false
+    setCheckingExisting(true)
+    setCheckFailed(false)
     weddingApi
       .getMine()
       .then((existing) => {
@@ -42,12 +49,14 @@ export function WizardPage() {
         setCheckingExisting(false)
       })
       .catch(() => {
-        if (!cancelled) setCheckingExisting(false)
+        if (cancelled) return
+        setCheckingExisting(false)
+        setCheckFailed(true)
       })
     return () => {
       cancelled = true
     }
-  }, [navigate])
+  }, [navigate, checkAttempt])
   // Not part of WizardData: that gets JSON-stringified into localStorage on
   // every change, which a raw File wouldn't survive. A reload mid-wizard
   // means re-picking the photo - an acceptable tradeoff for not having to
@@ -69,6 +78,29 @@ export function WizardPage() {
   }, [couple, data])
 
   if (!couple || checkingExisting) return <AppLoader />
+
+  if (checkFailed) {
+    return (
+      <div className="wizard-page">
+        <div className="wizard-card wizard-card--error">
+          <p className="wizard-step__title">לא הצלחנו לטעון את הנתונים שלכם</p>
+          <p className="wizard-step__sub">בדקו את החיבור לאינטרנט ונסו שוב.</p>
+          <div className="wizard-error-actions">
+            <button
+              type="button"
+              className="wizard-continue-btn"
+              onClick={() => setCheckAttempt((n) => n + 1)}
+            >
+              נסו שוב
+            </button>
+            <button type="button" className="wizard-back-link" onClick={logout}>
+              התנתקות
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const updateData = (patch: Partial<WizardData>) => {
     setData((prev) => ({ ...prev, ...patch }))
@@ -142,6 +174,13 @@ export function WizardPage() {
   return (
     <div className="wizard-page">
       <div className="wizard-card">
+        <div className="wizard-topbar">
+          <span className="wizard-topbar__logo">שמחה</span>
+          <button type="button" className="wizard-logout-link" onClick={logout}>
+            התנתקות
+          </button>
+        </div>
+
         <Stepper current={data.step} total={WIZARD_STEP_COUNT} />
 
         {data.step === 1 && <StepBasics data={data} errors={errors} onChange={updateData} />}
