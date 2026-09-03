@@ -1,30 +1,32 @@
-import type { ChangeEvent } from 'react'
+import { useRef, type ChangeEvent } from 'react'
 import type { WizardData } from './types'
-
-interface ThemeOption {
-  id: string
-  label: string
-  description: string
-}
-
-// Only one design exists today; structured as a list so more can be added later.
-const THEME_OPTIONS: ThemeOption[] = [
-  {
-    id: 'classic',
-    label: 'קלאסי',
-    description: 'נייר, פינה קרועה וחותם שעווה — העיצוב שיש לנו היום',
-  },
-]
+import { ThemePicker } from '../ui/ThemePicker'
+import { formatHebrewDate } from '../../lib/hebrewDate'
 
 interface StepGuestPageProps {
   data: WizardData
   onChange: (patch: Partial<WizardData>) => void
+  heroPhotoFile: File | null
+  heroPhotoPreviewUrl: string | null
+  onPhotoChange: (file: File | null) => void
 }
 
-export function StepGuestPage({ data, onChange }: StepGuestPageProps) {
+export function StepGuestPage({
+  data,
+  onChange,
+  heroPhotoFile,
+  heroPhotoPreviewUrl,
+  onPhotoChange,
+}: StepGuestPageProps) {
+  const photoInputRef = useRef<HTMLInputElement>(null)
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    onChange({ heroPhotoName: file?.name ?? '' })
+    onPhotoChange(e.target.files?.[0] ?? null)
+  }
+
+  const handleRemovePhoto = () => {
+    onPhotoChange(null)
+    if (photoInputRef.current) photoInputRef.current.value = ''
   }
 
   return (
@@ -34,19 +36,17 @@ export function StepGuestPage({ data, onChange }: StepGuestPageProps) {
 
       <div className="wizard-field">
         <label>ערכת עיצוב</label>
-        <div className="wizard-theme-options">
-          {THEME_OPTIONS.map((option) => (
-            <button
-              type="button"
-              key={option.id}
-              className={`wizard-theme-option${data.theme === option.id ? ' wizard-theme-option--selected' : ''}`}
-              onClick={() => onChange({ theme: option.id })}
-            >
-              <span className="wizard-theme-option__label">{option.label}</span>
-              <span className="wizard-theme-option__desc">{option.description}</span>
-            </button>
-          ))}
-        </div>
+        <ThemePicker
+          themeId={data.theme}
+          accentColor={data.accentColor}
+          onThemeChange={(theme) => onChange({ theme })}
+          onAccentChange={(accentColor) => onChange({ accentColor })}
+          coupleNameA={data.coupleNameA}
+          coupleNameB={data.coupleNameB}
+          dateLabel={data.date ? formatHebrewDate(data.date) : ''}
+          venue={data.venue}
+          heroPhotoUrl={heroPhotoPreviewUrl}
+        />
       </div>
 
       <div className="wizard-field">
@@ -61,9 +61,32 @@ export function StepGuestPage({ data, onChange }: StepGuestPageProps) {
       </div>
 
       <div className="wizard-field">
-        <label htmlFor="wizard-hero-photo">תמונת רקע (לא חובה)</label>
-        <input id="wizard-hero-photo" type="file" accept="image/*" onChange={handleFileChange} />
-        {data.heroPhotoName && <p className="wizard-field__hint">נבחר: {data.heroPhotoName}</p>}
+        <label htmlFor="wizard-hero-photo">תמונה בראש הדף (לא חובה)</label>
+        <input
+          id="wizard-hero-photo"
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="wizard-photo-input"
+        />
+        <div className="wizard-photo-row">
+          {heroPhotoPreviewUrl && (
+            <img src={heroPhotoPreviewUrl} alt="" className="wizard-photo-preview" />
+          )}
+          <button
+            type="button"
+            className="wizard-photo-btn"
+            onClick={() => photoInputRef.current?.click()}
+          >
+            {heroPhotoFile ? 'החלפת תמונה' : 'בחירת תמונה'}
+          </button>
+          {heroPhotoFile && (
+            <button type="button" className="wizard-back-link" onClick={handleRemovePhoto}>
+              הסרה
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

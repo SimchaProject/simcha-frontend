@@ -5,6 +5,7 @@ import './index.css'
 import './components/motifs/motifs.css'
 import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
+import { GuestOnlyRoute } from './auth/GuestOnlyRoute'
 import { LandingPage } from './pages/LandingPage.tsx'
 import { LoginPage } from './pages/LoginPage.tsx'
 import { SignupPage } from './pages/SignupPage.tsx'
@@ -19,6 +20,7 @@ import { SinglesEntryPage } from './pages/SinglesEntryPage.tsx'
 import { SeatingPage } from './pages/dashboard/SeatingPage.tsx'
 import { VendorsPage } from './pages/dashboard/VendorsPage.tsx'
 import { BudgetPage } from './pages/dashboard/BudgetPage.tsx'
+import { NotFoundPage } from './pages/NotFoundPage.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -26,8 +28,22 @@ createRoot(document.getElementById('root')!).render(
       <AuthProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route
+            path="/login"
+            element={
+              <GuestOnlyRoute>
+                <LoginPage />
+              </GuestOnlyRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <GuestOnlyRoute>
+                <SignupPage />
+              </GuestOnlyRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
@@ -54,6 +70,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/w/:weddingSlug" element={<InvitePage />} />
           <Route path="/w/:weddingSlug/singles" element={<SinglesEntryPage />} />
           <Route path="/w/:weddingSlug/mingle/:token" element={<MinglePage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

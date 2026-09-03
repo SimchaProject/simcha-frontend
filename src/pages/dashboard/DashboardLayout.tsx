@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/auth-context'
 import { weddingApi } from '../../api/wedding'
 import type { Wedding } from '../../types/wedding'
 import { Sidebar } from './Sidebar'
+import { AppLoader } from '../../components/ui/AppLoader'
 import './dashboard.css'
 
 export function DashboardLayout() {
@@ -45,7 +46,7 @@ export function DashboardLayout() {
     setRefetchIndex((i) => i + 1)
   }
 
-  if (!couple) return null
+  if (!couple) return <AppLoader />
   if (loading) {
     return (
       <div className="dash-loading">
@@ -60,7 +61,7 @@ export function DashboardLayout() {
       </div>
     )
   }
-  if (!wedding) return null
+  if (!wedding) return <AppLoader />
 
   return (
     <div className="dash-layout">

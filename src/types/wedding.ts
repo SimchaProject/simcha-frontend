@@ -1,3 +1,5 @@
+import type { GuestPageThemeId } from '../theme/guestPageThemes'
+
 export interface ScheduleEntry {
   time: string
   label: string
@@ -6,7 +8,9 @@ export interface ScheduleEntry {
 export interface GuestPageConfig {
   id: string
   weddingId: string
-  theme: string
+  theme: GuestPageThemeId
+  // A hex color from the theme's own swatch set, or null to use the theme's default accent.
+  accentColor: string | null
   welcomeMessage: string | null
   heroPhotoUrl: string | null
   // Couple-authored day-of timeline.
@@ -26,9 +30,10 @@ export interface GuestPageConfig {
   contactPhone: string | null
 }
 
-// Partial update body for PATCH /weddings/:weddingId/guest-page-config.
+// Partial update body for PATCH /weddings/:weddingId/guest-page-config. The
+// hero photo itself goes through its own upload/remove endpoints, not this.
 export type GuestPageConfigUpdate = Partial<
-  Omit<GuestPageConfig, 'id' | 'weddingId'>
+  Omit<GuestPageConfig, 'id' | 'weddingId' | 'heroPhotoUrl'>
 >
 
 export interface Wedding {
@@ -47,7 +52,8 @@ export interface Wedding {
 // What the public invite page gets - deliberately narrower than Wedding
 // (no createdBy/timestamps/contactPhone), served unauthenticated by slug.
 export interface PublicGuestPageConfig {
-  theme: string
+  theme: GuestPageThemeId
+  accentColor: string | null
   welcomeMessage: string | null
   heroPhotoUrl: string | null
   schedule: ScheduleEntry[]
@@ -72,9 +78,9 @@ export interface PublicWeddingInfo {
 }
 
 export interface GuestPageConfigInput {
-  theme: string
+  theme: GuestPageThemeId
+  accentColor?: string
   welcomeMessage?: string
-  heroPhotoUrl?: string
   schedule?: ScheduleEntry[]
   ceremonyTime?: string
   rsvpDeadline?: string

@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useDashboard } from './dashboard-context'
 import { weddingApi } from '../../api/wedding'
+import { apiUrl } from '../../api/http'
 import { DatePicker } from '../../components/ui/DatePicker'
+import { ThemePicker } from '../../components/ui/ThemePicker'
+import { resizeImage } from '../../utils/resizeImage'
+import { formatHebrewDate } from '../../lib/hebrewDate'
+import type { GuestPageThemeId } from '../../theme/guestPageThemes'
 import type { ScheduleEntry } from '../../types/wedding'
 import '../WizardPage.css'
 import './guests.css'
@@ -19,8 +24,13 @@ function newScheduleEntry(): ScheduleDraft {
 export function SettingsPage() {
   const { wedding } = useDashboard()
   const [loading, setLoading] = useState(true)
+  const [theme, setTheme] = useState<GuestPageThemeId>('classic')
+  const [accentColor, setAccentColor] = useState<string | null>(null)
+  const [heroPhotoUrl, setHeroPhotoUrl] = useState<string | null>(null)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [photoError, setPhotoError] = useState<string | null>(null)
+  const photoInputRef = useRef<HTMLInputElement>(null)
   const [welcomeMessage, setWelcomeMessage] = useState('')
-  const [heroPhotoUrl, setHeroPhotoUrl] = useState('')
   const [schedule, setSchedule] = useState<ScheduleDraft[]>([])
   const [ceremonyTime, setCeremonyTime] = useState('')
   const [rsvpDeadline, setRsvpDeadline] = useState('')
@@ -39,8 +49,10 @@ export function SettingsPage() {
     let cancelled = false
     weddingApi.getGuestPageConfig(wedding.id).then((config) => {
       if (cancelled) return
+      setTheme(config.theme)
+      setAccentColor(config.accentColor)
+      setHeroPhotoUrl(config.heroPhotoUrl)
       setWelcomeMessage(config.welcomeMessage ?? '')
-      setHeroPhotoUrl(config.heroPhotoUrl ?? '')
       setSchedule(config.schedule.map((entry) => ({ id: crypto.randomUUID(), ...entry })))
       setCeremonyTime(config.ceremonyTime ?? '')
       setRsvpDeadline(config.rsvpDeadline ?? '')
@@ -81,8 +93,9 @@ export function SettingsPage() {
         .filter((entry) => entry.time.trim() && entry.label.trim())
         .map(({ time, label }) => ({ time: time.trim(), label: label.trim() }))
       await weddingApi.updateGuestPageConfig(wedding.id, {
+        theme,
+        accentColor: accentColor ?? undefined,
         welcomeMessage: welcomeMessage.trim() || undefined,
-        heroPhotoUrl: heroPhotoUrl.trim() || undefined,
         schedule: cleanSchedule,
         ceremonyTime: ceremonyTime || undefined,
         rsvpDeadline: rsvpDeadline || undefined,
@@ -100,6 +113,40 @@ export function SettingsPage() {
       setError('לא הצלחנו לשמור את השינויים.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Photo changes go out immediately on selection, like the CSV import and
+  // vendor-receipt uploads elsewhere in this app - a file picked is a
+  // distinct action from the text fields the "שמרו שינויים" button covers.
+  const handlePhotoPicked = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setPhotoBusy(true)
+    setPhotoError(null)
+    try {
+      const resized = await resizeImage(file, 960)
+      await weddingApi.uploadHeroPhoto(wedding.id, resized)
+      const fresh = await weddingApi.getGuestPageConfig(wedding.id)
+      setHeroPhotoUrl(fresh.heroPhotoUrl)
+    } catch {
+      setPhotoError('לא הצלחנו להעלות את התמונה.')
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
+
+  const handleRemovePhoto = async () => {
+    setPhotoBusy(true)
+    setPhotoError(null)
+    try {
+      await weddingApi.removeHeroPhoto(wedding.id)
+      setHeroPhotoUrl(null)
+    } catch {
+      setPhotoError('לא הצלחנו להסיר את התמונה.')
+    } finally {
+      setPhotoBusy(false)
     }
   }
 
@@ -143,13 +190,51 @@ export function SettingsPage() {
         </div>
 
         <div className="wizard-field">
-          <label htmlFor="settings-hero-photo">קישור לתמונת רקע</label>
-          <input
-            id="settings-hero-photo"
-            type="text"
-            value={heroPhotoUrl}
-            onChange={(e) => setHeroPhotoUrl(e.target.value)}
+          <label>עיצוב דף האורחים</label>
+          <ThemePicker
+            themeId={theme}
+            accentColor={accentColor}
+            onThemeChange={setTheme}
+            onAccentChange={setAccentColor}
+            coupleNameA={wedding.coupleNameA}
+            coupleNameB={wedding.coupleNameB}
+            dateLabel={formatHebrewDate(wedding.date)}
+            venue={wedding.venue}
+            heroPhotoUrl={heroPhotoUrl}
           />
+        </div>
+
+        <div className="wizard-field">
+          <label>תמונה בראש הדף</label>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handlePhotoPicked}
+          />
+          <div className="settings-photo-row">
+            {heroPhotoUrl && <img src={apiUrl(heroPhotoUrl)} alt="" className="settings-photo-preview" />}
+            <button
+              type="button"
+              className="dash-guest-btn"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={photoBusy}
+            >
+              {photoBusy ? 'מעלה...' : heroPhotoUrl ? 'החלפת תמונה' : 'העלאת תמונה'}
+            </button>
+            {heroPhotoUrl && (
+              <button
+                type="button"
+                className="dash-guest-btn"
+                onClick={handleRemovePhoto}
+                disabled={photoBusy}
+              >
+                הסרה
+              </button>
+            )}
+          </div>
+          {photoError && <p className="dash-guest-error">{photoError}</p>}
         </div>
 
         <div className="wizard-field-row">

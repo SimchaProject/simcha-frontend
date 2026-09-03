@@ -50,6 +50,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>
 }
 
+// For a plain <img src>, a relative backend path like the ones
+// GuestPageConfig.heroPhotoUrl returns doesn't go through request() above,
+// so it never picks up BASE_URL - the browser resolves it against whatever
+// origin the current page happens to be on. In production that's fine (the
+// Vercel proxy handles it), but in local dev the frontend and backend are
+// genuinely different origins/ports. Only prefixes our own relative API
+// paths - leaves blob:/http(s):// URLs (e.g. a local file preview) alone.
+export function apiUrl(path: string | null | undefined): string | undefined {
+  if (!path) return undefined
+  return path.startsWith('/') ? `${BASE_URL}${path}` : path
+}
+
 export const http = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body?: unknown) =>

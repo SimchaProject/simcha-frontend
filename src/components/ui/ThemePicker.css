@@ -1,0 +1,100 @@
+.theme-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.theme-picker__card {
+  border: 1.5px solid var(--admin-line-strong, var(--simcha-line));
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--admin-surface, #fff);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.theme-picker__card--selected {
+  border-color: var(--simcha-red);
+  box-shadow: 0 0 0 1px var(--simcha-red);
+}
+
+.theme-picker__preview-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.theme-picker__preview-window {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e9e2d3;
+}
+
+/* Anchored to the window's physical top-left corner regardless of RTL block
+   flow (which would otherwise start this 760px-wide box at the window's
+   *right* edge and push the scaled content entirely out of view) - absolute
+   positioning with left:0 is always physical, and scaling from the same
+   top-left origin keeps the shrunk content inside the visible window. */
+.theme-picker__preview-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 760px;
+  transform: scale(0.3);
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.theme-picker__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: center;
+}
+
+.theme-picker__name {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--simcha-ink);
+}
+
+.theme-picker__vibe {
+  font-size: 11px;
+  color: var(--simcha-ink-muted);
+  line-height: 1.4;
+}
+
+.theme-picker__swatches {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.theme-picker__swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s ease;
+}
+
+.theme-picker__swatch:hover {
+  transform: scale(1.1);
+}
+
+.theme-picker__swatch--active {
+  border-color: var(--simcha-ink);
+}

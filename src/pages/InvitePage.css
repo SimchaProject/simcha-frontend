@@ -8,6 +8,10 @@
   background: var(--simcha-paper);
   font-family: 'Rubik', sans-serif;
   box-sizing: border-box;
+  /* Default/fallback - a wedding's chosen theme overrides this (and every
+     --simcha-* color below it) via inline style on .invite-card, see
+     guestPageThemeVars() in theme/guestPageThemes.ts. */
+  --simcha-display-font: 'Bellefair', serif;
 }
 
 .invite-page__error {
@@ -24,6 +28,13 @@
   background: var(--simcha-paper-dark);
   color: var(--simcha-ink);
   padding: 34px 36px 30px;
+  box-shadow: 0 18px 40px rgba(36, 26, 20, 0.12);
+  animation: invite-fade-in 0.5s ease both;
+  box-sizing: border-box;
+}
+
+/* Today's default - a torn strip of paper along the top edge. */
+.invite-card--torn {
   clip-path: polygon(
     0% 10px,
     6% 0,
@@ -46,9 +57,20 @@
     100% 100%,
     0% 100%
   );
-  box-shadow: 0 18px 40px rgba(36, 26, 20, 0.12);
-  animation: invite-fade-in 0.5s ease both;
-  box-sizing: border-box;
+}
+
+/* "White Minimal" theme - a plain, sharp-edged card instead of torn paper. */
+.invite-card--straight {
+  border: 1px solid var(--simcha-line);
+  border-radius: 3px;
+}
+
+/* "Ruby & Stone" theme - a ceremonial double-line frame. */
+.invite-card--ornate {
+  border: 2px solid var(--simcha-red);
+  outline: 1px solid var(--simcha-line);
+  outline-offset: -9px;
+  border-radius: 2px;
 }
 
 @media (max-width: 560px) {
@@ -76,6 +98,21 @@
   }
 }
 
+.invite-photo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.invite-photo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--simcha-red);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
 .invite-eyebrow {
   text-align: center;
   font-size: 12px;
@@ -86,7 +123,7 @@
 
 .invite-names {
   text-align: center;
-  font-family: 'Bellefair', serif;
+  font-family: var(--simcha-display-font);
   font-size: 52px;
   margin: 0 0 10px;
   line-height: 1.15;
@@ -128,7 +165,7 @@
 
 .invite-section-title {
   text-align: center;
-  font-family: 'Frank Ruhl Libre', serif;
+  font-family: var(--simcha-display-font);
   font-weight: 500;
   font-size: 17px;
   margin: 0 0 4px;
@@ -168,7 +205,7 @@
 }
 
 .invite-countdown__num {
-  font-family: 'Frank Ruhl Libre', serif;
+  font-family: var(--simcha-display-font);
   font-size: 28px;
   color: var(--simcha-red);
   line-height: 1;
@@ -205,7 +242,7 @@
 }
 
 .invite-schedule__time {
-  font-family: 'Frank Ruhl Libre', serif;
+  font-family: var(--simcha-display-font);
   color: var(--simcha-red);
   min-width: 44px;
   text-align: center;
@@ -502,7 +539,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Frank Ruhl Libre', serif;
+  font-family: var(--simcha-display-font);
   font-weight: 500;
   font-size: 16px;
   color: var(--simcha-ink);

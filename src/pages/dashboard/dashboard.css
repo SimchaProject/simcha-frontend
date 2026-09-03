@@ -769,6 +769,21 @@
   margin: 6px 0 0;
 }
 
+.settings-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.settings-photo-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--simcha-line);
+}
+
 /* overview to-do list */
 
 .dash-todo-list {

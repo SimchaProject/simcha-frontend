@@ -11,6 +11,8 @@ import { Countdown } from '../components/motifs/Countdown'
 import { ScheduleList } from '../components/motifs/ScheduleList'
 import { ArrivalSection } from '../components/motifs/ArrivalSection'
 import { GiftSection } from '../components/motifs/GiftSection'
+import { InviteCardPreview } from '../components/motifs/InviteCardPreview'
+import { getGuestPageTheme } from '../theme/guestPageThemes'
 import { normalizePhone, isValidIsraeliMobile } from '../utils/phone'
 import './InvitePage.css'
 
@@ -127,29 +129,22 @@ export function InvitePage() {
     }
   }
 
+  const theme = getGuestPageTheme(wedding.guestPageConfig.theme)
+
   return (
     <div className="invite-page">
-      <div className="invite-card">
-        <p className="invite-eyebrow">בשמחה ובאהבה</p>
-        <p className="invite-names">
-          {wedding.coupleNameA} <span className="invite-amp">&amp;</span> {wedding.coupleNameB}
-        </p>
-        <p className="invite-subline">
-          {formatHebrewDate(wedding.date)} &nbsp;·&nbsp; {wedding.venue}
-          {wedding.guestPageConfig.ceremonyTime && (
-            <>
-              {' '}
-              &nbsp;·&nbsp; שעה {wedding.guestPageConfig.ceremonyTime}
-            </>
-          )}
-        </p>
-        {wedding.guestPageConfig.welcomeMessage && (
-          <p className="invite-welcome-message">{wedding.guestPageConfig.welcomeMessage}</p>
-        )}
-        {wedding.guestPageConfig.dressCode && (
-          <p className="invite-subline">קוד לבוש: {wedding.guestPageConfig.dressCode}</p>
-        )}
-
+      <InviteCardPreview
+        themeId={theme.id}
+        accentColor={wedding.guestPageConfig.accentColor}
+        coupleNameA={wedding.coupleNameA}
+        coupleNameB={wedding.coupleNameB}
+        dateLabel={formatHebrewDate(wedding.date)}
+        venue={wedding.venue}
+        ceremonyTime={wedding.guestPageConfig.ceremonyTime}
+        welcomeMessage={wedding.guestPageConfig.welcomeMessage}
+        dressCode={wedding.guestPageConfig.dressCode}
+        heroPhotoUrl={wedding.guestPageConfig.heroPhotoUrl}
+      >
         <Countdown targetDate={wedding.date} />
 
         <VineDivider />
@@ -331,7 +326,7 @@ export function InvitePage() {
               {submitError && <p className="invite-page__error">{submitError}</p>}
 
               <div className="invite-seal-wrap">
-                <WaxSealButton type="submit" loading={submitting}>
+                <WaxSealButton type="submit" loading={submitting} variant={theme.cta}>
                   אישור
                 </WaxSealButton>
               </div>
@@ -383,7 +378,7 @@ export function InvitePage() {
           payboxLink={wedding.guestPageConfig.payboxLink}
           bankTransferDetails={wedding.guestPageConfig.bankTransferDetails}
         />
-      </div>
+      </InviteCardPreview>
     </div>
   )
 }

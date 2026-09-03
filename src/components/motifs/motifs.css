@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Frank Ruhl Libre', serif;
+  font-family: var(--simcha-display-font, 'Frank Ruhl Libre', serif);
   color: var(--simcha-red);
   font-size: 15px;
   font-weight: 500;
@@ -50,6 +50,29 @@
 .wax-seal:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* "White Minimal" theme - a plain solid button instead of a wax seal. */
+.wax-seal--rect {
+  width: auto;
+  height: auto;
+  min-width: 140px;
+  padding: 13px 28px;
+  border-radius: 4px;
+  border: none;
+  background: var(--simcha-ink);
+  color: var(--simcha-paper);
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.wax-seal--rect:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.wax-seal--rect:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .wax-seal__spinner {

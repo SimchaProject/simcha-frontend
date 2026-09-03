@@ -70,6 +70,7 @@ export function SinglesEntryPage() {
               id="mingle-phone"
               type="tel"
               autoComplete="tel"
+              enterKeyHint="go"
               placeholder="050-1234567"
               value={phone}
               onChange={(e) => {

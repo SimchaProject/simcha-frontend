@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Bellefair&family=Frank+Ruhl+Libre:wght@500;700&family=Rubik:wght@400;500&display=swap');
+/* Bellefair/Frank Ruhl Libre/Rubik are the "classic" guest-page theme's
+   fonts and the app-wide UI font; the rest are the other guest-page themes'
+   display fonts (see theme/guestPageThemes.ts) - browsers only fetch a
+   family's actual font files once a page renders text in it, so listing
+   them all here costs nothing on pages that never use them. */
+@import url('https://fonts.googleapis.com/css2?family=Bellefair&family=Frank+Ruhl+Libre:wght@500;700&family=David+Libre:wght@400;500;700&family=Suez+One&family=Secular+One&family=Noto+Serif+Hebrew:wght@500;700&family=Rubik:wght@400;500&display=swap');
 
 :root {
   /* simcha design tokens — see design-reference/simcha-design-spec.md */
@@ -35,6 +40,11 @@ body {
 
 body {
   margin: 0;
+  /* Without this, any moment the app has nothing themed painted yet - the
+     initial JS-load flash, an auth check in flight, an unmatched route -
+     shows the browser's stark white default instead of the app's paper
+     ground. Every themed page background sits on top of this anyway. */
+  background: var(--simcha-paper);
 }
 
 #root {

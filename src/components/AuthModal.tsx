@@ -131,6 +131,7 @@ export function AuthModal({ initialMode, onClose }: AuthModalProps) {
                 }}
                 placeholder="לדוגמה: נועה ואיתי"
                 autoComplete="name"
+                enterKeyHint="next"
               />
               {errors.name && <p className="auth-field__error">{errors.name}</p>}
             </div>
@@ -148,6 +149,7 @@ export function AuthModal({ initialMode, onClose }: AuthModalProps) {
               }}
               placeholder="you@example.com"
               autoComplete="email"
+              enterKeyHint="next"
             />
             {errors.email && <p className="auth-field__error">{errors.email}</p>}
           </div>
@@ -164,6 +166,7 @@ export function AuthModal({ initialMode, onClose }: AuthModalProps) {
               }}
               placeholder={mode === 'login' ? '••••••••' : 'לפחות 8 תווים'}
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              enterKeyHint="go"
             />
             {errors.password && <p className="auth-field__error">{errors.password}</p>}
           </div>

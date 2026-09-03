@@ -73,6 +73,7 @@ export function SignupPage() {
               }}
               placeholder="לדוגמה: נועה ואיתי"
               autoComplete="name"
+              enterKeyHint="next"
             />
             {errors.name && <p className="auth-field__error">{errors.name}</p>}
           </div>
@@ -89,6 +90,7 @@ export function SignupPage() {
               }}
               placeholder="you@example.com"
               autoComplete="email"
+              enterKeyHint="next"
             />
             {errors.email && <p className="auth-field__error">{errors.email}</p>}
           </div>
@@ -105,6 +107,7 @@ export function SignupPage() {
               }}
               placeholder="לפחות 8 תווים"
               autoComplete="new-password"
+              enterKeyHint="go"
             />
             {errors.password && <p className="auth-field__error">{errors.password}</p>}
           </div>

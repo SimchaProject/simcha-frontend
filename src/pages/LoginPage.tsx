@@ -68,6 +68,7 @@ export function LoginPage() {
               }}
               placeholder="you@example.com"
               autoComplete="email"
+              enterKeyHint="next"
             />
             {errors.email && <p className="auth-field__error">{errors.email}</p>}
           </div>
@@ -84,6 +85,7 @@ export function LoginPage() {
               }}
               placeholder="••••••••"
               autoComplete="current-password"
+              enterKeyHint="go"
             />
             {errors.password && <p className="auth-field__error">{errors.password}</p>}
           </div>

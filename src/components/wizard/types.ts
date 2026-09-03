@@ -1,3 +1,5 @@
+import type { GuestPageThemeId } from '../../theme/guestPageThemes'
+
 export interface WizardData {
   step: number
   coupleNameA: string
@@ -6,9 +8,9 @@ export interface WizardData {
   venue: string
   slug: string
   slugEdited: boolean
-  theme: string
+  theme: GuestPageThemeId
+  accentColor: string | null
   welcomeMessage: string
-  heroPhotoName: string
   ceremonyTime: string
   rsvpDeadline: string
   dressCode: string
@@ -26,8 +28,8 @@ export const initialWizardData: WizardData = {
   slug: '',
   slugEdited: false,
   theme: 'classic',
+  accentColor: null,
   welcomeMessage: '',
-  heroPhotoName: '',
   ceremonyTime: '',
   rsvpDeadline: '',
   dressCode: '',

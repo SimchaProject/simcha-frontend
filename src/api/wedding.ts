@@ -15,4 +15,11 @@ export const weddingApi = {
     http.get<GuestPageConfig>(`/weddings/${weddingId}/guest-page-config`),
   updateGuestPageConfig: (weddingId: string, payload: GuestPageConfigUpdate) =>
     http.patch<GuestPageConfig>(`/weddings/${weddingId}/guest-page-config`, payload),
+  uploadHeroPhoto: (weddingId: string, file: Blob) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return http.postForm<void>(`/weddings/${weddingId}/guest-page-config/hero-photo`, formData)
+  },
+  removeHeroPhoto: (weddingId: string) =>
+    http.del<void>(`/weddings/${weddingId}/guest-page-config/hero-photo`),
 }
