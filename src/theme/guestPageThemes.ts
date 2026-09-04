@@ -34,7 +34,7 @@ export const GUEST_PAGE_THEMES: GuestPageTheme[] = [
   {
     id: 'classic',
     label: 'עתיק',
-    vibe: 'הקלאסיקה של סימחה — נייר, חותם ודיו',
+    vibe: 'הקלאסיקה של שמחה — נייר, חותם ודיו',
     paper: '#efe6d2',
     paperDark: '#e3d6b8',
     ink: '#241a14',

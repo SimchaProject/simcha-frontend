@@ -25,21 +25,40 @@ function extractErrorMessage(body: string, method: string, path: string, status:
   return `${method} ${path} failed (${status}): ${body}`
 }
 
+// Plain fetch() never times out on its own - if the backend is mid
+// cold-start (Render's free tier spins the instance down after 15 minutes
+// idle) or a connection genuinely stalls, a request just hangs forever,
+// and every caller's "loading" state hangs right along with it since the
+// promise never settles either way. 30s is generous enough not to fire
+// during a normal cold start, while guaranteeing every screen eventually
+// gets a real error it can show a retry button for instead of spinning
+// indefinitely.
+const REQUEST_TIMEOUT_MS = 30_000
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   // FormData bodies need the browser to set their own multipart boundary in
   // Content-Type — sending our own would drop the boundary and break parsing.
   const isFormData = init?.body instanceof FormData
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...init,
-    // Auth is a Better Auth httpOnly session cookie, not a bearer token —
-    // this is what makes the browser attach it to every request.
-    credentials: 'include',
-    headers: {
-      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      ...init?.headers,
-    },
-  })
+  let res: Response
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      ...init,
+      // Auth is a Better Auth httpOnly session cookie, not a bearer token —
+      // this is what makes the browser attach it to every request.
+      credentials: 'include',
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      headers: {
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+        ...init?.headers,
+      },
+    })
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'TimeoutError') {
+      throw new Error(`${init?.method ?? 'GET'} ${path} timed out`)
+    }
+    throw e
+  }
 
   if (!res.ok) {
     const body = await res.text()

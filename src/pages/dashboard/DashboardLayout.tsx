@@ -51,13 +51,26 @@ export function DashboardLayout() {
     return (
       <div className="dash-loading">
         <span className="dash-loading__spinner" aria-hidden="true" />
+        <button type="button" className="dash-loading__logout-link" onClick={logout}>
+          התנתקות
+        </button>
       </div>
     )
   }
   if (error) {
     return (
       <div className="dash-loading">
-        <p className="dash-loading__error">{error}</p>
+        <div className="dash-loading__error-box">
+          <p className="dash-loading__error">{error}</p>
+          <div className="dash-loading__error-actions">
+            <button type="button" className="dash-guest-btn" onClick={refetchWedding}>
+              נסו שוב
+            </button>
+            <button type="button" className="dash-loading__logout-link" onClick={logout}>
+              התנתקות
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
