@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context'
+import { useSlowConnection } from '../hooks/useSlowConnection'
 import '../pages/AuthForm.css'
 import './AuthModal.css'
 
@@ -42,6 +43,7 @@ export function AuthModal({ initialMode, onClose }: AuthModalProps) {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const slow = useSlowConnection(submitting)
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -177,6 +179,7 @@ export function AuthModal({ initialMode, onClose }: AuthModalProps) {
             {submitting && <span className="auth-spinner" aria-hidden="true" />}
             {mode === 'login' ? 'כניסה' : 'צרו חשבון'}
           </button>
+          {slow && <p className="auth-slow-hint">השרת מתעורר משינה, זה עלול לקחת כמה שניות...</p>}
         </form>
       </div>
     </div>

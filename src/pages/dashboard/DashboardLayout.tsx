@@ -5,6 +5,7 @@ import { weddingApi } from '../../api/wedding'
 import type { Wedding } from '../../types/wedding'
 import { Sidebar } from './Sidebar'
 import { AppLoader } from '../../components/ui/AppLoader'
+import { useSlowConnection } from '../../hooks/useSlowConnection'
 import './dashboard.css'
 
 export function DashboardLayout() {
@@ -12,6 +13,7 @@ export function DashboardLayout() {
   const navigate = useNavigate()
   const [wedding, setWedding] = useState<Wedding | null>(null)
   const [loading, setLoading] = useState(true)
+  const slow = useSlowConnection(loading)
   const [error, setError] = useState<string | null>(null)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [refetchIndex, setRefetchIndex] = useState(0)
@@ -51,6 +53,9 @@ export function DashboardLayout() {
     return (
       <div className="dash-loading">
         <span className="dash-loading__spinner" aria-hidden="true" />
+        <p className="dash-loading__text">
+          {slow ? 'השרת מתעורר משינה, זה עלול לקחת כמה שניות...' : 'מתחברים לשרת...'}
+        </p>
         <button type="button" className="dash-loading__logout-link" onClick={logout}>
           התנתקות
         </button>

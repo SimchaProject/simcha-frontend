@@ -167,6 +167,13 @@
   }
 }
 
+.auth-slow-hint {
+  text-align: center;
+  color: var(--simcha-ink-muted);
+  font-size: 11px;
+  margin: -6px 0 0;
+}
+
 .auth-switch {
   text-align: center;
   font-size: 12px;

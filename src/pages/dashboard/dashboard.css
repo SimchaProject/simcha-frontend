@@ -136,6 +136,13 @@
   background: var(--admin-bg);
 }
 
+.dash-loading__text {
+  color: var(--simcha-ink-muted);
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  margin: 0;
+}
+
 .dash-loading__error-box {
   display: flex;
   flex-direction: column;

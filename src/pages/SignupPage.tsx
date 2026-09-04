@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context'
+import { useSlowConnection } from '../hooks/useSlowConnection'
 import './AuthForm.css'
 
 interface FieldErrors {
@@ -32,6 +33,7 @@ export function SignupPage() {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const slow = useSlowConnection(submitting)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -118,6 +120,7 @@ export function SignupPage() {
             {submitting && <span className="auth-spinner" aria-hidden="true" />}
             צרו חשבון
           </button>
+          {slow && <p className="auth-slow-hint">השרת מתעורר משינה, זה עלול לקחת כמה שניות...</p>}
         </form>
 
         <p className="auth-switch">
