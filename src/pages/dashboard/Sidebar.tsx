@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import type { Wedding } from '../../types/wedding'
+import { BrandMark } from '../../components/motifs/BrandMark'
 
 interface SidebarProps {
   wedding: Wedding
@@ -77,7 +78,7 @@ export function Sidebar({ wedding, onLogout, onNavigate }: SidebarProps) {
   return (
     <nav className="dash-sidebar" onClick={onNavigate}>
       <div className="dash-sidebar__brand">
-        <span className="dash-sidebar__logo">שמחה</span>
+        <BrandMark size={28} className="dash-sidebar__logo" />
         <p className="dash-sidebar__wedding">
           {wedding.coupleNameA} &amp; {wedding.coupleNameB}
         </p>
@@ -111,7 +112,7 @@ export function Sidebar({ wedding, onLogout, onNavigate }: SidebarProps) {
       </div>
 
       <button type="button" className="dash-sidebar__logout" onClick={onLogout}>
-        יציאה
+        התנתקות
       </button>
     </nav>
   )

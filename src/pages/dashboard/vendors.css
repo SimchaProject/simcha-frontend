@@ -1,6 +1,69 @@
-/* Category filter chips. This replaced a grid of ten large tiles that was
-   both the category menu and the add-vendor entry point - adding now lives
-   in the page header, so this row only has to do one job: filter. */
+/* The add-vendor entry point - click a category, get a small scoped form.
+   Always visible, empty list or not, so there's never a blank page with
+   nothing but a button pointing nowhere in particular. */
+.dash-vendor-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.dash-vendor-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--admin-line);
+  border-radius: 12px;
+  background: var(--admin-surface);
+  padding: 14px 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.dash-vendor-tile:hover {
+  border-color: var(--simcha-gold);
+}
+
+.dash-vendor-tile.is-active {
+  border-color: var(--simcha-red);
+  box-shadow: 0 0 0 1px var(--simcha-red);
+}
+
+.dash-vendor-tile__icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.dash-vendor-tile__label {
+  font-size: 12px;
+  font-family: 'Rubik', sans-serif;
+  color: var(--simcha-ink);
+  text-align: center;
+}
+
+.dash-vendor-tile__count {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--simcha-red);
+  color: var(--simcha-paper);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Category filter chips - a separate, second job from the tiles above:
+   those add, this filters the list already below. */
 .dash-vendor-filters {
   display: flex;
   flex-wrap: wrap;
@@ -78,6 +141,19 @@
   grid-column: 1 / -1;
 }
 
+.dash-vendor-card--highlighted {
+  animation: dash-vendor-card-highlight 2s ease-out;
+}
+
+@keyframes dash-vendor-card-highlight {
+  0% {
+    box-shadow: 0 0 0 2px var(--simcha-red);
+  }
+  100% {
+    box-shadow: var(--admin-shadow);
+  }
+}
+
 .dash-vendor-card--editing {
   display: flex;
   flex-direction: column;
@@ -111,9 +187,52 @@
 }
 
 .dash-vendor-card__category {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
+  font-family: 'Rubik', sans-serif;
   color: var(--simcha-ink-muted);
   margin: 0 0 8px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.dash-vendor-card__category:hover {
+  color: var(--simcha-red);
+  text-decoration: underline;
+}
+
+.dash-vendor-card__category-edit-hint {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.dash-vendor-card__category-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.dash-vendor-card__category-edit select,
+.dash-vendor-card__category-edit input,
+.dash-vendor-card__category-edit button {
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  padding: 4px 8px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 11px;
+  color: var(--simcha-ink);
+  outline: none;
+}
+
+.dash-vendor-card__category-edit button {
+  cursor: pointer;
 }
 
 .dash-vendor-card__detail {
@@ -294,6 +413,21 @@
 .dash-vendor-payments-add-row__date .date-picker__trigger:hover,
 .dash-vendor-payments-add-row__date .date-picker__trigger:focus-visible {
   border-color: var(--simcha-red);
+}
+
+.dash-vendor-payments-add-row__paid-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-family: 'Rubik', sans-serif;
+  color: var(--simcha-ink-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dash-vendor-payments-add-row__paid-toggle input {
+  cursor: pointer;
 }
 
 .dash-vendor-payments-add-row__submit {

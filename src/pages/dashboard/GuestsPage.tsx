@@ -93,7 +93,10 @@ export function GuestsPage() {
   const [groupView, setGroupView] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
   const [showCsvModal, setShowCsvModal] = useState(false)
-  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [whatsappModal, setWhatsappModal] = useState<{
+    mode: 'invite' | 'remind' | 'day-before'
+    guestIds?: string[]
+  } | null>(null)
   const [showAddRow, setShowAddRow] = useState(false)
 
   const load = () => {
@@ -487,8 +490,26 @@ export function GuestsPage() {
           <button type="button" className="dash-btn" onClick={() => setShowCsvModal(true)}>
             ייבוא מ-CSV
           </button>
-          <button type="button" className="dash-btn" onClick={() => setShowInviteModal(true)}>
+          <button type="button" className="dash-btn" onClick={() => setWhatsappModal({ mode: 'invite' })}>
             שליחה בוואטסאפ
+          </button>
+          <button
+            type="button"
+            className="dash-btn"
+            onClick={() => setWhatsappModal({ mode: 'remind' })}
+            disabled={stats.pending === 0}
+            title={stats.pending === 0 ? 'כל האורחים כבר השיבו' : undefined}
+          >
+            תזכורת למי שטרם אישר
+          </button>
+          <button
+            type="button"
+            className="dash-btn"
+            onClick={() => setWhatsappModal({ mode: 'day-before' })}
+            disabled={stats.confirmed === 0}
+            title={stats.confirmed === 0 ? 'אין עדיין אורחים שאישרו הגעה' : undefined}
+          >
+            תזכורת לפני החתונה
           </button>
           <button
             type="button"
@@ -618,6 +639,12 @@ export function GuestsPage() {
           <button type="button" onClick={() => bulkSetStatus('DECLINED')}>
             סמנו כלא מגיע
           </button>
+          <button
+            type="button"
+            onClick={() => setWhatsappModal({ mode: 'invite', guestIds: [...selectedIds] })}
+          >
+            שליחה בוואטסאפ לנבחרים
+          </button>
           <button type="button" className="dash-bulk-bar__delete" onClick={bulkDelete}>
             מחקו נבחרים
           </button>
@@ -694,11 +721,21 @@ export function GuestsPage() {
         />
       )}
 
-      {showInviteModal && (
+      {whatsappModal && (
         <InviteModal
           weddingId={wedding.id}
-          recipientCount={guests.filter((g) => g.phone).length}
-          onClose={() => setShowInviteModal(false)}
+          mode={whatsappModal.mode}
+          guestIds={whatsappModal.guestIds}
+          recipientCount={
+            guests.filter(
+              (g) =>
+                g.phone &&
+                (whatsappModal.mode !== 'remind' || g.rsvpStatus === 'PENDING') &&
+                (whatsappModal.mode !== 'day-before' || g.rsvpStatus === 'ATTENDING') &&
+                (!whatsappModal.guestIds || whatsappModal.guestIds.includes(g.id)),
+            ).length
+          }
+          onClose={() => setWhatsappModal(null)}
         />
       )}
     </div>

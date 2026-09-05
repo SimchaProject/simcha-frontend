@@ -56,12 +56,6 @@
   margin-bottom: 22px;
 }
 
-.wizard-topbar__logo {
-  font-family: 'Bellefair', serif;
-  font-size: 20px;
-  letter-spacing: 0.5px;
-  color: var(--simcha-red);
-}
 
 .wizard-logout-link {
   border: none;

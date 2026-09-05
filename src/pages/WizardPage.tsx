@@ -9,6 +9,7 @@ import { StepGuestPage } from '../components/wizard/StepGuestPage'
 import { StepEventDetails } from '../components/wizard/StepEventDetails'
 import { StepReview } from '../components/wizard/StepReview'
 import { WaxSealButton } from '../components/motifs/WaxSealButton'
+import { BrandMark } from '../components/motifs/BrandMark'
 import { AppLoader } from '../components/ui/AppLoader'
 import { validateBasics, validateEventDetails } from '../components/wizard/validation'
 import { clearWizardData, loadWizardData, saveWizardData } from '../components/wizard/storage'
@@ -175,7 +176,7 @@ export function WizardPage() {
     <div className="wizard-page">
       <div className="wizard-card">
         <div className="wizard-topbar">
-          <span className="wizard-topbar__logo">שמחה</span>
+          <BrandMark size={20} className="wizard-topbar__logo" />
           <button type="button" className="wizard-logout-link" onClick={logout}>
             התנתקות
           </button>

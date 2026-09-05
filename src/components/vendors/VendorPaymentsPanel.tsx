@@ -22,6 +22,8 @@ export function VendorPaymentsPanel({ weddingId, vendorId }: VendorPaymentsPanel
   const [newType, setNewType] = useState<PaymentType>('DEPOSIT')
   const [newAmount, setNewAmount] = useState('')
   const [newDueDate, setNewDueDate] = useState('')
+  const [alreadyPaid, setAlreadyPaid] = useState(false)
+  const [newPaidDate, setNewPaidDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [adding, setAdding] = useState(false)
 
   const receiptInputRef = useRef<HTMLInputElement>(null)
@@ -48,18 +50,22 @@ export function VendorPaymentsPanel({ weddingId, vendorId }: VendorPaymentsPanel
   }, [weddingId, vendorId])
 
   const handleAdd = async () => {
-    if (!newAmount || !newDueDate) return
+    if (!newAmount) return
     setAdding(true)
     setError(null)
     try {
       const created = await vendorsApi.createPayment(weddingId, vendorId, {
         paymentType: newType,
         amount: Number(newAmount),
-        dueDate: newDueDate,
+        dueDate: !alreadyPaid && newDueDate ? newDueDate : undefined,
+        status: alreadyPaid ? 'PAID' : undefined,
+        paidDate: alreadyPaid ? newPaidDate : undefined,
       })
       setPayments((prev) => [...prev, created])
       setNewAmount('')
       setNewDueDate('')
+      setAlreadyPaid(false)
+      setNewPaidDate(new Date().toISOString().slice(0, 10))
     } catch {
       setError('לא הצלחנו להוסיף את התשלום.')
     } finally {
@@ -139,7 +145,7 @@ export function VendorPaymentsPanel({ weddingId, vendorId }: VendorPaymentsPanel
                   <td>{TYPE_LABELS[payment.paymentType]}</td>
                   <td>₪{payment.amount.toLocaleString()}</td>
                   <td>
-                    {payment.dueDate}
+                    {payment.dueDate ?? '—'}
                     {payment.isOverdue && ' (באיחור)'}
                   </td>
                   <td>
@@ -195,13 +201,25 @@ export function VendorPaymentsPanel({ weddingId, vendorId }: VendorPaymentsPanel
           onChange={(e) => setNewAmount(e.target.value)}
         />
         <div className="dash-vendor-payments-add-row__date">
-          <DatePicker value={newDueDate} onChange={setNewDueDate} placeholder="לתשלום עד" />
+          {alreadyPaid ? (
+            <DatePicker value={newPaidDate} onChange={setNewPaidDate} placeholder="שולם בתאריך" />
+          ) : (
+            <DatePicker value={newDueDate} onChange={setNewDueDate} placeholder="לתשלום עד (לא חובה)" />
+          )}
         </div>
+        <label className="dash-vendor-payments-add-row__paid-toggle">
+          <input
+            type="checkbox"
+            checked={alreadyPaid}
+            onChange={(e) => setAlreadyPaid(e.target.checked)}
+          />
+          כבר שולם
+        </label>
         <button
           type="button"
           className="dash-vendor-payments-add-row__submit"
           onClick={handleAdd}
-          disabled={adding || !newAmount || !newDueDate}
+          disabled={adding || !newAmount || (alreadyPaid && !newPaidDate)}
         >
           + הוסיפו תשלום
         </button>

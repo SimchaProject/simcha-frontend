@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context'
+import { BrandMark } from '../components/motifs/BrandMark'
 import './AuthForm.css'
 
 /** Catches every URL that doesn't match a real route - without this, React
@@ -12,7 +13,7 @@ export function NotFoundPage() {
     <div className="auth-page">
       <div className="auth-card">
         <Link to="/" className="auth-logo">
-          שמחה
+          <BrandMark size={36} />
         </Link>
         <p className="auth-title">הדף לא נמצא</p>
         <p className="auth-sub">הכתובת שהזנתם לא קיימת, או שהיא כבר לא בשימוש</p>

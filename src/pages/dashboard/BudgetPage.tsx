@@ -14,7 +14,7 @@ const PAYMENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const COMMITTED_HINT =
-  '"מחויב" = סכום החוזה של כל ספק שסומן "הוזמן" או "שולם", גם לפני שהועבר תשלום בפועל.'
+  'התקציב שנשאר לפני שמזמינים ספקים נוספים - אחרי הפחתת סכום החוזה של כל ספק שכבר סומן "הוזמן" או "שולם", גם אם עדיין לא הועבר תשלום בפועל. שונה מ"נותר לתשלום", שמחשב רק מה שכבר שולם בפועל.'
 
 function formatDate(date: string): string {
   const [year, month, day] = date.split('-')
@@ -252,12 +252,12 @@ export function BudgetPage() {
           }`}
           title={COMMITTED_HINT}
         >
-          <p className="dash-stat-card__label">נותר להקצאה</p>
+          <p className="dash-stat-card__label">תקציב פנוי להזמנות חדשות</p>
           <p className="dash-stat-card__value">
             ₪{summary.remainingAfterCommitments.toLocaleString()}
           </p>
           <p className="dash-stat-card__note">
-            אחרי ₪{summary.totalCommitted.toLocaleString()} שמחויבים לספקים
+            לאחר ₪{summary.totalCommitted.toLocaleString()} שכבר הוזמן/שולם אצל ספקים
           </p>
         </div>
       </div>

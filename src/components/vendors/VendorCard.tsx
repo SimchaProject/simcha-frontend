@@ -1,9 +1,9 @@
-import { useRef, useState, type ChangeEvent } from 'react'
+import { forwardRef, useRef, useState, type ChangeEvent } from 'react'
 import { vendorsApi } from '../../api/vendors'
 import type { Vendor, VendorStatus } from '../../types/vendors'
 import type { BudgetCategory } from '../../types/budget'
 import { VendorPaymentsPanel } from './VendorPaymentsPanel'
-import { iconForCategory } from '../../constants/vendorCategories'
+import { VENDOR_CATEGORY_PRESETS, iconForCategory } from '../../constants/vendorCategories'
 
 const STATUS_LABELS: Record<VendorStatus, string> = {
   CONTACTED: 'יצרנו קשר',
@@ -13,10 +13,10 @@ const STATUS_LABELS: Record<VendorStatus, string> = {
 }
 
 const NO_CATEGORY = ''
+const CUSTOM = '__custom__'
 
 interface VendorDraft {
   name: string
-  category: string
   contactInfo: string
   totalContractAmount: string
   budgetCategoryId: string
@@ -25,7 +25,6 @@ interface VendorDraft {
 function draftFromVendor(vendor: Vendor): VendorDraft {
   return {
     name: vendor.name,
-    category: vendor.category,
     contactInfo: vendor.contactInfo ?? '',
     totalContractAmount: vendor.totalContractAmount != null ? String(vendor.totalContractAmount) : '',
     budgetCategoryId: vendor.budgetCategoryId ?? NO_CATEGORY,
@@ -36,15 +35,29 @@ interface VendorCardProps {
   weddingId: string
   vendor: Vendor
   budgetCategories: BudgetCategory[]
+  highlighted?: boolean
   onUpdated: (vendor: Vendor) => void
   onDeleted: (vendorId: string) => void
+  onCategoryChange: (vendor: Vendor, newCategory: string) => Promise<void>
 }
 
-export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onDeleted }: VendorCardProps) {
+export const VendorCard = forwardRef<HTMLDivElement, VendorCardProps>(function VendorCard(
+  { weddingId, vendor, budgetCategories, highlighted, onUpdated, onDeleted, onCategoryChange },
+  ref,
+) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState<VendorDraft>(() => draftFromVendor(vendor))
   const [error, setError] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
+
+  // The category has its own small, always-visible editor right on the
+  // card - not buried inside the generic "ערכו" form - since that's the one
+  // field a couple is most likely to want to fix after the fact (a typo,
+  // or moving a vendor once a more specific preset exists).
+  const [editingCategory, setEditingCategory] = useState(false)
+  const [categoryChoice, setCategoryChoice] = useState(vendor.category)
+  const [customCategoryDraft, setCustomCategoryDraft] = useState(vendor.category)
+  const [categorySaving, setCategorySaving] = useState(false)
 
   const contractInputRef = useRef<HTMLInputElement>(null)
 
@@ -54,11 +67,10 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
   }
 
   const saveEdit = async () => {
-    if (!draft.name.trim() || !draft.category.trim()) return
+    if (!draft.name.trim()) return
     try {
       const updated = await vendorsApi.update(weddingId, vendor.id, {
         name: draft.name.trim(),
-        category: draft.category.trim(),
         contactInfo: draft.contactInfo.trim() || undefined,
         totalContractAmount: draft.totalContractAmount ? Number(draft.totalContractAmount) : undefined,
         budgetCategoryId: draft.budgetCategoryId || null,
@@ -67,6 +79,31 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
       setEditing(false)
     } catch {
       setError('לא הצלחנו לשמור את השינוי.')
+    }
+  }
+
+  const isPresetCategory = VENDOR_CATEGORY_PRESETS.some((p) => p.label === vendor.category)
+
+  const startCategoryEdit = () => {
+    setCategoryChoice(isPresetCategory ? vendor.category : CUSTOM)
+    setCustomCategoryDraft(vendor.category)
+    setEditingCategory(true)
+  }
+
+  const saveCategory = async () => {
+    const next = categoryChoice === CUSTOM ? customCategoryDraft.trim() : categoryChoice
+    if (!next || next === vendor.category) {
+      setEditingCategory(false)
+      return
+    }
+    setCategorySaving(true)
+    try {
+      await onCategoryChange(vendor, next)
+      setEditingCategory(false)
+    } catch {
+      setError('לא הצלחנו לשנות את הקטגוריה.')
+    } finally {
+      setCategorySaving(false)
     }
   }
 
@@ -95,18 +132,12 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
 
   if (editing) {
     return (
-      <div className="dash-vendor-card dash-vendor-card--editing">
+      <div className="dash-vendor-card dash-vendor-card--editing" ref={ref}>
         <input
           type="text"
           value={draft.name}
           placeholder="שם הספק"
           onChange={(e) => setDraft((prev) => ({ ...prev, name: e.target.value }))}
-        />
-        <input
-          type="text"
-          value={draft.category}
-          placeholder="קטגוריה"
-          onChange={(e) => setDraft((prev) => ({ ...prev, category: e.target.value }))}
         />
         <input
           type="text"
@@ -134,7 +165,7 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
         </select>
         {error && <p className="dash-guest-error">{error}</p>}
         <div className="dash-vendor-card__actions">
-          <button type="button" onClick={saveEdit} disabled={!draft.name.trim() || !draft.category.trim()}>
+          <button type="button" onClick={saveEdit} disabled={!draft.name.trim()}>
             שמרו
           </button>
           <button type="button" onClick={() => setEditing(false)}>
@@ -149,7 +180,12 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
     // The payments table needs more room than a card-width column has, so an
     // open card takes the whole row instead of letting the table spill over
     // its neighbour.
-    <div className={`dash-vendor-card${expanded ? ' dash-vendor-card--expanded' : ''}`}>
+    <div
+      ref={ref}
+      className={`dash-vendor-card${expanded ? ' dash-vendor-card--expanded' : ''}${
+        highlighted ? ' dash-vendor-card--highlighted' : ''
+      }`}
+    >
       <input
         type="file"
         accept=".pdf,.doc,.docx,image/*"
@@ -173,13 +209,53 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
       </div>
 
       {/* The list is no longer grouped under category headings, so the card
-          carries its own category. */}
-      <p className="dash-vendor-card__category">
-        {iconForCategory(vendor.category) && (
-          <span aria-hidden="true">{iconForCategory(vendor.category)} </span>
-        )}
-        {vendor.category}
-      </p>
+          carries its own category - and it's its own small editor, since
+          this is the field couples most often want to fix after the fact. */}
+      {editingCategory ? (
+        <div className="dash-vendor-card__category-edit">
+          <select value={categoryChoice} onChange={(e) => setCategoryChoice(e.target.value)} autoFocus>
+            {VENDOR_CATEGORY_PRESETS.map((preset) => (
+              <option key={preset.id} value={preset.label}>
+                {preset.icon} {preset.label}
+              </option>
+            ))}
+            <option value={CUSTOM}>קטגוריה אחרת...</option>
+          </select>
+          {categoryChoice === CUSTOM && (
+            <input
+              type="text"
+              placeholder="שם הקטגוריה"
+              value={customCategoryDraft}
+              onChange={(e) => setCustomCategoryDraft(e.target.value)}
+            />
+          )}
+          <button
+            type="button"
+            onClick={saveCategory}
+            disabled={categorySaving || (categoryChoice === CUSTOM && !customCategoryDraft.trim())}
+          >
+            שמרו
+          </button>
+          <button type="button" onClick={() => setEditingCategory(false)}>
+            ביטול
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="dash-vendor-card__category"
+          onClick={startCategoryEdit}
+          title="לחצו לשינוי הקטגוריה"
+        >
+          {iconForCategory(vendor.category) && (
+            <span aria-hidden="true">{iconForCategory(vendor.category)} </span>
+          )}
+          {vendor.category}
+          <span className="dash-vendor-card__category-edit-hint" aria-hidden="true">
+            ✎
+          </span>
+        </button>
+      )}
 
       {vendor.contactInfo && <p className="dash-vendor-card__detail">{vendor.contactInfo}</p>}
       {vendor.totalContractAmount != null && (
@@ -221,4 +297,4 @@ export function VendorCard({ weddingId, vendor, budgetCategories, onUpdated, onD
       {expanded && <VendorPaymentsPanel weddingId={weddingId} vendorId={vendor.id} />}
     </div>
   )
-}
+})

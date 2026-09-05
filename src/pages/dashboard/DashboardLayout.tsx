@@ -6,6 +6,7 @@ import type { Wedding } from '../../types/wedding'
 import { Sidebar } from './Sidebar'
 import { AppLoader } from '../../components/ui/AppLoader'
 import { useSlowConnection } from '../../hooks/useSlowConnection'
+import { BrandMark } from '../../components/motifs/BrandMark'
 import './dashboard.css'
 
 export function DashboardLayout() {
@@ -94,7 +95,7 @@ export function DashboardLayout() {
             <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
           </svg>
         </button>
-        <span className="dash-mobile-bar__logo">שמחה</span>
+        <BrandMark size={22} className="dash-mobile-bar__logo" />
       </header>
 
       <div className={`dash-sidebar-wrap${mobileNavOpen ? ' dash-sidebar-wrap--open' : ''}`}>

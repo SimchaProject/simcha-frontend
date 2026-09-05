@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { VineDivider } from '../components/motifs/VineDivider'
+import { BrandMark } from '../components/motifs/BrandMark'
 import { AuthModal } from '../components/AuthModal'
 import './LandingPage.css'
 
@@ -43,7 +44,7 @@ export function LandingPage() {
     <div className="landing-page">
       <div className="landing-shell">
         <nav className="landing-nav">
-          <span className="landing-logo">שמחה</span>
+          <BrandMark size={32} className="landing-logo" />
           <div className="landing-nav-right">
             <button
               type="button"
@@ -63,7 +64,11 @@ export function LandingPage() {
         </nav>
 
         <div className="landing-hero">
-          <p className="landing-eyebrow">תכנון חתונה, בפשטות</p>
+          <p className="landing-eyebrow">
+            <span className="landing-eyebrow__rule" aria-hidden="true" />
+            תכנון חתונה, בפשטות
+            <span className="landing-eyebrow__rule" aria-hidden="true" />
+          </p>
           <p className="landing-headline">
             כל החתונה שלכם
             <br />

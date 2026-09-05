@@ -32,6 +32,13 @@ export const guestsApi = {
     form.append('file', file)
     return http.postForm<BulkImportResult>(`/weddings/${weddingId}/guests/import`, form)
   },
-  sendInvites: (weddingId: string) =>
-    http.post<InviteSendResult>(`/weddings/${weddingId}/guests/invite`),
+  sendInvites: (weddingId: string, guestIds?: string[]) =>
+    http.post<InviteSendResult>(`/weddings/${weddingId}/guests/invite`, guestIds ? { guestIds } : undefined),
+  sendReminders: (weddingId: string, guestIds?: string[]) =>
+    http.post<InviteSendResult>(`/weddings/${weddingId}/guests/remind`, guestIds ? { guestIds } : undefined),
+  sendDayBeforeReminders: (weddingId: string, guestIds?: string[]) =>
+    http.post<InviteSendResult>(
+      `/weddings/${weddingId}/guests/remind-day-before`,
+      guestIds ? { guestIds } : undefined,
+    ),
 }

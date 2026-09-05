@@ -38,7 +38,7 @@ export interface VendorPayment {
   vendorId: string
   paymentType: PaymentType
   amount: number
-  dueDate: string
+  dueDate: string | null
   paidDate: string | null
   status: PaymentStatus
   isOverdue: boolean
@@ -49,7 +49,9 @@ export interface VendorPayment {
 export interface CreateVendorPaymentPayload {
   paymentType: PaymentType
   amount: number
-  dueDate: string
+  dueDate?: string
+  status?: PaymentStatus
+  paidDate?: string
 }
 
 export interface UpdateVendorPaymentPayload {

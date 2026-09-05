@@ -45,13 +45,13 @@
 .auth-logo {
   display: block;
   text-align: center;
-  font-family: 'Bellefair', serif;
-  font-size: 36px;
-  letter-spacing: 0.5px;
-  color: var(--simcha-red);
   text-decoration: none;
   text-shadow: 0 2px 10px rgba(178, 58, 46, 0.18);
   margin-bottom: 26px;
+}
+
+.auth-logo .brand-mark {
+  justify-content: center;
 }
 
 .auth-title {

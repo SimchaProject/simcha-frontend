@@ -1,3 +1,20 @@
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  line-height: 1;
+}
+
+.brand-mark__icon {
+  flex-shrink: 0;
+}
+
+.brand-mark__text {
+  font-family: 'Bellefair', serif;
+  letter-spacing: 0.5px;
+  color: var(--simcha-red);
+}
+
 .vine-divider {
   display: block;
   margin-bottom: 26px;
@@ -33,6 +50,13 @@
   cursor: pointer;
   background: transparent;
   text-decoration: none;
+  /* The same paper-gap-then-gold-ring the crest logo and the landing
+     page's CTA seal use, so every "sealed" mark in the app reads as one
+     family - the gap color is themed, so it always matches whatever
+     background the seal is sitting on. */
+  box-shadow:
+    0 0 0 4px var(--simcha-paper),
+    0 0 0 5px var(--simcha-gold);
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
@@ -40,7 +64,10 @@
 }
 
 .wax-seal:hover:not(:disabled) {
-  box-shadow: 0 6px 16px rgba(178, 58, 46, 0.25);
+  box-shadow:
+    0 0 0 4px var(--simcha-paper),
+    0 0 0 5px var(--simcha-gold),
+    0 6px 16px rgba(178, 58, 46, 0.25);
 }
 
 .wax-seal:active:not(:disabled) {

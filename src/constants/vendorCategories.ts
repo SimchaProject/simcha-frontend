@@ -11,12 +11,14 @@ export interface VendorCategoryPreset {
 export const VENDOR_CATEGORY_PRESETS: VendorCategoryPreset[] = [
   { id: 'venue', label: 'אולם / גן אירועים', icon: '🏛️' },
   { id: 'photographer', label: 'צלם/ת', icon: '📷' },
+  { id: 'videographer', label: 'צלם/ת וידאו', icon: '🎥' },
   { id: 'dj', label: 'תקליטן / DJ', icon: '🎧' },
   { id: 'band', label: 'להקה / זמר', icon: '🎤' },
   { id: 'catering', label: 'קייטרינג', icon: '🍽️' },
   { id: 'florist', label: 'סידורי פרחים', icon: '💐' },
   { id: 'cake', label: 'עוגה', icon: '🎂' },
-  { id: 'makeup', label: 'איפור ושיער', icon: '💄' },
+  { id: 'makeup', label: 'איפור', icon: '💄' },
+  { id: 'hair', label: 'עיצוב שיער', icon: '💇' },
   { id: 'transport', label: 'הסעות', icon: '🚐' },
 ]
 

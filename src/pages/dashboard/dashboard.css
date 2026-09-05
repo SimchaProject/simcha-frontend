@@ -18,11 +18,17 @@
   flex-shrink: 0;
 }
 
+/* A fixed viewport height (not min-height:100%) - inside a flex row that
+   stretches to match a tall .dash-main, "height: 100%" would resolve
+   against that stretched, page-length box, and margin-top:auto on the
+   logout button below would push it to the bottom of the *page* instead
+   of the bottom of the *screen*. This keeps the whole sidebar pinned to
+   the viewport and never itself scrolling - only its links list can, and
+   only if it ever genuinely doesn't fit. */
 .dash-sidebar {
   width: 240px;
-  height: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   background: var(--admin-surface);
   border-left: 1px solid var(--admin-line);
   display: flex;
@@ -31,6 +37,7 @@
   box-sizing: border-box;
   position: sticky;
   top: 0;
+  overflow: hidden;
 }
 
 .dash-sidebar__brand {
@@ -38,11 +45,6 @@
 }
 
 .dash-sidebar__logo {
-  display: block;
-  font-family: 'Bellefair', serif;
-  font-size: 28px;
-  letter-spacing: 0.5px;
-  color: var(--simcha-red);
   text-shadow: 0 2px 8px rgba(178, 58, 46, 0.16);
   margin-bottom: 12px;
 }
@@ -56,6 +58,9 @@
 }
 
 .dash-sidebar__links {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -92,7 +97,8 @@
 }
 
 .dash-sidebar__logout {
-  margin-top: auto;
+  flex-shrink: 0;
+  margin-top: 12px;
   border: 1px solid var(--simcha-line);
   background: transparent;
   color: var(--simcha-ink-muted);
@@ -715,13 +721,6 @@
   .dash-mobile-bar__toggle svg {
     width: 22px;
     height: 22px;
-  }
-
-  .dash-mobile-bar__logo {
-    font-family: 'Bellefair', serif;
-    font-size: 22px;
-    letter-spacing: 0.5px;
-    color: var(--simcha-red);
   }
 
   .dash-sidebar-wrap {

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context'
 import { useSlowConnection } from '../hooks/useSlowConnection'
+import { BrandMark } from '../components/motifs/BrandMark'
 import './AuthForm.css'
 
 interface FieldErrors {
@@ -52,7 +53,7 @@ export function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <Link to="/" className="auth-logo">
-          שמחה
+          <BrandMark size={36} />
         </Link>
         <p className="auth-title">כניסה</p>
         <p className="auth-sub">התחברו כדי לנהל את החתונה שלכם</p>

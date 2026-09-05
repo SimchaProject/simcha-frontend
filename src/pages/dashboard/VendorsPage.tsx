@@ -1,16 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDashboard } from './dashboard-context'
 import { vendorsApi } from '../../api/vendors'
 import { budgetApi } from '../../api/budget'
 import type { Vendor } from '../../types/vendors'
 import type { BudgetCategory } from '../../types/budget'
 import { VendorCard } from '../../components/vendors/VendorCard'
-import { VENDOR_CATEGORY_PRESETS, iconForCategory } from '../../constants/vendorCategories'
+import { VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY, iconForCategory } from '../../constants/vendorCategories'
 import './vendors.css'
 
 const ALL = '__all__'
-const CUSTOM = '__custom__'
-const NO_BUDGET_CATEGORY = ''
 
 export function VendorsPage() {
   const { wedding } = useDashboard()
@@ -20,15 +18,22 @@ export function VendorsPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [filter, setFilter] = useState<string>(ALL)
-  const [showAdd, setShowAdd] = useState(false)
-  const [categoryChoice, setCategoryChoice] = useState(VENDOR_CATEGORY_PRESETS[0].label)
+
+  // The couple picks a category tile before typing anything else - there's
+  // no dropdown to notice or ignore, and no separate "add vendor" toggle:
+  // the tile grid itself is always the way in, empty list or not.
+  const [activeTileId, setActiveTileId] = useState<string | null>(null)
   const [customCategory, setCustomCategory] = useState('')
   const [newVendorName, setNewVendorName] = useState('')
   const [newContactInfo, setNewContactInfo] = useState('')
   const [newContractAmount, setNewContractAmount] = useState('')
-  const [newBudgetCategoryId, setNewBudgetCategoryId] = useState(NO_BUDGET_CATEGORY)
   const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
+
+  // The couple just added this vendor - scroll it into view and give it a
+  // brief highlight instead of leaving them to notice it landed at the top.
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null)
+  const newVendorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -50,12 +55,30 @@ export function VendorsPage() {
     }
   }, [wedding.id])
 
+  // Only fetched for VendorCard's own edit form, where a couple can link a
+  // vendor to a budget category if they want to - never asked for up front
+  // when just adding a vendor, since that's two categorization decisions at
+  // once for no reason at add time.
   useEffect(() => {
     budgetApi.listCategories(wedding.id).then(setBudgetCategories).catch(() => undefined)
   }, [wedding.id])
 
+  const addTiles = useMemo(() => [...VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY], [])
+  const presetLabels = useMemo(() => new Set(VENDOR_CATEGORY_PRESETS.map((p) => p.label)), [])
+
+  const countForTile = (tileId: string): number => {
+    if (tileId === OTHER_CATEGORY.id) {
+      return vendors.filter((v) => !presetLabels.has(v.category)).length
+    }
+    const preset = VENDOR_CATEGORY_PRESETS.find((p) => p.id === tileId)
+    return preset ? vendors.filter((v) => v.category === preset.label).length : 0
+  }
+
+  const activeTile = addTiles.find((t) => t.id === activeTileId) ?? null
+
   // Only categories the couple actually has vendors in - a filter row of
-  // empty categories is a menu, not a filter.
+  // empty categories is a menu, not a filter (that's what the tiles above
+  // are for).
   const usedCategories = useMemo(() => {
     const counts = new Map<string, number>()
     for (const vendor of vendors) {
@@ -71,8 +94,31 @@ export function VendorsPage() {
 
   const bookedCount = vendors.filter((v) => v.status === 'BOOKED' || v.status === 'PAID').length
 
+  // Runs after the new card has actually rendered (ref is only set once
+  // it's in the DOM), so this can't be inlined into handleAdd itself.
+  useEffect(() => {
+    if (!newlyAddedId) return
+    newVendorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const timer = setTimeout(() => setNewlyAddedId(null), 2000)
+    return () => clearTimeout(timer)
+  }, [newlyAddedId])
+
+  const openTile = (tileId: string) => {
+    if (activeTileId === tileId) {
+      setActiveTileId(null)
+      return
+    }
+    setActiveTileId(tileId)
+    setAddError(null)
+    setNewVendorName('')
+    setNewContactInfo('')
+    setNewContractAmount('')
+    setCustomCategory('')
+  }
+
   const handleAdd = async () => {
-    const category = categoryChoice === CUSTOM ? customCategory.trim() : categoryChoice
+    if (!activeTile) return
+    const category = activeTile.id === OTHER_CATEGORY.id ? customCategory.trim() : activeTile.label
     if (!newVendorName.trim() || !category) return
 
     setAdding(true)
@@ -83,14 +129,15 @@ export function VendorsPage() {
         category,
         contactInfo: newContactInfo.trim() || undefined,
         totalContractAmount: newContractAmount ? Number(newContractAmount) : undefined,
-        budgetCategoryId: newBudgetCategoryId || null,
       })
-      setVendors((prev) => [...prev, created])
-      setNewVendorName('')
-      setNewContactInfo('')
-      setNewContractAmount('')
-      setCustomCategory('')
-      setShowAdd(false)
+      // At the top, not the bottom - a couple who just typed this in
+      // shouldn't have to scroll to see it landed. If they're viewing a
+      // filtered category the new vendor isn't in, switch to "הכל" so it's
+      // not added somewhere they can't currently see.
+      setVendors((prev) => [created, ...prev])
+      setFilter((prev) => (prev !== ALL && prev !== created.category ? ALL : prev))
+      setNewlyAddedId(created.id)
+      setActiveTileId(null)
     } catch {
       setAddError('נא לוודא שהשם והקטגוריה תקינים.')
     } finally {
@@ -104,6 +151,26 @@ export function VendorsPage() {
 
   const handleDeleted = (vendorId: string) => {
     setVendors((prev) => prev.filter((v) => v.id !== vendorId))
+  }
+
+  // A vendor's category is edited right on its card (see VendorCard), not
+  // through a separate "manage categories" screen - there's no category
+  // entity to manage, just free text on each vendor. If other vendors
+  // already share the category being changed, offer to move them all
+  // together instead of silently splitting one off (this is also how a
+  // typo'd or since-renamed custom category gets fixed everywhere at once).
+  const handleCategoryChange = async (vendor: Vendor, newCategory: string) => {
+    const siblings = vendors.filter((v) => v.id !== vendor.id && v.category === vendor.category)
+    const alsoRenameSiblings =
+      siblings.length > 0 &&
+      window.confirm(
+        `יש עוד ${siblings.length} ספקים בקטגוריית "${vendor.category}". לשנות גם אותם ל"${newCategory}"?`,
+      )
+    const targets = alsoRenameSiblings ? [vendor, ...siblings] : [vendor]
+    const updated = await Promise.all(
+      targets.map((v) => vendorsApi.update(wedding.id, v.id, { category: newCategory })),
+    )
+    setVendors((prev) => prev.map((v) => updated.find((u) => u.id === v.id) ?? v))
   }
 
   if (loading) {
@@ -121,47 +188,48 @@ export function VendorsPage() {
 
   return (
     <div className="dash-vendors">
-      <div className="dash-page-header dash-page-header--row">
-        <div>
-          <p className="dash-page-title">ספקים</p>
-          <p className="dash-page-sub">
-            {vendors.length} ספקים · {bookedCount} כבר הוזמנו
-          </p>
-        </div>
-        <div className="dash-page-actions">
-          <button
-            type="button"
-            className="dash-btn dash-btn--primary"
-            onClick={() => setShowAdd((v) => !v)}
-          >
-            {showAdd ? 'סגירה' : '+ הוספת ספק'}
-          </button>
-        </div>
+      <div className="dash-page-header">
+        <p className="dash-page-title">ספקים</p>
+        <p className="dash-page-sub">
+          {vendors.length} ספקים · {bookedCount} כבר הוזמנו
+        </p>
       </div>
 
       {error && <p className="dash-guest-error">{error}</p>}
 
-      {showAdd && (
+      {/* The couple's way in, whether the list is empty or not - click a
+          category, get a tiny scoped form, no dropdown to fumble with. */}
+      <div className="dash-vendor-tiles">
+        {addTiles.map((tile) => (
+          <button
+            key={tile.id}
+            type="button"
+            className={`dash-vendor-tile${activeTileId === tile.id ? ' is-active' : ''}`}
+            onClick={() => openTile(tile.id)}
+          >
+            <span className="dash-vendor-tile__icon" aria-hidden="true">
+              {tile.icon}
+            </span>
+            <span className="dash-vendor-tile__label">{tile.label}</span>
+            {countForTile(tile.id) > 0 && (
+              <span className="dash-vendor-tile__count">{countForTile(tile.id)}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {activeTile && (
         <div className="dash-panel">
-          <p className="dash-panel__title">ספק חדש</p>
+          <p className="dash-panel__title">
+            {activeTile.icon} ספק חדש - {activeTile.label}
+          </p>
           <div className="dash-vendor-add-row">
-            <select
-              className="dash-field"
-              value={categoryChoice}
-              onChange={(e) => setCategoryChoice(e.target.value)}
-            >
-              {VENDOR_CATEGORY_PRESETS.map((preset) => (
-                <option key={preset.id} value={preset.label}>
-                  {preset.icon} {preset.label}
-                </option>
-              ))}
-              <option value={CUSTOM}>קטגוריה אחרת...</option>
-            </select>
-            {categoryChoice === CUSTOM && (
+            {activeTile.id === OTHER_CATEGORY.id && (
               <input
                 type="text"
                 className="dash-field"
                 placeholder="שם הקטגוריה"
+                autoFocus
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value)}
               />
@@ -170,7 +238,7 @@ export function VendorsPage() {
               type="text"
               className="dash-field"
               placeholder="שם הספק"
-              autoFocus
+              autoFocus={activeTile.id !== OTHER_CATEGORY.id}
               value={newVendorName}
               onChange={(e) => setNewVendorName(e.target.value)}
             />
@@ -189,36 +257,27 @@ export function VendorsPage() {
               value={newContractAmount}
               onChange={(e) => setNewContractAmount(e.target.value)}
             />
-            <select
-              className="dash-field"
-              value={newBudgetCategoryId}
-              onChange={(e) => setNewBudgetCategoryId(e.target.value)}
-            >
-              <option value={NO_BUDGET_CATEGORY}>ללא קטגוריית תקציב</option>
-              {budgetCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
             <button
               type="button"
               className="dash-btn dash-btn--primary"
               onClick={handleAdd}
               disabled={
-                adding || !newVendorName.trim() || (categoryChoice === CUSTOM && !customCategory.trim())
+                adding ||
+                !newVendorName.trim() ||
+                (activeTile.id === OTHER_CATEGORY.id && !customCategory.trim())
               }
             >
               הוסיפו
+            </button>
+            <button type="button" className="dash-btn" onClick={() => setActiveTileId(null)}>
+              ביטול
             </button>
           </div>
           {addError && <p className="dash-guest-error">{addError}</p>}
         </div>
       )}
 
-      {vendors.length === 0 ? (
-        <p className="dash-page-sub">עדיין אין ספקים ברשימה. הוסיפו את הראשון למעלה.</p>
-      ) : (
+      {vendors.length > 0 && (
         <>
           <div className="dash-vendor-filters">
             <button
@@ -252,11 +311,14 @@ export function VendorsPage() {
             {visibleVendors.map((vendor) => (
               <VendorCard
                 key={vendor.id}
+                ref={vendor.id === newlyAddedId ? newVendorRef : undefined}
+                highlighted={vendor.id === newlyAddedId}
                 weddingId={wedding.id}
                 vendor={vendor}
                 budgetCategories={budgetCategories}
                 onUpdated={handleUpdated}
                 onDeleted={handleDeleted}
+                onCategoryChange={handleCategoryChange}
               />
             ))}
           </div>

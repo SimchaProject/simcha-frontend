@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context'
 import { useSlowConnection } from '../hooks/useSlowConnection'
+import { BrandMark } from './motifs/BrandMark'
 import '../pages/AuthForm.css'
 import './AuthModal.css'
 
@@ -95,7 +96,7 @@ export function AuthModal({ initialMode, onClose }: AuthModalProps) {
         </button>
 
         <p className="auth-logo" style={{ cursor: 'default' }}>
-          שמחה
+          <BrandMark size={36} />
         </p>
 
         <div className="auth-modal-tabs">
