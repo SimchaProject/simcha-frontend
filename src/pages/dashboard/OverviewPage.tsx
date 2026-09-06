@@ -3,10 +3,22 @@ import { Link } from 'react-router-dom'
 import { useDashboard } from './dashboard-context'
 import { guestsApi } from '../../api/guests'
 import { budgetApi } from '../../api/budget'
+import { vendorsApi } from '../../api/vendors'
 import type { Guest } from '../../types/guests'
-import type { BudgetSummary } from '../../types/budget'
+import type { BudgetPaymentSummary, BudgetSummary } from '../../types/budget'
 import { formatHebrewDate } from '../../lib/hebrewDate'
 import './budget.css'
+
+const PAYMENT_TYPE_LABELS: Record<string, string> = {
+  DEPOSIT: 'מקדמה',
+  INSTALLMENT: 'תשלום',
+  FINAL: 'תשלום סופי',
+}
+
+function formatDate(date: string): string {
+  const [year, month, day] = date.split('-')
+  return `${day}/${month}/${year.slice(2)}`
+}
 
 function daysUntil(dateStr: string): number {
   const target = new Date(dateStr)
@@ -20,24 +32,40 @@ export function OverviewPage() {
   const [guests, setGuests] = useState<Guest[] | null>(null)
   const [summary, setSummary] = useState<BudgetSummary | null>(null)
   const [copied, setCopied] = useState(false)
+  const [payingId, setPayingId] = useState<string | null>(null)
+
+  const loadBudget = () => {
+    // A failed budget fetch just means no money lines in the to-do list -
+    // it shouldn't take the whole overview down with it.
+    budgetApi
+      .getSummary(wedding.id)
+      .then(setSummary)
+      .catch(() => undefined)
+  }
 
   useEffect(() => {
     let cancelled = false
     guestsApi.list(wedding.id).then((result) => {
       if (!cancelled) setGuests(result)
     })
-    // A failed budget fetch just means no budget line in the to-do list -
-    // it shouldn't take the whole overview down with it.
-    budgetApi
-      .getSummary(wedding.id)
-      .then((result) => {
-        if (!cancelled) setSummary(result)
-      })
-      .catch(() => undefined)
+    loadBudget()
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wedding.id])
+
+  // The payment is listed right here, so settling it happens here too rather
+  // than sending the couple to the vendor's card to find it again.
+  const handleMarkPaid = async (payment: BudgetPaymentSummary) => {
+    setPayingId(payment.id)
+    try {
+      await vendorsApi.updatePayment(wedding.id, payment.vendorId, payment.id, { status: 'PAID' })
+      loadBudget()
+    } finally {
+      setPayingId(null)
+    }
+  }
 
   const inviteUrl = `${window.location.origin}/w/${wedding.slug}`
   const days = daysUntil(wedding.date)
@@ -48,17 +76,14 @@ export function OverviewPage() {
   const confirmedGuestsCount = confirmed.reduce((sum, g) => sum + g.partySize, 0)
 
   const withoutPhone = (guests ?? []).filter((g) => !g.phone)
+  const overdueCount = summary?.overduePayments.length ?? 0
   const overdueTotal = (summary?.overduePayments ?? []).reduce((sum, p) => sum + p.amount, 0)
 
+  // The open payments are listed in full below rather than summarised into a
+  // link, so this line would just be saying the same thing twice.
+  const duePayments = [...(summary?.overduePayments ?? []), ...(summary?.upcomingPayments ?? [])]
+
   const todos: { text: string; action: string; to: string; urgent: boolean }[] = []
-  if (summary && summary.overduePayments.length > 0) {
-    todos.push({
-      text: `${summary.overduePayments.length} תשלומים באיחור · ₪${overdueTotal.toLocaleString()}`,
-      action: 'לתקציב',
-      to: '/dashboard/budget',
-      urgent: true,
-    })
-  }
   if (pending.length > 0) {
     todos.push({
       text: `${pending.length} אורחים טרם השיבו על ההזמנה`,
@@ -125,7 +150,7 @@ export function OverviewPage() {
         <div className="dash-card__header">
           <p className="dash-card__title">דורש טיפול</p>
         </div>
-        {todos.length === 0 ? (
+        {todos.length === 0 && duePayments.length === 0 ? (
           <p className="dash-page-sub">הכל מסודר כרגע. 🎉</p>
         ) : (
           <ul className="dash-todo-list">
@@ -139,6 +164,45 @@ export function OverviewPage() {
               </li>
             ))}
           </ul>
+        )}
+
+        {/* Open payments, moved off the budget page. They belong in the
+            "needs attention" list rather than on a page of their own: an
+            unpaid deposit is a task, and it's actionable from right here. */}
+        {duePayments.length > 0 && (
+          <div className="dash-todo-section">
+            <div className="dash-todo-section__header">
+              <p className="dash-todo-section__title">תשלומים פתוחים ({duePayments.length})</p>
+              {overdueCount > 0 && (
+                <span className="dash-card__flag">{overdueCount} באיחור · ₪{overdueTotal.toLocaleString()}</span>
+              )}
+            </div>
+            <ul className="dash-budget-payment-list">
+              {duePayments.map((payment) => (
+                <li key={payment.id} className={payment.isOverdue ? 'is-overdue' : undefined}>
+                  <span className="dash-budget-payment__vendor">{payment.vendorName}</span>
+                  <span className="dash-budget-payment__type">
+                    {PAYMENT_TYPE_LABELS[payment.paymentType]}
+                  </span>
+                  <span className="dash-budget-payment__amount">
+                    ₪{payment.amount.toLocaleString()}
+                  </span>
+                  <span className="dash-budget-payment__date">
+                    {payment.isOverdue ? 'היה אמור להיות משולם ב-' : 'עד '}
+                    {formatDate(payment.dueDate)}
+                  </span>
+                  <button
+                    type="button"
+                    className="dash-btn dash-budget-payment__action"
+                    onClick={() => handleMarkPaid(payment)}
+                    disabled={payingId === payment.id}
+                  >
+                    {payingId === payment.id ? 'רגע...' : 'סמנו כשולם'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
 

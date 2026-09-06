@@ -442,3 +442,39 @@
     opacity: 1;
   }
 }
+
+/* Open payments, now a section inside the overview's "needs attention" card
+   rather than a page of their own. */
+
+.dash-todo-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--admin-line);
+}
+
+.dash-todo-section__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.dash-todo-section__title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--simcha-ink);
+  margin: 0;
+}
+
+/* Hiding a row's action until hover made sense on a budget page dense with
+   data. Inside "דורש טיפול" the whole point of the list is that these need
+   doing, so the action is always visible here. */
+.dash-todo-section .dash-budget-payment__action {
+  opacity: 1;
+}
+
+/* The categories card closes the vendors page, so it needs to sit clear of
+   the vendor grid above it. */
+.dash-budget-categories-card {
+  margin-top: 22px;
+}

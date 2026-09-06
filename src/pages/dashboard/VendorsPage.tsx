@@ -3,12 +3,16 @@ import { useDashboard } from './dashboard-context'
 import { vendorsApi } from '../../api/vendors'
 import { budgetApi } from '../../api/budget'
 import type { Vendor } from '../../types/vendors'
-import type { BudgetCategory } from '../../types/budget'
+import type { BudgetCategory, BudgetSummary } from '../../types/budget'
 import { VendorCard } from '../../components/vendors/VendorCard'
 import { VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY, iconForCategory } from '../../constants/vendorCategories'
 import './vendors.css'
+import './budget.css'
 
 const ALL = '__all__'
+
+const COMMITTED_HINT =
+  'התקציב שנשאר לפני שמזמינים ספקים נוספים - אחרי הפחתת סכום החוזה של כל ספק שכבר סומן "הוזמן" או "שולם", גם אם עדיין לא הועבר תשלום בפועל. שונה מ"נותר לתשלום", שמחשב רק מה שכבר שולם בפועל.'
 
 export function VendorsPage() {
   const { wedding } = useDashboard()
@@ -35,6 +39,42 @@ export function VendorsPage() {
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null)
   const newVendorRef = useRef<HTMLDivElement>(null)
 
+  // The budget lived on its own page, which meant a couple managed vendor
+  // categories here and budget categories there - two lists of the same
+  // thing, kept in step by hand. The money now sits with the vendors that
+  // spend it.
+  const [summary, setSummary] = useState<BudgetSummary | null>(null)
+  const [editingTotal, setEditingTotal] = useState(false)
+  const [totalDraft, setTotalDraft] = useState('')
+  const [savingTotal, setSavingTotal] = useState(false)
+
+  const [showAddCategory, setShowAddCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryAmount, setNewCategoryAmount] = useState('')
+  const [addingCategory, setAddingCategory] = useState(false)
+  const categoryAmountRef = useRef<HTMLInputElement>(null)
+
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
+  const [editCategoryName, setEditCategoryName] = useState('')
+  const [editCategoryAmount, setEditCategoryAmount] = useState('')
+  const [savingCategory, setSavingCategory] = useState(false)
+
+  // Vendor edits change the money (a status moving to "הוזמן" changes what's
+  // committed), so both refresh together and an older response can't
+  // overwrite a newer one.
+  const latestRequestId = useRef(0)
+  const loadBudget = () => {
+    const requestId = ++latestRequestId.current
+    Promise.all([budgetApi.getSummary(wedding.id), budgetApi.listCategories(wedding.id)])
+      .then(([result, categories]) => {
+        if (requestId !== latestRequestId.current) return
+        setSummary(result)
+        setBudgetCategories(categories)
+        setTotalDraft(String(result.totalAmount))
+      })
+      .catch(() => undefined)
+  }
+
   useEffect(() => {
     let cancelled = false
     vendorsApi
@@ -55,12 +95,9 @@ export function VendorsPage() {
     }
   }, [wedding.id])
 
-  // Only fetched for VendorCard's own edit form, where a couple can link a
-  // vendor to a budget category if they want to - never asked for up front
-  // when just adding a vendor, since that's two categorization decisions at
-  // once for no reason at add time.
   useEffect(() => {
-    budgetApi.listCategories(wedding.id).then(setBudgetCategories).catch(() => undefined)
+    loadBudget()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wedding.id])
 
   const addTiles = useMemo(() => [...VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY], [])
@@ -145,12 +182,83 @@ export function VendorsPage() {
     }
   }
 
+  // A vendor's status or contract amount feeds straight into the committed
+  // and paid figures above, so the money is refreshed alongside the card.
   const handleUpdated = (updated: Vendor) => {
     setVendors((prev) => prev.map((v) => (v.id === updated.id ? updated : v)))
+    loadBudget()
   }
 
   const handleDeleted = (vendorId: string) => {
     setVendors((prev) => prev.filter((v) => v.id !== vendorId))
+    loadBudget()
+  }
+
+  const handleSaveTotal = async () => {
+    if (!totalDraft) return
+    setSavingTotal(true)
+    try {
+      await budgetApi.updateBudget(wedding.id, { totalAmount: Number(totalDraft) })
+      setEditingTotal(false)
+      loadBudget()
+    } catch {
+      setError('לא הצלחנו לשמור את סכום התקציב.')
+    } finally {
+      setSavingTotal(false)
+    }
+  }
+
+  const handleAddCategory = async () => {
+    if (!newCategoryName.trim() || !newCategoryAmount) return
+    setAddingCategory(true)
+    try {
+      await budgetApi.createCategory(wedding.id, {
+        name: newCategoryName.trim(),
+        allocatedAmount: Number(newCategoryAmount),
+      })
+      setNewCategoryName('')
+      setNewCategoryAmount('')
+      loadBudget()
+    } catch {
+      setError('לא הצלחנו להוסיף את הקטגוריה.')
+    } finally {
+      setAddingCategory(false)
+    }
+  }
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!window.confirm('להסיר את הקטגוריה?')) return
+    await budgetApi.removeCategory(wedding.id, categoryId)
+    loadBudget()
+  }
+
+  const startEditCategory = (category: BudgetSummary['categories'][number]) => {
+    setEditingCategoryId(category.id)
+    setEditCategoryName(category.name)
+    setEditCategoryAmount(String(category.allocatedAmount))
+  }
+
+  const cancelEditCategory = () => {
+    setEditingCategoryId(null)
+    setEditCategoryName('')
+    setEditCategoryAmount('')
+  }
+
+  const handleSaveCategory = async (categoryId: string) => {
+    if (!editCategoryName.trim() || !editCategoryAmount) return
+    setSavingCategory(true)
+    try {
+      await budgetApi.updateCategory(wedding.id, categoryId, {
+        name: editCategoryName.trim(),
+        allocatedAmount: Number(editCategoryAmount),
+      })
+      cancelEditCategory()
+      loadBudget()
+    } catch {
+      setError('לא הצלחנו לשמור את הקטגוריה.')
+    } finally {
+      setSavingCategory(false)
+    }
   }
 
   // A vendor's category is edited right on its card (see VendorCard), not
@@ -188,14 +296,77 @@ export function VendorsPage() {
 
   return (
     <div className="dash-vendors">
-      <div className="dash-page-header">
-        <p className="dash-page-title">ספקים</p>
-        <p className="dash-page-sub">
-          {vendors.length} ספקים · {bookedCount} כבר הוזמנו
-        </p>
+      <div className="dash-page-header dash-page-header--row">
+        <div>
+          <p className="dash-page-title">ספקים ותקציב</p>
+          <p className="dash-page-sub">
+            {vendors.length} ספקים · {bookedCount} כבר הוזמנו
+            {summary && ` · תקציב כולל ₪${summary.totalAmount.toLocaleString()}`}
+          </p>
+        </div>
+        <div className="dash-page-actions">
+          <button type="button" className="dash-btn" onClick={() => setEditingTotal((v) => !v)}>
+            עדכון תקציב
+          </button>
+        </div>
       </div>
 
       {error && <p className="dash-guest-error">{error}</p>}
+
+      {editingTotal && (
+        <div className="dash-panel">
+          <p className="dash-panel__title">תקציב כולל לחתונה</p>
+          <div className="dash-budget-total-row">
+            <input
+              type="number"
+              min="0"
+              className="dash-field"
+              autoFocus
+              value={totalDraft}
+              onChange={(e) => setTotalDraft(e.target.value)}
+            />
+            <button
+              type="button"
+              className="dash-btn dash-btn--primary"
+              onClick={handleSaveTotal}
+              disabled={savingTotal}
+            >
+              שמרו
+            </button>
+          </div>
+        </div>
+      )}
+
+      {summary && (
+        <div className="dash-stats-grid">
+          <div className="dash-stat-card">
+            <p className="dash-stat-card__label">שולם בפועל</p>
+            <p className="dash-stat-card__value">₪{summary.totalPaid.toLocaleString()}</p>
+            <p className="dash-stat-card__note">
+              {Math.round((summary.totalPaid / (summary.totalAmount || 1)) * 100)}% מהתקציב
+            </p>
+          </div>
+          <div className="dash-stat-card">
+            <p className="dash-stat-card__label">נותר לתשלום</p>
+            <p className="dash-stat-card__value">₪{summary.totalRemaining.toLocaleString()}</p>
+            <p className="dash-stat-card__note">מתוך התקציב הכולל</p>
+          </div>
+          <div
+            className={`dash-stat-card${
+              summary.remainingAfterCommitments < 0 ? ' dash-stat-card--alert' : ''
+            }`}
+            title={COMMITTED_HINT}
+          >
+            <p className="dash-stat-card__label">תקציב פנוי להזמנות חדשות</p>
+            <p className="dash-stat-card__value">
+              ₪{summary.remainingAfterCommitments.toLocaleString()}
+            </p>
+            <p className="dash-stat-card__note">
+              לאחר ₪{summary.totalCommitted.toLocaleString()} שכבר הוזמן/שולם אצל ספקים
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* The couple's way in, whether the list is empty or not - click a
           category, get a tiny scoped form, no dropdown to fumble with. */}
@@ -323,6 +494,172 @@ export function VendorsPage() {
             ))}
           </div>
         </>
+      )}
+
+      {/* Budget categories, moved here from the budget page. A vendor is
+          linked to one on its own card, so the allocation and the spending
+          that fills it are now on the same screen. */}
+      {summary && (
+        <div className="dash-card dash-budget-categories-card">
+          <div className="dash-card__header">
+            <p className="dash-card__title">קטגוריות תקציב</p>
+            <button
+              type="button"
+              className="dash-btn dash-btn--primary dash-btn--sm"
+              onClick={() => setShowAddCategory((v) => !v)}
+            >
+              {showAddCategory ? 'סגירה' : '+ קטגוריה'}
+            </button>
+          </div>
+
+          {showAddCategory && (
+            <div className="dash-budget-add-category">
+              {/* Presets are a shortcut for the empty case, so they live inside
+                  the add flow instead of sitting above the data permanently. */}
+              <div className="dash-budget-preset-row">
+                {VENDOR_CATEGORY_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className="dash-budget-preset-chip"
+                    onClick={() => {
+                      setNewCategoryName(preset.label)
+                      categoryAmountRef.current?.focus()
+                    }}
+                  >
+                    <span>{preset.icon}</span> {preset.label}
+                  </button>
+                ))}
+              </div>
+              <div className="dash-budget-add-category-row">
+                <input
+                  type="text"
+                  className="dash-field"
+                  placeholder="שם קטגוריה"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                />
+                <input
+                  ref={categoryAmountRef}
+                  type="number"
+                  min="0"
+                  className="dash-field"
+                  placeholder="סכום מתוקצב"
+                  value={newCategoryAmount}
+                  onChange={(e) => setNewCategoryAmount(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="dash-btn dash-btn--primary"
+                  onClick={handleAddCategory}
+                  disabled={addingCategory || !newCategoryName.trim() || !newCategoryAmount}
+                >
+                  הוסיפו
+                </button>
+              </div>
+            </div>
+          )}
+
+          {summary.categories.length === 0 ? (
+            <p className="dash-page-sub">
+              עדיין אין קטגוריות תקציב. הוסיפו את הראשונה כדי לראות פילוח הוצאות.
+            </p>
+          ) : (
+            <div className="dash-budget-categories">
+              {summary.categories.map((category) => {
+                const paidPercent =
+                  category.allocatedAmount > 0
+                    ? Math.min(
+                        100,
+                        Math.round((category.actualAmount / category.allocatedAmount) * 100),
+                      )
+                    : 0
+                const committedPercent =
+                  category.allocatedAmount > 0
+                    ? Math.min(
+                        100,
+                        Math.round((category.committedAmount / category.allocatedAmount) * 100),
+                      )
+                    : 0
+                const over = category.committedAmount > category.allocatedAmount
+                const overAmount = category.committedAmount - category.allocatedAmount
+
+                if (editingCategoryId === category.id) {
+                  return (
+                    <div className="dash-budget-category" key={category.id}>
+                      <div className="dash-budget-category__edit-row">
+                        <input
+                          type="text"
+                          className="dash-field"
+                          value={editCategoryName}
+                          onChange={(e) => setEditCategoryName(e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          min="0"
+                          className="dash-field"
+                          value={editCategoryAmount}
+                          onChange={(e) => setEditCategoryAmount(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="dash-btn dash-btn--primary"
+                          onClick={() => handleSaveCategory(category.id)}
+                          disabled={
+                            savingCategory || !editCategoryName.trim() || !editCategoryAmount
+                          }
+                        >
+                          שמרו
+                        </button>
+                        <button type="button" className="dash-btn" onClick={cancelEditCategory}>
+                          ביטול
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
+
+                return (
+                  <div className="dash-budget-category" key={category.id}>
+                    <div className="dash-budget-category__header">
+                      <span className="dash-budget-category__name">{category.name}</span>
+                      {over && (
+                        <span className="dash-budget-category__over-badge">
+                          חריגה ₪{overAmount.toLocaleString()}
+                        </span>
+                      )}
+                      {/* One reading of the numbers, not two: the bar shows the
+                          split, this shows the figures. */}
+                      <span className="dash-budget-category__figures" title={COMMITTED_HINT}>
+                        שולם ₪{category.actualAmount.toLocaleString()} · מחויב ₪
+                        {category.committedAmount.toLocaleString()} · מתוקצב ₪
+                        {category.allocatedAmount.toLocaleString()}
+                      </span>
+                      <div className="dash-budget-category__actions">
+                        <button type="button" onClick={() => startEditCategory(category)}>
+                          ערכו
+                        </button>
+                        <button type="button" onClick={() => handleDeleteCategory(category.id)}>
+                          הסירו
+                        </button>
+                      </div>
+                    </div>
+                    <div className="dash-budget-bar">
+                      <div
+                        className="dash-budget-bar__fill dash-budget-bar__fill--committed"
+                        style={{ width: `${committedPercent}%` }}
+                      />
+                      <div
+                        className={`dash-budget-bar__fill dash-budget-bar__fill--paid${over ? ' dash-budget-bar__fill--over' : ''}`}
+                        style={{ width: `${paidPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

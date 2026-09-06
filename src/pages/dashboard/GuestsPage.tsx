@@ -488,7 +488,7 @@ export function GuestsPage() {
         </div>
         <div className="dash-page-actions">
           <button type="button" className="dash-btn" onClick={() => setShowCsvModal(true)}>
-            ייבוא מ-CSV
+            ייבוא מ-CSV/Excel
           </button>
           <button type="button" className="dash-btn" onClick={() => setWhatsappModal({ mode: 'invite' })}>
             שליחה בוואטסאפ

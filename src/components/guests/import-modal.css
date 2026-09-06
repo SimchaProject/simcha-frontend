@@ -77,3 +77,165 @@
   gap: 0.5rem;
   margin-top: 1.25rem;
 }
+
+/* file picker + format guide */
+
+.import-dropzone__input {
+  display: none;
+}
+
+.import-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  border: 1.5px dashed var(--admin-line-strong);
+  border-radius: 12px;
+  background: var(--admin-surface-sunken);
+  padding: 22px 18px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.import-dropzone:hover,
+.import-dropzone.is-dragging {
+  border-color: var(--simcha-red);
+  background: rgba(178, 58, 46, 0.05);
+}
+
+.import-dropzone.has-file {
+  border-style: solid;
+  border-color: var(--simcha-green);
+}
+
+.import-dropzone__icon {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.import-dropzone__filename {
+  font-size: 14px;
+  color: var(--simcha-ink);
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.import-dropzone__hint {
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+}
+
+.import-format {
+  border: 1px solid var(--admin-line);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  background: var(--admin-surface);
+}
+
+.import-format > summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--simcha-ink);
+  list-style: none;
+}
+
+.import-format > summary::marker,
+.import-format > summary::-webkit-details-marker {
+  display: none;
+}
+
+.import-format > summary::before {
+  content: '▾ ';
+  color: var(--simcha-gold);
+}
+
+.import-format__body {
+  padding: 0 14px 14px;
+}
+
+.import-format__lead {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--simcha-ink-muted);
+  margin: 0 0 10px;
+}
+
+.import-format__table,
+.import-format__sample {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.import-format__table th {
+  text-align: start;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  color: var(--simcha-ink-muted);
+  font-weight: 500;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--admin-line-strong);
+}
+
+.import-format__table td {
+  padding: 6px;
+  border-bottom: 1px solid var(--admin-line);
+  color: var(--simcha-ink-muted);
+  vertical-align: top;
+}
+
+.import-format__table code {
+  font-family: 'Rubik', sans-serif;
+  background: var(--admin-surface-sunken);
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: var(--simcha-ink);
+  white-space: nowrap;
+}
+
+/* Shown as a grid rather than described, so the shape of the file is
+   obvious at a glance. */
+.import-format__sample td {
+  border: 1px solid var(--admin-line-strong);
+  padding: 5px 8px;
+  color: var(--simcha-ink-muted);
+  white-space: nowrap;
+}
+
+.import-format__sample tr.is-header td {
+  background: var(--admin-surface-sunken);
+  color: var(--simcha-ink);
+  font-weight: 500;
+}
+
+.import-format__notes {
+  margin: 0 0 12px;
+  padding-inline-start: 18px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--simcha-ink-muted);
+}
+
+.import-format__download {
+  border: 1px solid var(--simcha-gold);
+  background: transparent;
+  color: var(--simcha-gold);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-family: 'Rubik', sans-serif;
+  cursor: pointer;
+}
+
+.import-format__download:hover {
+  background: var(--simcha-gold);
+  color: var(--simcha-paper);
+}

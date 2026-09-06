@@ -19,7 +19,6 @@ import { MinglePage } from './pages/MinglePage.tsx'
 import { SinglesEntryPage } from './pages/SinglesEntryPage.tsx'
 import { SeatingPage } from './pages/dashboard/SeatingPage.tsx'
 import { VendorsPage } from './pages/dashboard/VendorsPage.tsx'
-import { BudgetPage } from './pages/dashboard/BudgetPage.tsx'
 import { NotFoundPage } from './pages/NotFoundPage.tsx'
 
 createRoot(document.getElementById('root')!).render(
@@ -55,7 +54,6 @@ createRoot(document.getElementById('root')!).render(
             <Route index element={<OverviewPage />} />
             <Route path="guests" element={<GuestsPage />} />
             <Route path="seating" element={<SeatingPage />} />
-            <Route path="budget" element={<BudgetPage />} />
             <Route path="vendors" element={<VendorsPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
