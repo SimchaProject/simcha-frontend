@@ -27,7 +27,34 @@ export const OTHER_CATEGORY: VendorCategoryPreset = { id: 'other', label: 'אח�
 // null rather than a generic fallback icon: a couple's own category ("רב
 // וטקס", "הסעות מהצפון") gets no icon at all, which reads better than a
 // meaningless "➕" sitting next to it.
+// A couple's own category name rarely matches a preset label exactly - the
+// budget row says "אולם וקייטרינג", the preset says "אולם / גן אירועים" -
+// so an exact match alone leaves almost every real category iconless. These
+// keywords cover what people actually type.
+const ICON_KEYWORDS: [string[], string][] = [
+  [['אולם', 'גן אירוע', 'מקום'], '🏛️'],
+  [['קייטרינג', 'אוכל', 'מזון'], '🍽️'],
+  [['צילום', 'צלם', 'סטודיו'], '📷'],
+  [['וידאו', 'וידיאו'], '🎥'],
+  [['דיג', 'תקליטן', 'dj'], '🎧'],
+  [['מוזיק', 'להקה', 'זמר', 'נגן'], '🎤'],
+  [['פרח', 'עיצוב'], '💐'],
+  [['עוגה', 'קינוח'], '🎂'],
+  [['איפור', 'מאפר'], '💄'],
+  [['שיער', 'תסרוק'], '💇'],
+  [['הסע', 'הסעות', 'רכב'], '🚐'],
+  [['שמלה', 'שמלת', 'חליפה', 'לבוש'], '👗'],
+  [['רב', 'טקס', 'חופה'], '📜'],
+  [['הזמנ', 'מעצב'], '✉️'],
+]
+
 export function iconForCategory(categoryLabel: string): string | null {
   const preset = VENDOR_CATEGORY_PRESETS.find((p) => p.label === categoryLabel)
-  return preset?.icon ?? null
+  if (preset) return preset.icon
+
+  const normalized = categoryLabel.toLowerCase()
+  for (const [keywords, icon] of ICON_KEYWORDS) {
+    if (keywords.some((keyword) => normalized.includes(keyword))) return icon
+  }
+  return null
 }
