@@ -1,9 +1,11 @@
 /* The add-vendor entry point - click a category, get a small scoped form.
    Always visible, empty list or not, so there's never a blank page with
    nothing but a button pointing nowhere in particular. */
+/* Wider than the original icon-and-label tiles: each one now also carries
+   the category's budget standing. */
 .dash-vendor-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
   gap: 10px;
   margin: 18px 0;
 }
@@ -457,4 +459,91 @@
   .dash-vendor-card__actions {
     opacity: 1;
   }
+}
+
+/* A tile is now the single place a category exists - name, how many vendors
+   are in it, and where its budget stands. The budget used to be a second
+   list of the same categories further down the page. */
+
+.dash-vendor-tile.has-budget {
+  padding-bottom: 10px;
+}
+
+.dash-vendor-tile__budget {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.dash-vendor-tile__bar {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--admin-surface-sunken);
+  overflow: hidden;
+}
+
+.dash-vendor-tile__bar-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 2px;
+}
+
+/* Committed sits behind paid, so one bar reads as "of what's spoken for,
+   this much has actually left the account". */
+.dash-vendor-tile__bar-fill--committed {
+  background: var(--simcha-gold);
+  opacity: 0.45;
+}
+
+.dash-vendor-tile__bar-fill--paid {
+  background: var(--simcha-green);
+}
+
+.dash-vendor-tile__bar-fill--paid.is-over {
+  background: var(--simcha-red);
+}
+
+.dash-vendor-tile__figures {
+  font-size: 10px;
+  color: var(--simcha-ink-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dash-vendor-tile__figures.is-over {
+  color: var(--simcha-red);
+  font-weight: 500;
+}
+
+/* Setting a category's budget, in the same panel that adds a vendor to it. */
+.dash-category-budget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.dash-category-budget label {
+  font-size: 13px;
+  color: var(--simcha-ink);
+}
+
+.dash-category-budget .dash-field {
+  max-width: 150px;
+}
+
+.dash-category-budget__figures {
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+}
+
+.dash-category-budget__remove {
+  margin-inline-start: auto;
 }

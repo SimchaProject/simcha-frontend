@@ -3,12 +3,19 @@ import { useDashboard } from './dashboard-context'
 import { vendorsApi } from '../../api/vendors'
 import { budgetApi } from '../../api/budget'
 import type { Vendor } from '../../types/vendors'
-import type { BudgetCategory } from '../../types/budget'
+import type { BudgetCategory, BudgetSummary } from '../../types/budget'
 import { VendorCard } from '../../components/vendors/VendorCard'
 import { VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY, iconForCategory } from '../../constants/vendorCategories'
 import './vendors.css'
+import './budget.css'
 
 const ALL = '__all__'
+
+// Same tile as OTHER_CATEGORY, with the budget field the merged tiles carry.
+const OTHER_CATEGORY_TILE = { ...OTHER_CATEGORY, budgetId: null }
+
+const COMMITTED_HINT =
+  'התקציב שנשאר לפני שמזמינים ספקים נוספים - אחרי הפחתת סכום החוזה של כל ספק שכבר סומן "הוזמן" או "שולם", גם אם עדיין לא הועבר תשלום בפועל. שונה מ"נותר לתשלום", שמחשב רק מה שכבר שולם בפועל.'
 
 export function VendorsPage() {
   const { wedding } = useDashboard()
@@ -35,6 +42,35 @@ export function VendorsPage() {
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null)
   const newVendorRef = useRef<HTMLDivElement>(null)
 
+  // The budget lived on its own page, which meant a couple managed vendor
+  // categories here and budget categories there - two lists of the same
+  // thing, kept in step by hand. The money now sits with the vendors that
+  // spend it.
+  const [summary, setSummary] = useState<BudgetSummary | null>(null)
+  const [editingTotal, setEditingTotal] = useState(false)
+  const [totalDraft, setTotalDraft] = useState('')
+  const [savingTotal, setSavingTotal] = useState(false)
+
+  // The budget for whichever category tile is open.
+  const [tileBudgetDraft, setTileBudgetDraft] = useState('')
+  const [savingTileBudget, setSavingTileBudget] = useState(false)
+
+  // Vendor edits change the money (a status moving to "הוזמן" changes what's
+  // committed), so both refresh together and an older response can't
+  // overwrite a newer one.
+  const latestRequestId = useRef(0)
+  const loadBudget = () => {
+    const requestId = ++latestRequestId.current
+    Promise.all([budgetApi.getSummary(wedding.id), budgetApi.listCategories(wedding.id)])
+      .then(([result, categories]) => {
+        if (requestId !== latestRequestId.current) return
+        setSummary(result)
+        setBudgetCategories(categories)
+        setTotalDraft(String(result.totalAmount))
+      })
+      .catch(() => undefined)
+  }
+
   useEffect(() => {
     let cancelled = false
     vendorsApi
@@ -55,42 +91,88 @@ export function VendorsPage() {
     }
   }, [wedding.id])
 
-  // Only fetched for VendorCard's own edit form, where a couple can link a
-  // vendor to a budget category if they want to - never asked for up front
-  // when just adding a vendor, since that's two categorization decisions at
-  // once for no reason at add time.
   useEffect(() => {
-    budgetApi.listCategories(wedding.id).then(setBudgetCategories).catch(() => undefined)
+    loadBudget()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wedding.id])
 
-  const addTiles = useMemo(() => [...VENDOR_CATEGORY_PRESETS, OTHER_CATEGORY], [])
-  const presetLabels = useMemo(() => new Set(VENDOR_CATEGORY_PRESETS.map((p) => p.label)), [])
 
-  const countForTile = (tileId: string): number => {
-    if (tileId === OTHER_CATEGORY.id) {
-      return vendors.filter((v) => !presetLabels.has(v.category)).length
+  // One list of categories for the whole page. The app had three separate
+  // namings of the same idea - the preset add-tiles, the free-text
+  // vendor.category, and the BudgetCategory rows - which is what put the same
+  // categories on screen twice. They're merged by name here, so a tile is the
+  // single place a category exists: what it's called, how many vendors are in
+  // it, and what it's costing against its budget.
+  const addTiles = useMemo(() => {
+    const tiles: { id: string; label: string; icon: string; budgetId: string | null }[] = []
+
+    // A budget category is the authoritative name for a category, and a
+    // vendor linked to one belongs under it however its own free-text
+    // category happens to be spelled. Without this, "אולם וקייטרינג" (the
+    // budget), "אולם ואירוח" (the vendor) and "אולם / גן אירועים" (the
+    // preset) each got a tile - three squares for one category.
+    for (const category of summary?.categories ?? []) {
+      tiles.push({
+        id: `cat:${category.name}`,
+        label: category.name,
+        icon: iconForCategory(category.name) ?? '📁',
+        budgetId: category.id,
+      })
     }
-    const preset = VENDOR_CATEGORY_PRESETS.find((p) => p.id === tileId)
-    return preset ? vendors.filter((v) => v.category === preset.label).length : 0
+
+    // Then whatever the couple has vendors in that isn't already covered by a
+    // budget category above.
+    const linkedIds = new Set(tiles.map((t) => t.budgetId))
+    for (const vendor of vendors) {
+      if (vendor.budgetCategoryId && linkedIds.has(vendor.budgetCategoryId)) continue
+      if (tiles.some((t) => t.label === vendor.category)) continue
+      tiles.push({
+        id: `cat:${vendor.category}`,
+        label: vendor.category,
+        icon: iconForCategory(vendor.category) ?? '📁',
+        budgetId: null,
+      })
+    }
+
+    // With nothing set up yet the presets are the only way in, so they stand
+    // in as the starting grid. Once the couple has their own categories, the
+    // presets move behind the "אחר" tile instead of doubling the grid.
+    if (tiles.length === 0) {
+      return [...VENDOR_CATEGORY_PRESETS.map((p) => ({ ...p, budgetId: null })), OTHER_CATEGORY_TILE]
+    }
+    return [...tiles, OTHER_CATEGORY_TILE]
+  }, [vendors, summary])
+
+  const countForTile = (tile: { id: string; label: string; budgetId?: string | null }): number => {
+    if (tile.id === OTHER_CATEGORY.id) {
+      const known = new Set(addTiles.map((t) => t.label))
+      return vendors.filter((v) => !known.has(v.category)).length
+    }
+    // Counted by the budget link where there is one, so a vendor whose own
+    // category text differs still shows up under the category it's funded by.
+    if (tile.budgetId) {
+      return vendors.filter(
+        (v) => v.budgetCategoryId === tile.budgetId || v.category === tile.label,
+      ).length
+    }
+    return vendors.filter((v) => v.category === tile.label).length
   }
 
+  const budgetForTile = (tile: { label: string }) =>
+    summary?.categories.find((c) => c.name === tile.label) ?? null
+
   const activeTile = addTiles.find((t) => t.id === activeTileId) ?? null
+  const activeBudget = activeTile ? budgetForTile(activeTile) : null
 
-  // Only categories the couple actually has vendors in - a filter row of
-  // empty categories is a menu, not a filter (that's what the tiles above
-  // are for).
-  const usedCategories = useMemo(() => {
-    const counts = new Map<string, number>()
-    for (const vendor of vendors) {
-      counts.set(vendor.category, (counts.get(vendor.category) ?? 0) + 1)
-    }
-    return [...counts.entries()].sort((a, b) => b[1] - a[1])
-  }, [vendors])
-
-  const visibleVendors = useMemo(
-    () => (filter === ALL ? vendors : vendors.filter((v) => v.category === filter)),
-    [vendors, filter],
-  )
+  // Matches the tile counts: a vendor funded by this category counts as being
+  // in it even when its own free-text category is spelled differently.
+  const visibleVendors = useMemo(() => {
+    if (filter === ALL) return vendors
+    const budgetId = summary?.categories.find((c) => c.name === filter)?.id ?? null
+    return vendors.filter(
+      (v) => v.category === filter || (budgetId !== null && v.budgetCategoryId === budgetId),
+    )
+  }, [vendors, filter, summary])
 
   const bookedCount = vendors.filter((v) => v.status === 'BOOKED' || v.status === 'PAID').length
 
@@ -103,17 +185,58 @@ export function VendorsPage() {
     return () => clearTimeout(timer)
   }, [newlyAddedId])
 
+  // Clicking a category does the one thing "focus on this category" means:
+  // the list below narrows to it, and its panel opens. The separate filter
+  // chip row listed every category name a third time on the same page.
   const openTile = (tileId: string) => {
     if (activeTileId === tileId) {
       setActiveTileId(null)
+      setFilter(ALL)
       return
     }
     setActiveTileId(tileId)
+    const tile = addTiles.find((t) => t.id === tileId)
+    setFilter(tile && tile.id !== OTHER_CATEGORY.id ? tile.label : ALL)
     setAddError(null)
     setNewVendorName('')
     setNewContactInfo('')
     setNewContractAmount('')
     setCustomCategory('')
+    const existing = tile ? budgetForTile(tile) : null
+    setTileBudgetDraft(existing ? String(existing.allocatedAmount) : '')
+  }
+
+  // One control for both cases: a category with no budget row yet gets one
+  // created, an existing one gets updated. The couple doesn't have to know
+  // which of those it is.
+  const handleSaveTileBudget = async () => {
+    if (!activeTile || !tileBudgetDraft) return
+    setSavingTileBudget(true)
+    try {
+      if (activeBudget) {
+        await budgetApi.updateCategory(wedding.id, activeBudget.id, {
+          name: activeTile.label,
+          allocatedAmount: Number(tileBudgetDraft),
+        })
+      } else {
+        await budgetApi.createCategory(wedding.id, {
+          name: activeTile.label,
+          allocatedAmount: Number(tileBudgetDraft),
+        })
+      }
+      loadBudget()
+    } catch {
+      setError('לא הצלחנו לשמור את התקציב לקטגוריה.')
+    } finally {
+      setSavingTileBudget(false)
+    }
+  }
+
+  const handleRemoveTileBudget = async (categoryId: string) => {
+    if (!window.confirm('להסיר את התקציב מהקטגוריה? הספקים עצמם יישארו.')) return
+    await budgetApi.removeCategory(wedding.id, categoryId)
+    setTileBudgetDraft('')
+    loadBudget()
   }
 
   const handleAdd = async () => {
@@ -145,12 +268,30 @@ export function VendorsPage() {
     }
   }
 
+  // A vendor's status or contract amount feeds straight into the committed
+  // and paid figures above, so the money is refreshed alongside the card.
   const handleUpdated = (updated: Vendor) => {
     setVendors((prev) => prev.map((v) => (v.id === updated.id ? updated : v)))
+    loadBudget()
   }
 
   const handleDeleted = (vendorId: string) => {
     setVendors((prev) => prev.filter((v) => v.id !== vendorId))
+    loadBudget()
+  }
+
+  const handleSaveTotal = async () => {
+    if (!totalDraft) return
+    setSavingTotal(true)
+    try {
+      await budgetApi.updateBudget(wedding.id, { totalAmount: Number(totalDraft) })
+      setEditingTotal(false)
+      loadBudget()
+    } catch {
+      setError('לא הצלחנו לשמור את סכום התקציב.')
+    } finally {
+      setSavingTotal(false)
+    }
   }
 
   // A vendor's category is edited right on its card (see VendorCard), not
@@ -188,41 +329,204 @@ export function VendorsPage() {
 
   return (
     <div className="dash-vendors">
-      <div className="dash-page-header">
-        <p className="dash-page-title">ספקים</p>
-        <p className="dash-page-sub">
-          {vendors.length} ספקים · {bookedCount} כבר הוזמנו
-        </p>
+      <div className="dash-page-header dash-page-header--row">
+        <div>
+          <p className="dash-page-title">ספקים ותקציב</p>
+          <p className="dash-page-sub">
+            {vendors.length} ספקים · {bookedCount} כבר הוזמנו
+            {summary && ` · תקציב כולל ₪${summary.totalAmount.toLocaleString()}`}
+          </p>
+        </div>
+        <div className="dash-page-actions">
+          <button type="button" className="dash-btn" onClick={() => setEditingTotal((v) => !v)}>
+            עדכון תקציב
+          </button>
+        </div>
       </div>
 
       {error && <p className="dash-guest-error">{error}</p>}
 
+      {editingTotal && (
+        <div className="dash-panel">
+          <p className="dash-panel__title">תקציב כולל לחתונה</p>
+          <div className="dash-budget-total-row">
+            <input
+              type="number"
+              min="0"
+              className="dash-field"
+              autoFocus
+              value={totalDraft}
+              onChange={(e) => setTotalDraft(e.target.value)}
+            />
+            <button
+              type="button"
+              className="dash-btn dash-btn--primary"
+              onClick={handleSaveTotal}
+              disabled={savingTotal}
+            >
+              שמרו
+            </button>
+          </div>
+        </div>
+      )}
+
+      {summary && (
+        <div className="dash-stats-grid">
+          <div className="dash-stat-card">
+            <p className="dash-stat-card__label">שולם בפועל</p>
+            <p className="dash-stat-card__value">₪{summary.totalPaid.toLocaleString()}</p>
+            <p className="dash-stat-card__note">
+              {Math.round((summary.totalPaid / (summary.totalAmount || 1)) * 100)}% מהתקציב
+            </p>
+          </div>
+          <div className="dash-stat-card">
+            <p className="dash-stat-card__label">נותר לתשלום</p>
+            <p className="dash-stat-card__value">₪{summary.totalRemaining.toLocaleString()}</p>
+            <p className="dash-stat-card__note">מתוך התקציב הכולל</p>
+          </div>
+          <div
+            className={`dash-stat-card${
+              summary.remainingAfterCommitments < 0 ? ' dash-stat-card--alert' : ''
+            }`}
+            title={COMMITTED_HINT}
+          >
+            <p className="dash-stat-card__label">תקציב פנוי להזמנות חדשות</p>
+            <p className="dash-stat-card__value">
+              ₪{summary.remainingAfterCommitments.toLocaleString()}
+            </p>
+            <p className="dash-stat-card__note">
+              לאחר ₪{summary.totalCommitted.toLocaleString()} שכבר הוזמן/שולם אצל ספקים
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* The couple's way in, whether the list is empty or not - click a
           category, get a tiny scoped form, no dropdown to fumble with. */}
       <div className="dash-vendor-tiles">
-        {addTiles.map((tile) => (
-          <button
-            key={tile.id}
-            type="button"
-            className={`dash-vendor-tile${activeTileId === tile.id ? ' is-active' : ''}`}
-            onClick={() => openTile(tile.id)}
-          >
-            <span className="dash-vendor-tile__icon" aria-hidden="true">
-              {tile.icon}
-            </span>
-            <span className="dash-vendor-tile__label">{tile.label}</span>
-            {countForTile(tile.id) > 0 && (
-              <span className="dash-vendor-tile__count">{countForTile(tile.id)}</span>
-            )}
-          </button>
-        ))}
+        {addTiles.map((tile) => {
+          const count = countForTile(tile)
+          const budget = budgetForTile(tile)
+          const over = budget ? budget.committedAmount > budget.allocatedAmount : false
+          const percent =
+            budget && budget.allocatedAmount > 0
+              ? Math.min(100, Math.round((budget.committedAmount / budget.allocatedAmount) * 100))
+              : 0
+          const paidPercent =
+            budget && budget.allocatedAmount > 0
+              ? Math.min(100, Math.round((budget.actualAmount / budget.allocatedAmount) * 100))
+              : 0
+
+          return (
+            <button
+              key={tile.id}
+              type="button"
+              className={`dash-vendor-tile${activeTileId === tile.id ? ' is-active' : ''}${
+                budget ? ' has-budget' : ''
+              }`}
+              onClick={() => openTile(tile.id)}
+            >
+              <span className="dash-vendor-tile__icon" aria-hidden="true">
+                {tile.icon}
+              </span>
+              <span className="dash-vendor-tile__label">{tile.label}</span>
+              {count > 0 && <span className="dash-vendor-tile__count">{count}</span>}
+
+              {/* The budget lives on the category itself rather than in a
+                  second list further down the page. */}
+              {budget && (
+                <span className="dash-vendor-tile__budget">
+                  <span className="dash-vendor-tile__bar">
+                    <span
+                      className="dash-vendor-tile__bar-fill dash-vendor-tile__bar-fill--committed"
+                      style={{ width: `${percent}%` }}
+                    />
+                    <span
+                      className={`dash-vendor-tile__bar-fill dash-vendor-tile__bar-fill--paid${
+                        over ? ' is-over' : ''
+                      }`}
+                      style={{ width: `${paidPercent}%` }}
+                    />
+                  </span>
+                  <span className={`dash-vendor-tile__figures${over ? ' is-over' : ''}`}>
+                    {over
+                      ? `חריגה ₪${(budget.committedAmount - budget.allocatedAmount).toLocaleString()}`
+                      : `₪${budget.committedAmount.toLocaleString()} / ₪${budget.allocatedAmount.toLocaleString()}`}
+                  </span>
+                </span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       {activeTile && (
         <div className="dash-panel">
+          {/* Setting a category's budget happens on the category, in the same
+              panel that adds a vendor to it - there's no second screen for
+              it any more. "אחר" has no fixed name yet, so it has nothing to
+              budget against until the vendor is created. */}
+          {activeTile.id !== OTHER_CATEGORY.id && (
+            <div className="dash-category-budget">
+              <label htmlFor="tile-budget">תקציב ל{activeTile.label}</label>
+              <input
+                id="tile-budget"
+                type="number"
+                min="0"
+                className="dash-field"
+                placeholder="לא הוגדר"
+                value={tileBudgetDraft}
+                onChange={(e) => setTileBudgetDraft(e.target.value)}
+              />
+              <button
+                type="button"
+                className="dash-btn"
+                onClick={handleSaveTileBudget}
+                disabled={savingTileBudget || !tileBudgetDraft}
+              >
+                {activeBudget ? 'עדכנו תקציב' : 'הגדירו תקציב'}
+              </button>
+              {activeBudget && (
+                <>
+                  <span className="dash-category-budget__figures">
+                    שולם ₪{activeBudget.actualAmount.toLocaleString()} · מחויב ₪
+                    {activeBudget.committedAmount.toLocaleString()}
+                  </span>
+                  <button
+                    type="button"
+                    className="dash-btn dash-category-budget__remove"
+                    onClick={() => handleRemoveTileBudget(activeBudget.id)}
+                  >
+                    הסירו תקציב
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
           <p className="dash-panel__title">
             {activeTile.icon} ספק חדש - {activeTile.label}
           </p>
+          {/* The presets are the defaults a couple starts from - once they
+              have categories of their own the grid shows those instead, so
+              the full list lives here, one click from filling the name. */}
+          {activeTile.id === OTHER_CATEGORY.id && (
+            <div className="dash-budget-preset-row">
+              {VENDOR_CATEGORY_PRESETS.filter(
+                (preset) => !addTiles.some((t) => t.label === preset.label),
+              ).map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className="dash-budget-preset-chip"
+                  onClick={() => setCustomCategory(preset.label)}
+                >
+                  <span aria-hidden="true">{preset.icon}</span> {preset.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="dash-vendor-add-row">
             {activeTile.id === OTHER_CATEGORY.id && (
               <input
@@ -279,30 +583,6 @@ export function VendorsPage() {
 
       {vendors.length > 0 && (
         <>
-          <div className="dash-vendor-filters">
-            <button
-              type="button"
-              className={`dash-vendor-filter${filter === ALL ? ' is-active' : ''}`}
-              onClick={() => setFilter(ALL)}
-            >
-              הכל <span className="dash-vendor-filter__count">{vendors.length}</span>
-            </button>
-            {usedCategories.map(([category, count]) => (
-              <button
-                key={category}
-                type="button"
-                className={`dash-vendor-filter${filter === category ? ' is-active' : ''}`}
-                onClick={() => setFilter(category)}
-              >
-                {iconForCategory(category) && (
-                  <span aria-hidden="true">{iconForCategory(category)}</span>
-                )}{' '}
-                {category}{' '}
-                <span className="dash-vendor-filter__count">{count}</span>
-              </button>
-            ))}
-          </div>
-
           {/* One grid for every visible vendor. The old layout gave each
               category its own auto-fill grid, so a category with a single
               vendor rendered that card at a quarter width with three empty
@@ -324,6 +604,7 @@ export function VendorsPage() {
           </div>
         </>
       )}
+
     </div>
   )
 }

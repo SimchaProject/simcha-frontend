@@ -40,15 +40,6 @@ function SeatingIcon() {
   )
 }
 
-function BudgetIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-      <circle cx="12" cy="12" r="8" />
-      <path d="M12 7.5v9M14.5 9.7c0-1.2-1.1-1.9-2.5-1.9s-2.5.8-2.5 2 1.1 1.6 2.5 1.9c1.4.3 2.5.8 2.5 2s-1.1 2-2.5 2-2.5-.7-2.5-1.9" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function VendorsIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -97,13 +88,12 @@ export function Sidebar({ wedding, onLogout, onNavigate }: SidebarProps) {
           <SeatingIcon />
           סידור הושבה
         </NavLink>
-        <NavLink to="/dashboard/budget" className={linkClass}>
-          <BudgetIcon />
-          תקציב
-        </NavLink>
+        {/* The budget had its own tab, which split one subject in two: the
+            categories were managed here and the vendors that spend them
+            there. It's all on the vendors page now. */}
         <NavLink to="/dashboard/vendors" className={linkClass}>
           <VendorsIcon />
-          ספקים
+          ספקים ותקציב
         </NavLink>
         <NavLink to="/dashboard/settings" className={linkClass}>
           <SettingsIcon />
