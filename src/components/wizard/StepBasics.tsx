@@ -26,7 +26,9 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
 
       <div className="wizard-field-row">
         <div className={`wizard-field${errors.coupleNameA ? ' wizard-field--error' : ''}`}>
-          <label htmlFor="wizard-name-a">שם בן/בת הזוג הראשון/ה</label>
+          <label htmlFor="wizard-name-a">
+            שם בן/בת הזוג הראשון/ה<span className="required-mark">*</span>
+          </label>
           <input
             id="wizard-name-a"
             type="text"
@@ -38,7 +40,9 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
         </div>
 
         <div className={`wizard-field${errors.coupleNameB ? ' wizard-field--error' : ''}`}>
-          <label htmlFor="wizard-name-b">שם בן/בת הזוג השני/ה</label>
+          <label htmlFor="wizard-name-b">
+            שם בן/בת הזוג השני/ה<span className="required-mark">*</span>
+          </label>
           <input
             id="wizard-name-b"
             type="text"
@@ -51,7 +55,9 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
       </div>
 
       <div className={`wizard-field${errors.date ? ' wizard-field--error' : ''}`}>
-        <label htmlFor="wizard-date">תאריך החתונה</label>
+        <label htmlFor="wizard-date">
+          תאריך החתונה<span className="required-mark">*</span>
+        </label>
         <DatePicker
           id="wizard-date"
           value={data.date}
@@ -62,7 +68,9 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
       </div>
 
       <div className={`wizard-field${errors.venue ? ' wizard-field--error' : ''}`}>
-        <label htmlFor="wizard-venue">מקום האירוע</label>
+        <label htmlFor="wizard-venue">
+          מקום האירוע<span className="required-mark">*</span>
+        </label>
         <input
           id="wizard-venue"
           type="text"
@@ -74,7 +82,9 @@ export function StepBasics({ data, errors, onChange }: StepBasicsProps) {
       </div>
 
       <div className={`wizard-field${errors.slug ? ' wizard-field--error' : ''}`}>
-        <label htmlFor="wizard-slug">כתובת דף האורחים</label>
+        <label htmlFor="wizard-slug">
+          כתובת דף האורחים<span className="required-mark">*</span>
+        </label>
         <input
           id="wizard-slug"
           type="text"

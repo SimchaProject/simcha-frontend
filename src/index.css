@@ -50,3 +50,11 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Marks a required form field's label. Shared across every form so "required"
+   reads the same way everywhere instead of each page inventing its own. */
+.required-mark {
+  color: var(--simcha-gold);
+  margin-inline-start: 0.25em;
+  font-size: 0.85em;
+}

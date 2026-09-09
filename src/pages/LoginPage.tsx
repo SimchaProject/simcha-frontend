@@ -60,7 +60,9 @@ export function LoginPage() {
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className={`auth-field${errors.email ? ' auth-field--error' : ''}`}>
-            <label htmlFor="login-email">אימייל</label>
+            <label htmlFor="login-email">
+              אימייל<span className="required-mark">*</span>
+            </label>
             <input
               id="login-email"
               type="email"
@@ -77,7 +79,9 @@ export function LoginPage() {
           </div>
 
           <div className={`auth-field${errors.password ? ' auth-field--error' : ''}`}>
-            <label htmlFor="login-password">סיסמה</label>
+            <label htmlFor="login-password">
+              סיסמה<span className="required-mark">*</span>
+            </label>
             <input
               id="login-password"
               type="password"

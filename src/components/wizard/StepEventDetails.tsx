@@ -15,7 +15,9 @@ export function StepEventDetails({ data, errors, onChange }: StepEventDetailsPro
 
       <div className="wizard-field-row">
         <div className={`wizard-field${errors.ceremonyTime ? ' wizard-field--error' : ''}`}>
-          <label htmlFor="wizard-ceremony-time">שעת האירוע</label>
+          <label htmlFor="wizard-ceremony-time">
+            שעת האירוע<span className="required-mark">*</span>
+          </label>
           <input
             id="wizard-ceremony-time"
             type="time"
@@ -26,7 +28,9 @@ export function StepEventDetails({ data, errors, onChange }: StepEventDetailsPro
         </div>
 
         <div className={`wizard-field${errors.contactPhone ? ' wizard-field--error' : ''}`}>
-          <label htmlFor="wizard-contact-phone">טלפון ליצירת קשר</label>
+          <label htmlFor="wizard-contact-phone">
+            טלפון ליצירת קשר<span className="required-mark">*</span>
+          </label>
           <input
             id="wizard-contact-phone"
             type="tel"

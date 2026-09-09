@@ -65,7 +65,9 @@ export function SignupPage() {
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className={`auth-field${errors.name ? ' auth-field--error' : ''}`}>
-            <label htmlFor="signup-name">מי מתחתנים?</label>
+            <label htmlFor="signup-name">
+              מי מתחתנים?<span className="required-mark">*</span>
+            </label>
             <input
               id="signup-name"
               type="text"
@@ -82,7 +84,9 @@ export function SignupPage() {
           </div>
 
           <div className={`auth-field${errors.email ? ' auth-field--error' : ''}`}>
-            <label htmlFor="signup-email">אימייל</label>
+            <label htmlFor="signup-email">
+              אימייל<span className="required-mark">*</span>
+            </label>
             <input
               id="signup-email"
               type="email"
@@ -99,7 +103,9 @@ export function SignupPage() {
           </div>
 
           <div className={`auth-field${errors.password ? ' auth-field--error' : ''}`}>
-            <label htmlFor="signup-password">סיסמה</label>
+            <label htmlFor="signup-password">
+              סיסמה<span className="required-mark">*</span>
+            </label>
             <input
               id="signup-password"
               type="password"

@@ -175,7 +175,9 @@ export function InvitePage() {
 
             <form className="invite-form" onSubmit={handleSubmit} noValidate>
               <div className={`invite-field${errors.name ? ' invite-field--error' : ''}`}>
-                <label htmlFor="rsvp-name">שם מלא</label>
+                <label htmlFor="rsvp-name">
+                  שם מלא<span className="required-mark">*</span>
+                </label>
                 <input
                   id="rsvp-name"
                   type="text"
@@ -191,7 +193,9 @@ export function InvitePage() {
               </div>
 
               <div className={`invite-field${errors.phone ? ' invite-field--error' : ''}`}>
-                <label htmlFor="rsvp-phone">טלפון נייד</label>
+                <label htmlFor="rsvp-phone">
+                  טלפון נייד<span className="required-mark">*</span>
+                </label>
                 <input
                   id="rsvp-phone"
                   type="tel"
@@ -207,7 +211,9 @@ export function InvitePage() {
               </div>
 
               <div className="invite-field">
-                <label>האם תגיעו?</label>
+                <label>
+                  האם תגיעו?<span className="required-mark">*</span>
+                </label>
                 <div className="invite-attend-toggle" role="group" aria-label="האם תגיעו">
                   <button
                     type="button"
