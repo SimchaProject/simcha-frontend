@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -9,6 +9,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
+import { toPng } from 'html-to-image'
 import { useDashboard } from './dashboard-context'
 import { seatingApi } from '../../api/seating'
 import { guestsApi } from '../../api/guests'
@@ -23,7 +24,7 @@ import { ConstraintAssistant } from '../../components/seating/ConstraintAssistan
 import { WaxSealButton } from '../../components/motifs/WaxSealButton'
 import './seating.css'
 
-type BusyAction = 'optimize' | null
+type BusyAction = 'optimize' | 'export' | null
 
 const ZOOM_MIN = 0.4
 const ZOOM_MAX = 1.6
@@ -44,6 +45,7 @@ export function SeatingPage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [zoom, setZoom] = useState(1)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
+  const canvasContentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -161,6 +163,36 @@ export function SeatingPage() {
     }
   }
 
+  // Exports at zoom 100% regardless of what the couple is currently looking
+  // at, so the photo always shows the whole chart at a consistent scale
+  // instead of whatever crop/zoom they happened to leave it at.
+  const handleExport = async () => {
+    if (!snapshot || !canvasContentRef.current) return
+    setBusyAction('export')
+    setError(null)
+    const previousZoom = zoom
+    try {
+      setZoom(1)
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+      const paperColor = getComputedStyle(document.documentElement).getPropertyValue('--simcha-paper').trim()
+      const dataUrl = await toPng(canvasContentRef.current, {
+        backgroundColor: paperColor || '#efe6d2',
+        pixelRatio: 2,
+        width: canvasSize.width,
+        height: canvasSize.height,
+      })
+      const link = document.createElement('a')
+      link.download = `סידור הושבה - ${wedding.coupleNameA} ו${wedding.coupleNameB}.png`
+      link.href = dataUrl
+      link.click()
+    } catch {
+      setError('לא הצלחנו לייצא את סידור ההושבה לתמונה, נסו שוב.')
+    } finally {
+      setZoom(previousZoom)
+      setBusyAction(null)
+    }
+  }
+
   const activeAssignment = mergedAssignments.find((a) => a.guestId === activeId)
 
   const canvasSize = useMemo(() => {
@@ -229,6 +261,14 @@ export function SeatingPage() {
         >
           {showAssistant ? 'סגרו' : 'עוזר הושבה חכם'}
         </button>
+        <button
+          type="button"
+          className="dash-seating__btn dash-seating__btn--ghost"
+          onClick={handleExport}
+          disabled={busyAction !== null || !snapshot || snapshot.tables.length === 0}
+        >
+          {busyAction === 'export' ? 'מייצאים...' : 'ייצוא לתמונה'}
+        </button>
 
         <div className="dash-seating__zoom">
           <button type="button" onClick={() => adjustZoom(-ZOOM_STEP)} disabled={zoom <= ZOOM_MIN} title="הקטינו">
@@ -284,6 +324,7 @@ export function SeatingPage() {
               }}
             >
               <div
+                ref={canvasContentRef}
                 className="dash-seating__canvas-content"
                 style={{
                   width: canvasSize.width,
