@@ -29,8 +29,8 @@ export function ConstraintAssistant({ weddingId, onApplied }: ConstraintAssistan
       const result = await constraintsApi.parse(weddingId, text.trim())
       setParsed(result.constraints)
       setSelected(new Set(result.constraints.map((_, i) => i)))
-    } catch {
-      setError('לא הצלחנו לנתח את הבקשה, נסו לנסח אחרת.')
+    } catch (e) {
+      setError(e instanceof Error && e.message ? e.message : 'לא הצלחנו לנתח את הבקשה, נסו לנסח אחרת.')
     } finally {
       setParsing(false)
     }
@@ -60,8 +60,8 @@ export function ConstraintAssistant({ weddingId, onApplied }: ConstraintAssistan
       setParsed(null)
       setText('')
       onApplied()
-    } catch {
-      setError('לא הצלחנו לשמור את ההגבלות.')
+    } catch (e) {
+      setError(e instanceof Error && e.message ? e.message : 'לא הצלחנו לשמור את ההגבלות.')
     } finally {
       setApplying(false)
     }
