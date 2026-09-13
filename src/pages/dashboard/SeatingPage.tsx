@@ -95,18 +95,39 @@ export function SeatingPage() {
     }
   }
 
-  // A specific-seat assignment can swap the guest already sitting there, which
-  // touches two rows at once - simplest to re-fetch the true snapshot after
-  // the call rather than try to hand-patch both rows optimistically.
+  // Moves the guest locally first so the drag feels instant instead of
+  // waiting on two sequential round-trips (assign + refetch) before anything
+  // visually moves. A specific-seat assignment can swap the guest already
+  // sitting there, which this doesn't try to resolve exactly client-side -
+  // the getSnapshot() below corrects that moments later, usually with no
+  // visible difference since dnd-kit's own drop target already reflects
+  // where the couple dragged to.
   const assignGuestToTable = async (guestId: string, tableId: string | null, seatIndex?: number | null) => {
     if (!snapshot) return
     setError(null)
+    const previous = snapshot
+    const current = mergedAssignments.find((a) => a.guestId === guestId)
+    setSnapshot({
+      ...snapshot,
+      assignments: [
+        ...snapshot.assignments.filter((a) => a.guestId !== guestId),
+        {
+          guestId,
+          guestName: current?.guestName ?? '',
+          tableId,
+          originalTableId: current?.originalTableId ?? null,
+          locked: true,
+          seatIndex: seatIndex ?? null,
+        },
+      ],
+    })
     try {
       await seatingApi.assignGuest(weddingId, guestId, tableId, seatIndex)
       const fresh = await seatingApi.getSnapshot(weddingId)
       setSnapshot(fresh)
     } catch (e) {
       setError(String(e))
+      setSnapshot(previous)
     }
   }
 
