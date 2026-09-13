@@ -39,17 +39,20 @@ export function InviteCardPreview({
   className,
 }: InviteCardPreviewProps) {
   const theme = getGuestPageTheme(themeId)
+  const isPhotoTheme = theme.id === 'photo'
 
   return (
     <div
-      className={`invite-card invite-card--${theme.edge}${className ? ` ${className}` : ''}`}
+      className={`invite-card invite-card--${theme.edge}${isPhotoTheme ? ' invite-card--photo' : ''}${className ? ` ${className}` : ''}`}
       style={guestPageThemeVars(theme, accentColor)}
     >
-      {heroPhotoUrl && (
-        <div className="invite-photo-wrap">
-          <img src={apiUrl(heroPhotoUrl)} alt="" className="invite-photo" />
-        </div>
-      )}
+      {isPhotoTheme
+        ? heroPhotoUrl && <img src={apiUrl(heroPhotoUrl)} alt="" className="invite-photo-bg" />
+        : heroPhotoUrl && (
+            <div className="invite-photo-wrap">
+              <img src={apiUrl(heroPhotoUrl)} alt="" className="invite-photo" />
+            </div>
+          )}
       <p className="invite-eyebrow">בשמחה ובאהבה</p>
       <p className="invite-names">
         {coupleNameA} <span className="invite-amp">&amp;</span> {coupleNameB}

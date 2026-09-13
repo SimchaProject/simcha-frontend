@@ -61,7 +61,9 @@ export function StepGuestPage({
       </div>
 
       <div className="wizard-field">
-        <label htmlFor="wizard-hero-photo">תמונה בראש הדף (לא חובה)</label>
+        <label htmlFor="wizard-hero-photo">
+          {data.theme === 'photo' ? 'התמונה שתשמש כעיצוב הדף' : 'תמונה בראש הדף (לא חובה)'}
+        </label>
         <input
           id="wizard-hero-photo"
           ref={photoInputRef}

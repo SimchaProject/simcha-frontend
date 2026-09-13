@@ -98,6 +98,32 @@
   }
 }
 
+/* "Your photo" theme - the couple's own photo fills the whole card instead
+   of a flat theme color, with a dark scrim so the (light-colored, per this
+   theme's ink tokens) text stays readable over any photo. */
+.invite-card--photo {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.invite-card--photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.55) 65%, rgba(0, 0, 0, 0.75));
+  z-index: -1;
+}
+
+.invite-photo-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
 .invite-photo-wrap {
   display: flex;
   justify-content: center;

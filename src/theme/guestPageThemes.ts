@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react'
 
 // Kept in sync by hand with simcha-backend's src/wedding/guest-page-theme.const.ts
 // (id list only - the backend never renders anything, just stores/validates).
-export const GUEST_PAGE_THEME_IDS = ['classic', 'rosewater', 'minimal', 'orchard', 'jewel'] as const
+export const GUEST_PAGE_THEME_IDS = ['classic', 'rosewater', 'minimal', 'orchard', 'jewel', 'photo'] as const
 export type GuestPageThemeId = (typeof GUEST_PAGE_THEME_IDS)[number]
 
 export type CardEdge = 'torn' | 'straight' | 'ornate'
@@ -115,6 +115,23 @@ export const GUEST_PAGE_THEMES: GuestPageTheme[] = [
     displayFont: "'Noto Serif Hebrew', serif",
     edge: 'ornate',
     cta: 'seal',
+  },
+  {
+    id: 'photo',
+    label: 'התמונה שלכם',
+    vibe: 'העיצוב הוא התמונה שתעלו, בלי ערכת נושא קבועה',
+    paper: '#2a241c',
+    paperDark: '#221d17',
+    ink: '#faf6ec',
+    inkMuted: '#e3dac6',
+    line: 'rgba(250, 246, 236, 0.35)',
+    accent: '#e8c98a',
+    secondary: '#e8c98a',
+    tertiary: '#cfcabb',
+    accentSwatches: ['#e8c98a', '#f2ede0', '#d98c6b'],
+    displayFont: "'Frank Ruhl Libre', serif",
+    edge: 'straight',
+    cta: 'rect',
   },
 ]
 

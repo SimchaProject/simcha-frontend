@@ -205,7 +205,7 @@ export function SettingsPage() {
         </div>
 
         <div className="wizard-field">
-          <label>תמונה בראש הדף</label>
+          <label>{theme === 'photo' ? 'התמונה שתשמש כעיצוב הדף' : 'תמונה בראש הדף'}</label>
           <input
             ref={photoInputRef}
             type="file"
