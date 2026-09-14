@@ -6,6 +6,7 @@ import { DatePicker } from '../../components/ui/DatePicker'
 import { ThemePicker } from '../../components/ui/ThemePicker'
 import { resizeImage } from '../../utils/resizeImage'
 import { formatHebrewDate } from '../../lib/hebrewDate'
+import { SaveTheDateSection } from '../../components/settings/SaveTheDateSection'
 import type { GuestPageThemeId } from '../../theme/guestPageThemes'
 import type { ScheduleEntry } from '../../types/wedding'
 import '../WizardPage.css'
@@ -235,6 +236,20 @@ export function SettingsPage() {
             )}
           </div>
           {photoError && <p className="dash-guest-error">{photoError}</p>}
+        </div>
+
+        {/* Same wedding data as the guest page, its own set of designs - a
+            save-the-date goes out months earlier and isn't meant to look
+            like the invitation. */}
+        <div className="wizard-field">
+          <SaveTheDateSection
+            coupleNameA={wedding.coupleNameA}
+            coupleNameB={wedding.coupleNameB}
+            date={wedding.date}
+            venue={wedding.venue}
+            slug={wedding.slug}
+            heroPhotoUrl={heroPhotoUrl}
+          />
         </div>
 
         <div className="wizard-field-row">

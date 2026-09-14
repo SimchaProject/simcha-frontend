@@ -190,6 +190,19 @@ export function MinglePage() {
                     {person.age !== null && <span className="mingle-card__age">{person.age}</span>}
                   </div>
                   {person.bio && <p className="mingle-card__bio">{person.bio}</p>}
+                  {person.instagramUrl && (
+                    <a
+                      className="mingle-card__instagram"
+                      href={person.instagramUrl}
+                      target="_blank"
+                      // noreferrer as well as noopener: no reason for
+                      // Instagram to learn which wedding page this came from.
+                      rel="noopener noreferrer"
+                    >
+                      <span aria-hidden="true">◎</span>
+                      {person.instagramUrl.replace(/^https:\/\/instagram\.com\//, '@')}
+                    </a>
+                  )}
                 </div>
               </li>
             ))}

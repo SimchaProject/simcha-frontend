@@ -1,0 +1,124 @@
+/* Save-the-date designer. Lives inside the guest-page settings because it
+   draws on the same wedding data, though its styles are its own. */
+
+.std__intro {
+  margin-bottom: 16px;
+}
+
+.std__title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--simcha-ink);
+  margin: 0 0 4px;
+}
+
+.std__sub {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--simcha-ink-muted);
+  margin: 0;
+}
+
+.std__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.std__styles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.std__style {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--admin-line);
+  border-radius: 10px;
+  background: var(--admin-surface);
+  padding: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.std__style:hover {
+  border-color: var(--simcha-gold);
+}
+
+.std__style.is-active {
+  border-color: var(--simcha-red);
+  box-shadow: 0 0 0 1px var(--simcha-red);
+}
+
+/* The swatch is the same draw call as the card, scaled down by the browser -
+   so a style can never preview as something it doesn't produce. */
+.std__style-canvas {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 6px;
+  background: var(--admin-surface-sunken);
+}
+
+.std__style-label {
+  font-size: 12px;
+  color: var(--simcha-ink-muted);
+}
+
+.std__photo-hint {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--simcha-gold);
+  margin: 0;
+}
+
+.std__preview {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.std__canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--admin-line);
+  box-shadow: var(--admin-shadow);
+  background: var(--simcha-paper);
+}
+
+.std__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.std__message {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--simcha-ink-muted);
+  background: var(--admin-surface-sunken);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .std__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .std__preview {
+    position: static;
+    max-width: 340px;
+  }
+}
