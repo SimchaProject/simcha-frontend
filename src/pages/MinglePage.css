@@ -166,3 +166,27 @@
   margin-top: 22px;
   line-height: 1.6;
 }
+
+/* Optional Instagram handle a guest chose to share. */
+
+.mingle-card__instagram {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--simcha-red);
+  text-decoration: none;
+  direction: ltr;
+  border: 1px solid var(--simcha-line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.mingle-card__instagram:hover {
+  border-color: var(--simcha-red);
+  background: rgba(178, 58, 46, 0.06);
+}

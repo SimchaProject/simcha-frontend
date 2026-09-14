@@ -53,6 +53,7 @@ export function InvitePage() {
   const [openToMingle, setOpenToMingle] = useState(false)
   const [mingleAge, setMingleAge] = useState('')
   const [mingleBio, setMingleBio] = useState('')
+  const [mingleInstagram, setMingleInstagram] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -118,6 +119,8 @@ export function InvitePage() {
         mingleAge: attending === true && openToMingle && mingleAge ? Number(mingleAge) : undefined,
         mingleBio:
           attending === true && openToMingle ? mingleBio.trim() || undefined : undefined,
+        mingleInstagram:
+          attending === true && openToMingle ? mingleInstagram.trim() || undefined : undefined,
       })
       setPreviousStatus(result.previousStatus)
       setMingleToken(result.mingleToken)
@@ -321,6 +324,21 @@ export function InvitePage() {
                               onChange={(e) => setMingleBio(e.target.value)}
                               placeholder="חברה של הכלה מהאוניברסיטה, אוהבת לטייל ולבשל"
                             />
+                          </div>
+                          <div className="invite-field">
+                            <label htmlFor="rsvp-mingle-instagram">אינסטגרם (אופציונלי)</label>
+                            <input
+                              id="rsvp-mingle-instagram"
+                              type="text"
+                              dir="ltr"
+                              maxLength={200}
+                              value={mingleInstagram}
+                              onChange={(e) => setMingleInstagram(e.target.value)}
+                              placeholder="@username"
+                            />
+                            <p className="invite-mingle__hint">
+                              אפשר להדביק גם קישור מלא לפרופיל. יופיע רק בפינת הרווקים.
+                            </p>
                           </div>
                         </div>
                       )}

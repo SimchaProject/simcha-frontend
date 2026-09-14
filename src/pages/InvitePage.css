@@ -582,3 +582,11 @@
   line-height: 1;
   color: var(--simcha-gold);
 }
+
+/* Hint under an optional singles-corner field. */
+.invite-mingle__hint {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--simcha-ink-muted);
+  margin: 4px 0 0;
+}

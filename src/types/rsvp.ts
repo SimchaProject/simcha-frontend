@@ -10,6 +10,9 @@ export interface RsvpPayload {
   openToMingle?: boolean
   mingleAge?: number
   mingleBio?: string
+  // A handle, an @handle or a pasted profile URL - the server reduces
+  // whatever arrives to a bare handle, or drops it.
+  mingleInstagram?: string
 }
 
 export interface RsvpResponse {
@@ -29,6 +32,8 @@ export interface MinglePerson {
   firstName: string
   age: number | null
   bio: string | null
+  // Full profile URL, already assembled by the server.
+  instagramUrl: string | null
   // The bytes come from their own route, one person at a time - this only
   // says whether there's anything to fetch.
   hasPhoto: boolean
