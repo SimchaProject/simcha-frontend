@@ -41,4 +41,10 @@ export const guestsApi = {
       `/weddings/${weddingId}/guests/remind-day-before`,
       guestIds ? { guestIds } : undefined,
     ),
+  sendThankYou: (weddingId: string, guestIds?: string[]) =>
+    http.post<InviteSendResult>(`/weddings/${weddingId}/guests/thank-you`, guestIds ? { guestIds } : undefined),
+  sendPaymentInfo: (weddingId: string, guestIds?: string[]) =>
+    http.post<InviteSendResult>(`/weddings/${weddingId}/guests/payment-info`, guestIds ? { guestIds } : undefined),
+  sendLocation: (weddingId: string, guestIds?: string[]) =>
+    http.post<InviteSendResult>(`/weddings/${weddingId}/guests/location`, guestIds ? { guestIds } : undefined),
 }

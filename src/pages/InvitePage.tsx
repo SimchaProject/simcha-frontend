@@ -400,6 +400,7 @@ export function InvitePage() {
         />
         <GiftSection
           payboxLink={wedding.guestPageConfig.payboxLink}
+          bitLink={wedding.guestPageConfig.bitLink}
           bankTransferDetails={wedding.guestPageConfig.bankTransferDetails}
         />
       </InviteCardPreview>

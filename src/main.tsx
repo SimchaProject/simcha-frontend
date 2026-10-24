@@ -13,6 +13,7 @@ import { DashboardLayout } from './pages/dashboard/DashboardLayout.tsx'
 import { OverviewPage } from './pages/dashboard/OverviewPage.tsx'
 import { GuestsPage } from './pages/dashboard/GuestsPage.tsx'
 import { SettingsPage } from './pages/dashboard/SettingsPage.tsx'
+import { MessagesPage } from './pages/dashboard/MessagesPage.tsx'
 import { WizardPage } from './pages/WizardPage.tsx'
 import { InvitePage } from './pages/InvitePage.tsx'
 import { MinglePage } from './pages/MinglePage.tsx'
@@ -53,6 +54,7 @@ createRoot(document.getElementById('root')!).render(
           >
             <Route index element={<OverviewPage />} />
             <Route path="guests" element={<GuestsPage />} />
+            <Route path="messages" element={<MessagesPage />} />
             <Route path="seating" element={<SeatingPage />} />
             <Route path="vendors" element={<VendorsPage />} />
             <Route path="settings" element={<SettingsPage />} />

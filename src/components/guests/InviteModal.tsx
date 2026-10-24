@@ -3,7 +3,7 @@ import { guestsApi } from '../../api/guests'
 import type { InviteSendResult } from '../../types/guests'
 import './import-modal.css'
 
-type InviteModalMode = 'invite' | 'remind' | 'day-before'
+export type InviteModalMode = 'invite' | 'remind' | 'day-before' | 'thank-you' | 'payment' | 'location'
 
 interface InviteModalProps {
   weddingId: string
@@ -34,6 +34,32 @@ const COPY: Record<InviteModalMode, { title: string; hint: (n: number) => string
       `הודעה עם שעת הטקס, קוד לבוש וחניה תישלח ל-${n} אורחים שאישרו הגעה ויש להם מספר טלפון. מתאים לשלוח יום-יומיים לפני החתונה.`,
     confirm: (n) => `שלחו ל-${n} אורחים`,
   },
+  'thank-you': {
+    title: 'הודעת תודה בוואטסאפ',
+    hint: (n) => `הודעת התודה שלכם תישלח ל-${n} אורחים עם מספר טלפון. פעולה זו כרוכה בעלות שליחה בפועל.`,
+    confirm: (n) => `שלחו תודה ל-${n} אורחים`,
+  },
+  payment: {
+    title: 'הודעת מתנה בוואטסאפ',
+    hint: (n) =>
+      `ההודעה עם הקישורים לפייבוקס/ביט תישלח ל-${n} אורחים עם מספר טלפון. פעולה זו כרוכה בעלות שליחה בפועל.`,
+    confirm: (n) => `שלחו ל-${n} אורחים`,
+  },
+  location: {
+    title: 'הודעת מיקום בוואטסאפ',
+    hint: (n) =>
+      `ההודעה עם קישור הניווט ב-Waze תישלח ל-${n} אורחים עם מספר טלפון. פעולה זו כרוכה בעלות שליחה בפועל.`,
+    confirm: (n) => `שלחו ל-${n} אורחים`,
+  },
+}
+
+const SEND: Record<InviteModalMode, (weddingId: string, guestIds?: string[]) => Promise<InviteSendResult>> = {
+  invite: guestsApi.sendInvites,
+  remind: guestsApi.sendReminders,
+  'day-before': guestsApi.sendDayBeforeReminders,
+  'thank-you': guestsApi.sendThankYou,
+  payment: guestsApi.sendPaymentInfo,
+  location: guestsApi.sendLocation,
 }
 
 // WhatsApp caps a business number at 250 unique numbers messaged per
@@ -62,13 +88,7 @@ export function InviteModal({
     setBusy(true)
     setError(null)
     try {
-      const sendResult =
-        mode === 'remind'
-          ? await guestsApi.sendReminders(weddingId, guestIds)
-          : mode === 'day-before'
-            ? await guestsApi.sendDayBeforeReminders(weddingId, guestIds)
-            : await guestsApi.sendInvites(weddingId, guestIds)
-      setResult(sendResult)
+      setResult(await SEND[mode](weddingId, guestIds))
     } catch (e) {
       setError(String(e))
     } finally {

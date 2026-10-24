@@ -39,6 +39,7 @@ export function SettingsPage() {
   const [mapUrl, setMapUrl] = useState('')
   const [parkingInfo, setParkingInfo] = useState('')
   const [payboxLink, setPayboxLink] = useState('')
+  const [bitLink, setBitLink] = useState('')
   const [bankTransferDetails, setBankTransferDetails] = useState('')
   const [contactPhone, setContactPhone] = useState('')
   const [mingleEnabled, setMingleEnabled] = useState(false)
@@ -61,6 +62,7 @@ export function SettingsPage() {
       setMapUrl(config.mapUrl ?? '')
       setParkingInfo(config.parkingInfo ?? '')
       setPayboxLink(config.payboxLink ?? '')
+      setBitLink(config.bitLink ?? '')
       setBankTransferDetails(config.bankTransferDetails ?? '')
       setContactPhone(config.contactPhone ?? '')
       setMingleEnabled(config.mingleEnabled)
@@ -104,6 +106,7 @@ export function SettingsPage() {
         mapUrl: mapUrl.trim() || undefined,
         parkingInfo: parkingInfo.trim() || undefined,
         payboxLink: payboxLink.trim() || undefined,
+        bitLink: bitLink.trim() || undefined,
         bankTransferDetails: bankTransferDetails.trim() || undefined,
         mingleEnabled,
         contactPhone: contactPhone.replace(/[\s-]/g, '') || undefined,
@@ -361,6 +364,18 @@ export function SettingsPage() {
             value={payboxLink}
             onChange={(e) => setPayboxLink(e.target.value)}
             placeholder="https://paybox.co.il/..."
+          />
+        </div>
+
+        <div className="wizard-field">
+          <label htmlFor="settings-bit">קישור Bit</label>
+          <input
+            id="settings-bit"
+            type="text"
+            dir="ltr"
+            value={bitLink}
+            onChange={(e) => setBitLink(e.target.value)}
+            placeholder="https://www.bitpay.co.il/app/..."
           />
         </div>
 
