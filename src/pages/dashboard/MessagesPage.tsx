@@ -71,7 +71,7 @@ const CARDS: CardSpec[] = [
     kind: 'THANK_YOU',
     mode: 'thank-you',
     title: 'הודעת תודה אחרי האירוע',
-    audience: 'נשלחת לאורחים שאישרו הגעה.',
+    audience: '',
     defaultText: (w) =>
       `תודה רבה שחגגתם איתנו! היה מרגש ומשמח לראות אתכם, ואנחנו מודים על כל מילה טובה ומתנה. ${coupleNames(w)}`,
     suffix: () => ({ text: '' }),
@@ -80,7 +80,7 @@ const CARDS: CardSpec[] = [
     kind: 'PAYMENT',
     mode: 'payment',
     title: 'מתנה - פייבוקס / ביט',
-    audience: 'נשלחת לאורחים שאישרו הגעה. הקישורים לפייבוקס ולביט מצורפים אוטומטית.',
+    audience: 'הקישורים לפייבוקס ולביט מצורפים אוטומטית.',
     defaultText: (w) => `למי שרוצה להעניק מתנה ל${coupleNames(w)}, אפשר בקלות דרך הקישורים:`,
     suffix: (_w, config) => {
       const links = [
@@ -96,11 +96,20 @@ const CARDS: CardSpec[] = [
     kind: 'LOCATION',
     mode: 'location',
     title: 'מיקום האירוע - Waze',
-    audience: 'נשלחת לאורחים שאישרו הגעה. קישור הניווט מצורף אוטומטית.',
+    audience: 'קישור הניווט מצורף אוטומטית.',
     defaultText: (w) => `מחכים לראותכם בחתונה של ${coupleNames(w)} ב${w.venue}!`,
     suffix: (w, config) => ({ text: `ניווט ב-Waze: ${config.mapUrl || wazeSearchUrl(w.venue)}` }),
   },
 ]
+
+// Who a non-invite message goes to. Confirmed guests by default; 'all'
+// covers e.g. sending the location before the RSVPs are in.
+type Audience = 'attending' | 'all'
+
+const AUDIENCE_LABELS: Record<Audience, string> = {
+  attending: 'מי שאישרו הגעה',
+  all: 'כל האורחים',
+}
 
 export function MessagesPage() {
   const { wedding } = useDashboard()
@@ -108,7 +117,8 @@ export function MessagesPage() {
   const [config, setConfig] = useState<GuestPageConfig | null>(null)
   const [guests, setGuests] = useState<Guest[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [sending, setSending] = useState<InviteModalMode | null>(null)
+  const [sending, setSending] = useState<{ mode: InviteModalMode; guestIds?: string[] } | null>(null)
+  const [audiences, setAudiences] = useState<Partial<Record<WeddingMessageKind, Audience>>>({})
 
   useEffect(() => {
     let cancelled = false
@@ -132,8 +142,10 @@ export function MessagesPage() {
   }, [wedding.id])
 
   const withPhone = guests.filter((g) => g.phone)
-  const recipientCount = (mode: InviteModalMode) =>
-    mode === 'invite' ? withPhone.length : withPhone.filter((g) => g.rsvpStatus === 'ATTENDING').length
+  const audienceOf = (spec: CardSpec): Audience | null =>
+    spec.kind === 'INVITE' ? null : (audiences[spec.kind] ?? 'attending')
+  const recipientsOf = (spec: CardSpec) =>
+    audienceOf(spec) === 'attending' ? withPhone.filter((g) => g.rsvpStatus === 'ATTENDING') : withPhone
 
   return (
     <div className="dash-messages">
@@ -158,9 +170,19 @@ export function MessagesPage() {
               wedding={wedding}
               config={config}
               message={messages.find((m) => m.kind === spec.kind)!}
-              recipientCount={recipientCount(spec.mode)}
+              recipientCount={recipientsOf(spec).length}
+              audience={audienceOf(spec)}
+              onAudienceChange={(audience) => setAudiences((prev) => ({ ...prev, [spec.kind]: audience }))}
               onSaved={(fresh) => setMessages((prev) => prev!.map((m) => (m.kind === fresh.kind ? fresh : m)))}
-              onSend={() => setSending(spec.mode)}
+              onSend={() =>
+                setSending({
+                  mode: spec.mode,
+                  // The server's default for these is confirmed guests; any
+                  // other audience is sent as an explicit list, which it
+                  // sends to exactly as given, whatever their status.
+                  guestIds: audienceOf(spec) === 'all' ? withPhone.map((g) => g.id) : undefined,
+                })
+              }
             />
           ))}
         </div>
@@ -169,8 +191,9 @@ export function MessagesPage() {
       {sending && (
         <InviteModal
           weddingId={wedding.id}
-          mode={sending}
-          recipientCount={recipientCount(sending)}
+          mode={sending.mode}
+          guestIds={sending.guestIds}
+          recipientCount={recipientsOf(CARDS.find((c) => c.mode === sending.mode)!).length}
           onClose={() => setSending(null)}
         />
       )}
@@ -184,6 +207,9 @@ interface MessageCardProps {
   config: GuestPageConfig
   message: WeddingMessage
   recipientCount: number
+  // null for the invite, which always goes to every guest with a phone.
+  audience: Audience | null
+  onAudienceChange: (audience: Audience) => void
   onSaved: (message: WeddingMessage) => void
   onSend: () => void
 }
@@ -194,6 +220,8 @@ function MessageCard({
   config,
   message,
   recipientCount,
+  audience,
+  onAudienceChange,
   onSaved,
   onSend,
 }: MessageCardProps) {
@@ -265,12 +293,35 @@ function MessageCard({
 
   const photoSrc = message.photoUrl ? `${apiUrl(message.photoUrl)}?v=${photoVersion}` : undefined
   const sendBlocked = 'blocked' in suffix ? suffix.blocked : null
+  // Said out loud rather than leaving a greyed-out button to explain itself.
+  const noRecipients =
+    recipientCount > 0
+      ? null
+      : audience === 'attending'
+        ? 'אף אורח עם מספר טלפון עוד לא אישר הגעה. בחרו "כל האורחים", או סמנו אורחים כמגיעים ברשימת האורחים.'
+        : 'אין עדיין אורחים עם מספר טלפון ברשימת האורחים.'
 
   return (
     <section className="msg-card">
       <div className="msg-card__editor">
         <h2 className="msg-card__title">{spec.title}</h2>
-        <p className="msg-card__audience">{spec.audience}</p>
+        {audience && (
+          <div className="msg-card__audience-picker" role="radiogroup" aria-label="למי לשלוח">
+            <span>נשלחת אל:</span>
+            {(Object.keys(AUDIENCE_LABELS) as Audience[]).map((option) => (
+              <label key={option}>
+                <input
+                  type="radio"
+                  name={`msg-audience-${spec.kind}`}
+                  checked={audience === option}
+                  onChange={() => onAudienceChange(option)}
+                />
+                {AUDIENCE_LABELS[option]}
+              </label>
+            ))}
+          </div>
+        )}
+        {spec.audience && <p className="msg-card__audience">{spec.audience}</p>}
 
         <label className="msg-card__label" htmlFor={`msg-text-${spec.kind}`}>
           הטקסט שלכם
@@ -313,6 +364,7 @@ function MessageCard({
         </div>
 
         {error && <p className="dash-guest-error">{error}</p>}
+        {noRecipients && !sendBlocked && <p className="msg-card__blocked">{noRecipients}</p>}
         {sendBlocked && (
           <p className="msg-card__blocked">
             {sendBlocked} <Link to="/dashboard/settings">להגדרות</Link>
@@ -328,7 +380,7 @@ function MessageCard({
             className="dash-btn dash-btn--primary"
             onClick={onSend}
             disabled={dirty || !!sendBlocked || recipientCount === 0}
-            title={dirty ? 'שמרו את הטקסט לפני השליחה' : undefined}
+            title={dirty ? 'שמרו את הטקסט לפני השליחה' : (sendBlocked ?? noRecipients ?? undefined)}
           >
             שליחה ל-{recipientCount} אורחים
           </button>
