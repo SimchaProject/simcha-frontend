@@ -376,7 +376,7 @@ export function GuestsPage() {
               min="1"
               max="20"
               placeholder="מקס׳"
-              title="מקסימום אורחים שהאורח יכול לאשר"
+              title="מקסימום אורחים שהאורח יכול לאשר. ריק = כמות המוזמנים"
               value={editDraft.maxPartySize}
               onChange={(e) => setEditDraft((prev) => ({ ...prev, maxPartySize: e.target.value }))}
             />
@@ -618,8 +618,8 @@ export function GuestsPage() {
               type="number"
               min="1"
               max="20"
-              placeholder="מקסימום (לא חובה)"
-              title="מקסימום אורחים שהאורח יכול לאשר"
+              placeholder="מקסימום (ברירת מחדל: הכמות)"
+              title="מקסימום אורחים שהאורח יכול לאשר. ריק = כמות המוזמנים"
               value={newGuest.maxPartySize}
               onChange={(e) => setNewGuest((prev) => ({ ...prev, maxPartySize: e.target.value }))}
             />
