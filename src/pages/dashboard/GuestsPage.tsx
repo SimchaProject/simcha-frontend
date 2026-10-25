@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDashboard } from './dashboard-context'
 import { guestsApi } from '../../api/guests'
 import { guestGroupsApi } from '../../api/guestGroups'
-import type { Guest, GuestGroup, RsvpStatus } from '../../types/guests'
+import type { Guest, GuestGroup, GuestWhatsAppStatus, RsvpStatus } from '../../types/guests'
 import type { RsvpSubmittedEvent } from '../../types/rsvp'
 import { ImportModal } from '../../components/guests/ImportModal'
 import { InviteModal } from '../../components/guests/InviteModal'
 import { RsvpLiveFeed } from '../../components/guests/RsvpLiveFeed'
+import { WhatsAppStatusBadge } from '../../components/guests/WhatsAppStatusBadge'
 import './guests.css'
 
 const STATUS_LABELS: Record<RsvpStatus, string> = {
@@ -102,8 +103,22 @@ export function GuestsPage() {
     guestIds?: string[]
   } | null>(null)
   const [showAddRow, setShowAddRow] = useState(false)
+  const [whatsAppStatuses, setWhatsAppStatuses] = useState<Map<string, GuestWhatsAppStatus>>(
+    new Map(),
+  )
+
+  // Refreshed on the same poll as the guest list, so a status Meta reports
+  // a few seconds after a send shows up without a reload. A failure here
+  // just leaves the last known statuses - it's an annotation, not the list.
+  const loadWhatsAppStatuses = () => {
+    guestsApi
+      .whatsAppStatus(wedding.id)
+      .then((rows) => setWhatsAppStatuses(new Map(rows.map((r) => [r.guestId, r]))))
+      .catch(() => {})
+  }
 
   const load = () => {
+    loadWhatsAppStatuses()
     guestsApi.list(wedding.id).then((fresh) => {
       const previous = previousGuestsRef.current
       if (previous) {
@@ -138,6 +153,12 @@ export function GuestsPage() {
           setLoading(false)
         }
       })
+    guestsApi
+      .whatsAppStatus(wedding.id)
+      .then((rows) => {
+        if (!cancelled) setWhatsAppStatuses(new Map(rows.map((r) => [r.guestId, r])))
+      })
+      .catch(() => {})
     return () => {
       cancelled = true
     }
@@ -404,7 +425,10 @@ export function GuestsPage() {
               </span>
             )}
           </td>
-          <td dir="ltr">{guest.phone ?? '—'}</td>
+          <td>
+            <span dir="ltr">{guest.phone ?? '—'}</span>
+            <WhatsAppStatusBadge status={whatsAppStatuses.get(guest.id)} />
+          </td>
           <td>
             {guest.partySize}
             {guest.maxPartySize !== null && (

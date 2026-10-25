@@ -4,6 +4,7 @@ import type {
   CreateGuestPayload,
   Guest,
   GuestListFilters,
+  GuestWhatsAppStatus,
   InviteSendResult,
   UpdateGuestPayload,
 } from '../types/guests'
@@ -32,6 +33,8 @@ export const guestsApi = {
     form.append('file', file)
     return http.postForm<BulkImportResult>(`/weddings/${weddingId}/guests/import`, form)
   },
+  whatsAppStatus: (weddingId: string) =>
+    http.get<GuestWhatsAppStatus[]>(`/weddings/${weddingId}/guests/whatsapp-status`),
   sendInvites: (weddingId: string, guestIds?: string[]) =>
     http.post<InviteSendResult>(`/weddings/${weddingId}/guests/invite`, guestIds ? { guestIds } : undefined),
   sendReminders: (weddingId: string, guestIds?: string[]) =>

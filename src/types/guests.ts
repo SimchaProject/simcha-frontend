@@ -24,6 +24,19 @@ export interface Guest {
   updatedAt: string
 }
 
+// Meta's lifecycle for a guest's latest WhatsApp message. 'accepted' only
+// means Meta took the request - the rest arrives from its status webhook.
+export type WhatsAppDeliveryStatus = 'accepted' | 'sent' | 'delivered' | 'read' | 'failed'
+
+export interface GuestWhatsAppStatus {
+  guestId: string
+  status: WhatsAppDeliveryStatus
+  errorCode: number | null
+  errorTitle: string | null
+  sentAt: string
+  updatedAt: string
+}
+
 export interface CreateGuestPayload {
   name: string
   phone?: string
