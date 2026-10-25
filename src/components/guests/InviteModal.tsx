@@ -115,10 +115,16 @@ export function InviteModal({
         {result && (
           <div className="import-modal__result">
             <p>
-              נשלחו {result.sentCount} בהצלחה
+              {result.sentCount} הועברו לוואטסאפ
               {result.failedCount > 0 && ` · נכשלו ${result.failedCount}`}
               {result.skippedNoPhoneCount > 0 && ` · דולגו ${result.skippedNoPhoneCount} ללא מספר טלפון`}
             </p>
+            {result.sentCount > 0 && (
+              <p className="import-modal__hint">
+                וואטסאפ מעדכן תוך כמה שניות אם כל הודעה התקבלה - הסטטוס מופיע ברשימת האורחים, מתחת
+                למספר הטלפון.
+              </p>
+            )}
             {result.errors.length > 0 && (
               <ul className="import-modal__preview-list">
                 {result.errors.map((e) => (

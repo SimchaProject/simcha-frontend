@@ -67,6 +67,24 @@
   cursor: help;
 }
 
+/* the latest WhatsApp message's delivery status, under the phone number */
+
+.dash-wa-status {
+  display: block;
+  font-size: 11px;
+  margin-top: 2px;
+  color: var(--simcha-ink-muted);
+  cursor: help;
+}
+
+.dash-wa-status--read {
+  color: #2a8bd6;
+}
+
+.dash-wa-status--failed {
+  color: var(--simcha-red);
+}
+
 .dash-guest-transport-toggle {
   display: flex;
   align-items: center;
