@@ -27,6 +27,13 @@ export interface RsvpResponse {
   mingleToken: string | null
 }
 
+// The couple's per-guest cap on party size, looked up by phone before the
+// guest submits. null means no cap - including for a number that isn't on the
+// list, which the server deliberately doesn't distinguish.
+export interface RsvpLookupResponse {
+  maxPartySize: number | null
+}
+
 export interface MinglePerson {
   id: string
   firstName: string
