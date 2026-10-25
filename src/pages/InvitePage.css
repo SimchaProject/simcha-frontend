@@ -345,6 +345,12 @@
   margin: 5px 0 0;
 }
 
+.invite-field__hint {
+  font-size: 11px;
+  opacity: 0.7;
+  margin: 5px 0 0;
+}
+
 .invite-attend-toggle {
   display: flex;
   gap: 10px;

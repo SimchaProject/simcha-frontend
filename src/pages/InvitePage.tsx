@@ -17,6 +17,8 @@ import { normalizePhone, isValidIsraeliMobile } from '../utils/phone'
 import './InvitePage.css'
 
 const MAX_PARTY_SIZE = 6
+// Matches SubmitRsvpDto's ceiling on the server.
+const ABSOLUTE_MAX_PARTY_SIZE = 20
 
 interface FieldErrors {
   name?: string
@@ -47,6 +49,12 @@ export function InvitePage() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [partySize, setPartySize] = useState(1)
+  // The couple's cap for this guest, looked up as soon as the phone number is
+  // complete. Keyed by the phone it was looked up for, so editing the number
+  // drops a stale cap without resetting state inside the effect.
+  const [capLookup, setCapLookup] = useState<{ phone: string; maxPartySize: number | null } | null>(
+    null,
+  )
   const [attending, setAttending] = useState<boolean | null>(null)
   const [dietaryNotes, setDietaryNotes] = useState('')
   const [needsTransport, setNeedsTransport] = useState(false)
@@ -80,6 +88,29 @@ export function InvitePage() {
       cancelled = true
     }
   }, [weddingSlug])
+
+  const normalizedPhone = isValidIsraeliMobile(phone) ? normalizePhone(phone) : null
+  // null until the lookup lands, and for anyone the couple didn't cap.
+  const maxPartySize = capLookup?.phone === normalizedPhone ? capLookup.maxPartySize : null
+
+  useEffect(() => {
+    if (!weddingSlug || !normalizedPhone) return
+    let cancelled = false
+    rsvpApi
+      .lookup(weddingSlug, normalizedPhone)
+      .then((result) => {
+        if (cancelled) return
+        const cap = result.maxPartySize
+        setCapLookup({ phone: normalizedPhone, maxPartySize: cap })
+        if (cap !== null) setPartySize((prev) => Math.min(prev, cap))
+      })
+      // A failed lookup just leaves the picker uncapped - the server still
+      // enforces the cap on submit.
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [weddingSlug, normalizedPhone])
 
   if (!weddingSlug) return <p className="invite-page__error">ההזמנה לא נמצאה.</p>
 
@@ -249,16 +280,32 @@ export function InvitePage() {
                   <div className="invite-field">
                     <label>כמה מגיעים</label>
                     <div className="invite-party-size-row">
-                      <SeedDots value={partySize} max={MAX_PARTY_SIZE} onChange={setPartySize} label="כמה מגיעים" />
+                      <SeedDots
+                        value={partySize}
+                        max={maxPartySize ?? MAX_PARTY_SIZE}
+                        onChange={setPartySize}
+                        label="כמה מגיעים"
+                      />
                       <input
                         type="number"
                         min={1}
+                        max={maxPartySize ?? ABSOLUTE_MAX_PARTY_SIZE}
                         className="invite-party-size-input"
                         value={partySize}
-                        onChange={(e) => setPartySize(Math.max(1, Number(e.target.value) || 1))}
+                        onChange={(e) =>
+                          setPartySize(
+                            Math.min(
+                              maxPartySize ?? ABSOLUTE_MAX_PARTY_SIZE,
+                              Math.max(1, Number(e.target.value) || 1),
+                            ),
+                          )
+                        }
                         aria-label="כמה מגיעים (מספר)"
                       />
                     </div>
+                    {maxPartySize !== null && (
+                      <p className="invite-field__hint">ההזמנה שלכם היא עד {maxPartySize} אורחים</p>
+                    )}
                   </div>
 
                   <div className="invite-field">

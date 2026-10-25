@@ -6,6 +6,9 @@ export interface Guest {
   name: string
   phone: string | null
   partySize: number
+  // Set by the couple; the RSVP form won't let this guest go above it.
+  // null means no per-guest cap.
+  maxPartySize: number | null
   groupId: string | null
   rsvpStatus: RsvpStatus
   dietaryNotes: string | null
@@ -25,6 +28,7 @@ export interface CreateGuestPayload {
   name: string
   phone?: string
   partySize?: number
+  maxPartySize?: number | null
   // null is "no group" and is what the form sends when the select is left on
   // "ללא קבוצה"; the API treats null and undefined the same on create, and
   // uses null to unlink an existing group on update.
@@ -35,6 +39,8 @@ export interface UpdateGuestPayload {
   name?: string
   phone?: string
   partySize?: number
+  // null clears the cap.
+  maxPartySize?: number | null
   groupId?: string | null
   rsvpStatus?: RsvpStatus
   dietaryNotes?: string

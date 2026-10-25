@@ -32,6 +32,8 @@ interface GuestDraft {
   name: string
   phone: string
   partySize: string
+  // '' means no cap.
+  maxPartySize: string
   groupId: string
   needsTransport: boolean
 }
@@ -40,6 +42,7 @@ const emptyDraft: GuestDraft = {
   name: '',
   phone: '',
   partySize: '1',
+  maxPartySize: '',
   groupId: NO_GROUP,
   needsTransport: false,
 }
@@ -51,6 +54,7 @@ function guestPayload(draft: GuestDraft) {
     name: draft.name.trim(),
     phone: draft.phone.trim() || undefined,
     partySize: Number(draft.partySize) || 1,
+    maxPartySize: Number(draft.maxPartySize) || null,
     groupId: draft.groupId || null,
     needsTransport: draft.needsTransport,
   }
@@ -216,6 +220,7 @@ export function GuestsPage() {
       name: guest.name,
       phone: guest.phone ?? '',
       partySize: String(guest.partySize),
+      maxPartySize: guest.maxPartySize === null ? '' : String(guest.maxPartySize),
       groupId: guest.groupId ?? NO_GROUP,
       needsTransport: guest.needsTransport,
     })
@@ -345,6 +350,15 @@ export function GuestsPage() {
               value={editDraft.partySize}
               onChange={(e) => setEditDraft((prev) => ({ ...prev, partySize: e.target.value }))}
             />
+            <input
+              type="number"
+              min="1"
+              max="20"
+              placeholder="מקס׳"
+              title="מקסימום אורחים שהאורח יכול לאשר"
+              value={editDraft.maxPartySize}
+              onChange={(e) => setEditDraft((prev) => ({ ...prev, maxPartySize: e.target.value }))}
+            />
           </td>
           <td>
             <select
@@ -391,7 +405,14 @@ export function GuestsPage() {
             )}
           </td>
           <td dir="ltr">{guest.phone ?? '—'}</td>
-          <td>{guest.partySize}</td>
+          <td>
+            {guest.partySize}
+            {guest.maxPartySize !== null && (
+              <span className="dash-guest-note" title="מקסימום אורחים להזמנה">
+                {' '}/ {guest.maxPartySize}
+              </span>
+            )}
+          </td>
           <td>{groups.find((g) => g.id === guest.groupId)?.name ?? '—'}</td>
           <td>
             <select
@@ -568,6 +589,15 @@ export function GuestsPage() {
               placeholder="כמות"
               value={newGuest.partySize}
               onChange={(e) => setNewGuest((prev) => ({ ...prev, partySize: e.target.value }))}
+            />
+            <input
+              type="number"
+              min="1"
+              max="20"
+              placeholder="מקסימום (לא חובה)"
+              title="מקסימום אורחים שהאורח יכול לאשר"
+              value={newGuest.maxPartySize}
+              onChange={(e) => setNewGuest((prev) => ({ ...prev, maxPartySize: e.target.value }))}
             />
             <select
               value={newGuest.groupId}
