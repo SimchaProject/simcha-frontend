@@ -28,6 +28,18 @@ function GuestsIcon() {
   )
 }
 
+function MessagesIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+      <path
+        d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H10l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5Z"
+        strokeLinejoin="round"
+      />
+      <path d="M8 10h8M8 13h5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function SeatingIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -83,6 +95,10 @@ export function Sidebar({ wedding, onLogout, onNavigate }: SidebarProps) {
         <NavLink to="/dashboard/guests" className={linkClass}>
           <GuestsIcon />
           אורחים
+        </NavLink>
+        <NavLink to="/dashboard/messages" className={linkClass}>
+          <MessagesIcon />
+          הודעות וואטסאפ
         </NavLink>
         <NavLink to="/dashboard/seating" className={linkClass}>
           <SeatingIcon />

@@ -21,6 +21,7 @@ export interface GuestPageConfig {
   mapUrl: string | null
   parkingInfo: string | null
   payboxLink: string | null
+  bitLink: string | null
   bankTransferDetails: string | null
   // SIM-15: opens the singles-corner opt-in on the RSVP form. Off unless the
   // couple turns it on in settings.
@@ -63,6 +64,7 @@ export interface PublicGuestPageConfig {
   mapUrl: string | null
   parkingInfo: string | null
   payboxLink: string | null
+  bitLink: string | null
   bankTransferDetails: string | null
   mingleEnabled: boolean
 }
@@ -88,6 +90,7 @@ export interface GuestPageConfigInput {
   mapUrl?: string
   parkingInfo?: string
   payboxLink?: string
+  bitLink?: string
   bankTransferDetails?: string
   mingleEnabled?: boolean
   contactPhone?: string
