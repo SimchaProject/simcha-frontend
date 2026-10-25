@@ -11,6 +11,7 @@ import { Countdown } from '../components/motifs/Countdown'
 import { ScheduleList } from '../components/motifs/ScheduleList'
 import { ArrivalSection } from '../components/motifs/ArrivalSection'
 import { GiftSection } from '../components/motifs/GiftSection'
+import { CalendarSection } from '../components/motifs/CalendarSection'
 import { InviteCardPreview } from '../components/motifs/InviteCardPreview'
 import { getGuestPageTheme } from '../theme/guestPageThemes'
 import { normalizePhone, isValidIsraeliMobile } from '../utils/phone'
@@ -201,6 +202,19 @@ export function InvitePage() {
                 הנוכחית.
               </p>
             )}
+            {/* Right after saying yes is when a guest is most likely to
+                save the date. */}
+            {attending && (
+              <CalendarSection
+                slug={wedding.slug}
+                coupleNameA={wedding.coupleNameA}
+                coupleNameB={wedding.coupleNameB}
+                date={wedding.date}
+                venue={wedding.venue}
+                schedule={wedding.guestPageConfig.schedule}
+                ceremonyTime={wedding.guestPageConfig.ceremonyTime}
+              />
+            )}
           </div>
         ) : (
           <>
@@ -304,7 +318,11 @@ export function InvitePage() {
                       />
                     </div>
                     {maxPartySize !== null && (
-                      <p className="invite-field__hint">ההזמנה שלכם היא עד {maxPartySize} אורחים</p>
+                      <p className="invite-field__hint">
+                        {maxPartySize === 1
+                          ? 'ההזמנה שלכם היא לאורח/ת אחד/ת'
+                          : `ההזמנה שלכם היא עד ${maxPartySize} אורחים`}
+                      </p>
                     )}
                   </div>
 
@@ -441,6 +459,15 @@ export function InvitePage() {
         <VineDivider />
 
         <ScheduleList entries={wedding.guestPageConfig.schedule} />
+        <CalendarSection
+          slug={wedding.slug}
+          coupleNameA={wedding.coupleNameA}
+          coupleNameB={wedding.coupleNameB}
+          date={wedding.date}
+          venue={wedding.venue}
+          schedule={wedding.guestPageConfig.schedule}
+          ceremonyTime={wedding.guestPageConfig.ceremonyTime}
+        />
         <ArrivalSection
           mapUrl={wedding.guestPageConfig.mapUrl}
           parkingInfo={wedding.guestPageConfig.parkingInfo}
