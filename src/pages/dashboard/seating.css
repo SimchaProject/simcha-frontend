@@ -802,10 +802,11 @@
 .dash-table-modal-list li select {
   border: 1px solid var(--admin-line-strong);
   border-radius: 8px;
-  background: var(--admin-surface);
+  background-color: var(--admin-surface);
   font-family: 'Rubik', sans-serif;
   font-size: 12px;
   padding: 6px 10px;
+  padding-inline-end: 30px;
   color: var(--simcha-ink-muted);
   cursor: pointer;
 }
