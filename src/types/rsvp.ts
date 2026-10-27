@@ -4,7 +4,6 @@ export interface RsvpPayload {
   partySize: number
   attending: boolean
   dietaryNotes?: string
-  needsTransport?: boolean
   // SIM-15 singles corner. Only offered when the couple enabled it, and the
   // server ignores it on a decline.
   openToMingle?: boolean

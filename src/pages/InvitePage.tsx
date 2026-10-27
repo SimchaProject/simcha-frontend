@@ -58,7 +58,6 @@ export function InvitePage() {
   )
   const [attending, setAttending] = useState<boolean | null>(null)
   const [dietaryNotes, setDietaryNotes] = useState('')
-  const [needsTransport, setNeedsTransport] = useState(false)
   const [openToMingle, setOpenToMingle] = useState(false)
   const [mingleAge, setMingleAge] = useState('')
   const [mingleBio, setMingleBio] = useState('')
@@ -146,7 +145,6 @@ export function InvitePage() {
         partySize,
         attending: attending === true,
         dietaryNotes: attending === true ? dietaryNotes.trim() || undefined : undefined,
-        needsTransport: attending === true ? needsTransport : undefined,
         openToMingle: attending === true ? openToMingle : undefined,
         mingleAge: attending === true && openToMingle && mingleAge ? Number(mingleAge) : undefined,
         mingleBio:
@@ -336,17 +334,6 @@ export function InvitePage() {
                       placeholder="צמחוני, טבעוני, אלרגיות..."
                       rows={2}
                     />
-                  </div>
-
-                  <div className="invite-field invite-field--checkbox">
-                    <label className="invite-checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={needsTransport}
-                        onChange={(e) => setNeedsTransport(e.target.checked)}
-                      />
-                      צריך/ה הסעה מאורגנת
-                    </label>
                   </div>
 
                   {wedding.guestPageConfig.mingleEnabled && (
