@@ -429,7 +429,7 @@
 .dash-guest-add-row select {
   border: 1px solid var(--admin-line-strong);
   border-radius: 8px;
-  background: var(--admin-surface);
+  background-color: var(--admin-surface);
   padding: 7px 10px;
   font-family: 'Rubik', sans-serif;
   font-size: 13px;
@@ -459,6 +459,7 @@
 
 .dash-guest-add-row select {
   cursor: pointer;
+  padding-inline-end: 30px;
 }
 
 .dash-guest-add-row button {
@@ -588,10 +589,11 @@
 .dash-status-select {
   border: 1px solid var(--admin-line-strong);
   border-radius: 999px;
-  background: var(--admin-surface);
+  background-color: var(--admin-surface);
   font-family: 'Rubik', sans-serif;
   font-size: 12px;
   padding: 4px 10px;
+  padding-inline-end: 30px;
   color: var(--simcha-ink-muted);
   cursor: pointer;
 }

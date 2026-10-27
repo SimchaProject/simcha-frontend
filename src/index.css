@@ -58,3 +58,23 @@ body {
   margin-inline-start: 0.25em;
   font-size: 0.85em;
 }
+
+/* One dropdown arrow for every <select>. The browser's own arrow sits flush
+   against the border and its inset can't be changed, so it's replaced with a
+   small triangle drawn from two gradients - currentColor, so the tinted
+   status selects get a matching arrow. The app is RTL, so the arrow sits on
+   the left; each select rule leaves room for it with padding-inline-end, and
+   must set background-color rather than the background shorthand, which
+   would wipe the arrow out. */
+select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    left 12px center,
+    left 17px center;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-inline-end: 30px;
+}

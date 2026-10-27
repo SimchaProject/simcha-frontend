@@ -166,8 +166,9 @@
 .dash-vendor-card--editing select {
   border: 1px solid var(--admin-line-strong);
   border-radius: 8px;
-  background: var(--admin-surface);
+  background-color: var(--admin-surface);
   padding: 7px 10px;
+  padding-inline-end: 30px;
   font-family: 'Rubik', sans-serif;
   font-size: 13px;
   color: var(--simcha-ink);
@@ -225,12 +226,16 @@
 .dash-vendor-card__category-edit button {
   border: 1px solid var(--admin-line-strong);
   border-radius: 8px;
-  background: var(--admin-surface);
+  background-color: var(--admin-surface);
   padding: 4px 8px;
   font-family: 'Rubik', sans-serif;
   font-size: 11px;
   color: var(--simcha-ink);
   outline: none;
+}
+
+.dash-vendor-card__category-edit select {
+  padding-inline-end: 28px;
 }
 
 .dash-vendor-card__category-edit button {
@@ -294,10 +299,11 @@
 .dash-vendor-status-select {
   border: 1px solid var(--admin-line-strong);
   border-radius: 999px;
-  background: var(--admin-surface);
+  background-color: var(--admin-surface);
   font-family: 'Rubik', sans-serif;
   font-size: 12px;
   padding: 4px 10px;
+  padding-inline-end: 30px;
   color: var(--simcha-ink-muted);
   cursor: pointer;
   flex-shrink: 0;
@@ -391,12 +397,16 @@
 .dash-vendor-payments-add-row input {
   border: 1px solid var(--admin-line-strong);
   border-radius: 8px;
-  background: var(--admin-surface);
+  background-color: var(--admin-surface);
   padding: 6px 10px;
   font-family: 'Rubik', sans-serif;
   font-size: 12px;
   color: var(--simcha-ink);
   outline: none;
+}
+
+.dash-vendor-payments-add-row select {
+  padding-inline-end: 30px;
 }
 
 .dash-vendor-payments-add-row__date {
