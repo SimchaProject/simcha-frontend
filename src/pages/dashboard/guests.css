@@ -60,7 +60,7 @@
   color: var(--simcha-gold);
 }
 
-/* dietary indicators inline with the guest name */
+/* dietary/mingle indicators inline with the guest name */
 
 .dash-guest-note {
   margin-inline-start: 6px;
