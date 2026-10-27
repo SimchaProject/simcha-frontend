@@ -12,7 +12,6 @@ export interface Guest {
   groupId: string | null
   rsvpStatus: RsvpStatus
   dietaryNotes: string | null
-  needsTransport: boolean
   // SIM-15: set by the guest themselves on the RSVP form, shown to the
   // couple as an indicator only. The token that opens the singles list is
   // never sent to the dashboard.
@@ -57,7 +56,6 @@ export interface UpdateGuestPayload {
   groupId?: string | null
   rsvpStatus?: RsvpStatus
   dietaryNotes?: string
-  needsTransport?: boolean
 }
 
 export interface GuestListFilters {

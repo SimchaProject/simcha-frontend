@@ -36,7 +36,6 @@ interface GuestDraft {
   // '' means no cap.
   maxPartySize: string
   groupId: string
-  needsTransport: boolean
 }
 
 const emptyDraft: GuestDraft = {
@@ -45,7 +44,6 @@ const emptyDraft: GuestDraft = {
   partySize: '1',
   maxPartySize: '',
   groupId: NO_GROUP,
-  needsTransport: false,
 }
 
 type SortKey = 'name' | 'partySize' | 'rsvpStatus'
@@ -57,7 +55,6 @@ function guestPayload(draft: GuestDraft) {
     partySize: Number(draft.partySize) || 1,
     maxPartySize: Number(draft.maxPartySize) || null,
     groupId: draft.groupId || null,
-    needsTransport: draft.needsTransport,
   }
 }
 
@@ -243,7 +240,6 @@ export function GuestsPage() {
       partySize: String(guest.partySize),
       maxPartySize: guest.maxPartySize === null ? '' : String(guest.maxPartySize),
       groupId: guest.groupId ?? NO_GROUP,
-      needsTransport: guest.needsTransport,
     })
   }
 
@@ -345,16 +341,6 @@ export function GuestsPage() {
               value={editDraft.name}
               onChange={(e) => setEditDraft((prev) => ({ ...prev, name: e.target.value }))}
             />
-            <label className="dash-guest-transport-toggle">
-              <input
-                type="checkbox"
-                checked={editDraft.needsTransport}
-                onChange={(e) =>
-                  setEditDraft((prev) => ({ ...prev, needsTransport: e.target.checked }))
-                }
-              />
-              🚌 צריך/ה הסעה
-            </label>
           </td>
           <td>
             <input
@@ -412,11 +398,6 @@ export function GuestsPage() {
             {guest.dietaryNotes && (
               <span className="dash-guest-note" title={guest.dietaryNotes}>
                 🍽️
-              </span>
-            )}
-            {guest.needsTransport && (
-              <span className="dash-guest-note" title="צריך/ה הסעה מאורגנת">
-                🚌
               </span>
             )}
             {guest.openToMingle && (

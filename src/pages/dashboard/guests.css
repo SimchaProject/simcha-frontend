@@ -60,7 +60,7 @@
   color: var(--simcha-gold);
 }
 
-/* dietary/transport indicators inline with the guest name */
+/* dietary/mingle indicators inline with the guest name */
 
 .dash-guest-note {
   margin-inline-start: 6px;
@@ -83,17 +83,6 @@
 
 .dash-wa-status--failed {
   color: var(--simcha-red);
-}
-
-.dash-guest-transport-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  font-size: 11px;
-  color: var(--simcha-ink-muted, #837c74);
-  cursor: pointer;
-  white-space: nowrap;
 }
 
 .dash-guest-btn {
