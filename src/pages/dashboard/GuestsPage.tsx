@@ -176,14 +176,24 @@ export function GuestsPage() {
     const confirmed = guests.filter((g) => g.rsvpStatus === 'ATTENDING')
     const pending = guests.filter((g) => g.rsvpStatus === 'PENDING')
     const declined = guests.filter((g) => g.rsvpStatus === 'DECLINED')
+    // A confirmation overwrites partySize with how many are coming; the
+    // invited number survives as maxPartySize (pinned on first answer).
+    // Declines keep partySize as invited.
+    const confirmedParty = confirmed.reduce((sum, g) => sum + g.partySize, 0)
+    const confirmedInvited = confirmed.reduce((sum, g) => sum + Math.max(g.maxPartySize ?? 0, g.partySize), 0)
+    const pendingParty = pending.reduce((sum, g) => sum + g.partySize, 0)
+    const declinedParty = declined.reduce((sum, g) => sum + g.partySize, 0)
+    const partialDropped = confirmedInvited - confirmedParty
     return {
       total: guests.length,
-      totalParty: guests.reduce((sum, g) => sum + g.partySize, 0),
+      totalInvited: confirmedInvited + pendingParty + declinedParty,
       confirmed: confirmed.length,
-      confirmedParty: confirmed.reduce((sum, g) => sum + g.partySize, 0),
+      confirmedParty,
       pending: pending.length,
-      pendingParty: pending.reduce((sum, g) => sum + g.partySize, 0),
+      pendingParty,
       declined: declined.length,
+      partialDropped,
+      notComingParty: declinedParty + partialDropped,
     }
   }, [guests])
 
@@ -509,7 +519,7 @@ export function GuestsPage() {
         <div>
           <p className="dash-page-title">אורחים</p>
           <p className="dash-page-sub">
-            {stats.total} רשומות · {stats.totalParty} באי חתונה
+            {stats.total} רשומות · {stats.totalInvited} מוזמנים
           </p>
         </div>
         <div className="dash-page-actions">
@@ -560,13 +570,16 @@ export function GuestsPage() {
         </div>
         <div className="dash-stat-card">
           <p className="dash-stat-card__label">ממתינים לתשובה</p>
-          <p className="dash-stat-card__value">{stats.pending}</p>
-          <p className="dash-stat-card__note">{stats.pendingParty} מוזמנים</p>
+          <p className="dash-stat-card__value">{stats.pendingParty}</p>
+          <p className="dash-stat-card__note">{stats.pending} רשומות</p>
         </div>
         <div className="dash-stat-card dash-stat-card--alert">
           <p className="dash-stat-card__label">לא מגיעים</p>
-          <p className="dash-stat-card__value">{stats.declined}</p>
-          <p className="dash-stat-card__note">רשומות</p>
+          <p className="dash-stat-card__value">{stats.notComingParty}</p>
+          <p className="dash-stat-card__note">
+            {stats.declined} רשומות
+            {stats.partialDropped > 0 && ` · ${stats.partialDropped} מאישורים חלקיים`}
+          </p>
         </div>
       </div>
 
