@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import Papa from 'papaparse'
 import { useDashboard } from './dashboard-context'
 import { guestsApi } from '../../api/guests'
 import { guestGroupsApi } from '../../api/guestGroups'
@@ -56,6 +57,35 @@ function guestPayload(draft: GuestDraft) {
     maxPartySize: Number(draft.maxPartySize) || null,
     groupId: draft.groupId || null,
   }
+}
+
+// Same BOM trick as the import template: without it Excel reads the Hebrew as
+// mojibake.
+const UTF8_BOM = String.fromCharCode(0xfeff)
+
+function exportGuestsCsv(guests: Guest[], groups: GuestGroup[]) {
+  const groupNames = new Map(groups.map((g) => [g.id, g.name]))
+  const rows = guests.map((g) => ({
+    'שם': g.name,
+    'טלפון': g.phone ?? '',
+    'קבוצה': (g.groupId && groupNames.get(g.groupId)) ?? '',
+    'סטטוס': STATUS_LABELS[g.rsvpStatus],
+    'כמות': g.partySize,
+    'מקסימום להזמנה': g.maxPartySize ?? '',
+    'הערות תזונה': g.dietaryNotes ?? '',
+    'תאריך תשובה': g.respondedAt ? new Date(g.respondedAt).toLocaleString('he-IL') : '',
+    'פתוח להיכרויות': g.openToMingle ? 'כן' : '',
+  }))
+  // escapeFormulae: names and notes come from guests, so a cell starting with
+  // "=" must not run as a formula when the couple opens the file in Excel.
+  const csv = Papa.unparse(rows, { escapeFormulae: true })
+  const blob = new Blob([`${UTF8_BOM}${csv}`], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `guests-${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 function toRsvpEvent(guest: Guest): RsvpSubmittedEvent {
@@ -525,6 +555,14 @@ export function GuestsPage() {
         <div className="dash-page-actions">
           <button type="button" className="dash-btn" onClick={() => setShowCsvModal(true)}>
             ייבוא מ-CSV/Excel
+          </button>
+          <button
+            type="button"
+            className="dash-btn"
+            onClick={() => exportGuestsCsv(guests, groups)}
+            disabled={guests.length === 0}
+          >
+            ייצוא לאקסל
           </button>
           <button type="button" className="dash-btn" onClick={() => setWhatsappModal({ mode: 'invite' })}>
             שליחה בוואטסאפ
