@@ -1,4 +1,4 @@
-export type WeddingMessageKind = 'INVITE' | 'THANK_YOU' | 'PAYMENT' | 'LOCATION'
+export type WeddingMessageKind = 'INVITE' | 'THANK_YOU' | 'PAYMENT' | 'LOCATION' | 'REMINDER'
 
 // One couple-authored WhatsApp message. text/photoUrl null means the
 // backend sends its built-in default wording / no photo for this kind.

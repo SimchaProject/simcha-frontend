@@ -68,6 +68,14 @@ const CARDS: CardSpec[] = [
     suffix: (w) => ({ text: `לאישור הגעה: ${window.location.origin}/w/${w.slug}` }),
   },
   {
+    kind: 'REMINDER',
+    mode: 'remind',
+    title: 'תזכורת למי שטרם אישר',
+    audience: 'נשלחת לאורחים שעוד לא השיבו ויש להם מספר טלפון. קישור לאישור הגעה מצורף אוטומטית.',
+    defaultText: (w) => `עדיין לא אישרתם הגעה לחתונה של ${coupleNames(w)} - נשמח לדעת אם תגיעו!`,
+    suffix: (w) => ({ text: `לאישור הגעה: ${window.location.origin}/w/${w.slug}` }),
+  },
+  {
     kind: 'THANK_YOU',
     mode: 'thank-you',
     title: 'הודעת תודה אחרי האירוע',
@@ -143,9 +151,11 @@ export function MessagesPage() {
 
   const withPhone = guests.filter((g) => g.phone)
   const audienceOf = (spec: CardSpec): Audience | null =>
-    spec.kind === 'INVITE' ? null : (audiences[spec.kind] ?? 'attending')
-  const recipientsOf = (spec: CardSpec) =>
-    audienceOf(spec) === 'attending' ? withPhone.filter((g) => g.rsvpStatus === 'ATTENDING') : withPhone
+    spec.kind === 'INVITE' || spec.kind === 'REMINDER' ? null : (audiences[spec.kind] ?? 'attending')
+  const recipientsOf = (spec: CardSpec) => {
+    if (spec.kind === 'REMINDER') return withPhone.filter((g) => g.rsvpStatus === 'PENDING')
+    return audienceOf(spec) === 'attending' ? withPhone.filter((g) => g.rsvpStatus === 'ATTENDING') : withPhone
+  }
 
   return (
     <div className="dash-messages">
@@ -207,7 +217,7 @@ interface MessageCardProps {
   config: GuestPageConfig
   message: WeddingMessage
   recipientCount: number
-  // null for the invite, which always goes to every guest with a phone.
+  // null for the invite and reminder, whose recipients are fixed.
   audience: Audience | null
   onAudienceChange: (audience: Audience) => void
   onSaved: (message: WeddingMessage) => void
@@ -297,9 +307,11 @@ function MessageCard({
   const noRecipients =
     recipientCount > 0
       ? null
-      : audience === 'attending'
-        ? 'אף אורח עם מספר טלפון עוד לא אישר הגעה. בחרו "כל האורחים", או סמנו אורחים כמגיעים ברשימת האורחים.'
-        : 'אין עדיין אורחים עם מספר טלפון ברשימת האורחים.'
+      : spec.kind === 'REMINDER'
+        ? 'כל האורחים עם מספר טלפון כבר השיבו.'
+        : audience === 'attending'
+          ? 'אף אורח עם מספר טלפון עוד לא אישר הגעה. בחרו "כל האורחים", או סמנו אורחים כמגיעים ברשימת האורחים.'
+          : 'אין עדיין אורחים עם מספר טלפון ברשימת האורחים.'
 
   return (
     <section className="msg-card">
