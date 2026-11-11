@@ -11,6 +11,15 @@ export function avatarColor(name: string): string {
   return PALETTE[Math.abs(hash) % PALETTE.length]
 }
 
+const FAMILY_PREFIXES = new Set(['משפחת', "משפ'", 'משפ׳'])
+
+/** Short label that fits on a seat: the first name, or the family name for "משפחת X" invitations. */
+export function seatLabel(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length > 1 && FAMILY_PREFIXES.has(parts[0])) return parts[1]
+  return parts[0] ?? ''
+}
+
 export function initials(name: string): string {
   return name
     .split(/\s+/)

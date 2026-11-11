@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import type { SeatAssignment, SeatingTable } from '../../types/seating'
-import { avatarColor, initials } from './avatarColor'
+import { avatarColor, seatLabel } from './avatarColor'
 import { SeatPicker } from './SeatPicker'
 
 export const TABLE_DRAG_PREFIX = 'table-pos:'
@@ -117,7 +117,7 @@ function SeatSlot({ seatId, assignment, moved, style, onClick }: SeatSlotProps) 
       style={{ ...style, background: avatarColor(assignment.guestName) }}
       title={assignment.guestName}
     >
-      {initials(assignment.guestName)}
+      <span className="dash-seat__name">{seatLabel(assignment.guestName)}</span>
       {assignment.locked && <span className="dash-seat__lock">🔒</span>}
       {moved && !assignment.locked && <span className="dash-seat__moved-dot" />}
     </div>
