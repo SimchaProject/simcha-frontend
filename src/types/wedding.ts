@@ -81,19 +81,19 @@ export interface PublicWeddingInfo {
 
 export interface GuestPageConfigInput {
   theme: GuestPageThemeId
-  accentColor?: string
-  welcomeMessage?: string
+  accentColor?: string | null
+  welcomeMessage?: string | null
   schedule?: ScheduleEntry[]
-  ceremonyTime?: string
-  rsvpDeadline?: string
-  dressCode?: string
-  mapUrl?: string
-  parkingInfo?: string
-  payboxLink?: string
-  bitLink?: string
-  bankTransferDetails?: string
+  ceremonyTime?: string | null
+  rsvpDeadline?: string | null
+  dressCode?: string | null
+  mapUrl?: string | null
+  parkingInfo?: string | null
+  payboxLink?: string | null
+  bitLink?: string | null
+  bankTransferDetails?: string | null
   mingleEnabled?: boolean
-  contactPhone?: string
+  contactPhone?: string | null
 }
 
 export interface CreateWeddingPayload {
