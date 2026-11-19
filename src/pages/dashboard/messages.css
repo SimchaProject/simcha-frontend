@@ -124,7 +124,9 @@
   border-start-start-radius: 2px;
   padding: 6px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
-  max-width: 300px;
+  /* Sized so a line holds about as much text as a phone's WhatsApp bubble
+     (~15.6em of text width), so the preview wraps where the real one does. */
+  max-width: 258px;
 }
 
 .msg-bubble__photo {
@@ -137,8 +139,9 @@
 }
 
 .msg-bubble__text {
-  font-size: 13px;
-  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.35;
   color: #111b21;
   margin: 0;
   padding: 2px 6px 4px;

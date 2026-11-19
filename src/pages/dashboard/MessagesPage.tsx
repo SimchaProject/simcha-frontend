@@ -97,7 +97,7 @@ const CARDS: CardSpec[] = [
       ].filter(Boolean)
       return links.length
         ? { text: links.join(' | ') }
-        : { blocked: 'כדי לשלוח את ההודעה הזו, הוסיפו קישור לפייבוקס או לביט בהגדרות.' }
+        : { blocked: 'כדי לשלוח את ההודעה הזו, הוסיפו קישור לפייבוקס או לביט בהגדרות, או כתבו את הקישורים בטקסט ושמרו.' }
     },
   },
   {
@@ -302,7 +302,8 @@ function MessageCard({
   }
 
   const photoSrc = message.photoUrl ? `${apiUrl(message.photoUrl)}?v=${photoVersion}` : undefined
-  const sendBlocked = 'blocked' in suffix ? suffix.blocked : null
+  // A saved text can carry the links itself, which lifts the block.
+  const sendBlocked = 'blocked' in suffix && !message.text ? suffix.blocked : null
   // Said out loud rather than leaving a greyed-out button to explain itself.
   const noRecipients =
     recipientCount > 0
