@@ -95,21 +95,23 @@ export function SettingsPage() {
       const cleanSchedule: ScheduleEntry[] = schedule
         .filter((entry) => entry.time.trim() && entry.label.trim())
         .map(({ time, label }) => ({ time: time.trim(), label: label.trim() }))
+      // Cleared fields go as null - undefined is dropped from the JSON and the
+      // backend keeps the old value.
       await weddingApi.updateGuestPageConfig(wedding.id, {
         theme,
-        accentColor: accentColor ?? undefined,
-        welcomeMessage: welcomeMessage.trim() || undefined,
+        accentColor,
+        welcomeMessage: welcomeMessage.trim() || null,
         schedule: cleanSchedule,
-        ceremonyTime: ceremonyTime || undefined,
-        rsvpDeadline: rsvpDeadline || undefined,
-        dressCode: dressCode.trim() || undefined,
-        mapUrl: mapUrl.trim() || undefined,
-        parkingInfo: parkingInfo.trim() || undefined,
-        payboxLink: payboxLink.trim() || undefined,
-        bitLink: bitLink.trim() || undefined,
-        bankTransferDetails: bankTransferDetails.trim() || undefined,
+        ceremonyTime: ceremonyTime || null,
+        rsvpDeadline: rsvpDeadline || null,
+        dressCode: dressCode.trim() || null,
+        mapUrl: mapUrl.trim() || null,
+        parkingInfo: parkingInfo.trim() || null,
+        payboxLink: payboxLink.trim() || null,
+        bitLink: bitLink.trim() || null,
+        bankTransferDetails: bankTransferDetails.trim() || null,
         mingleEnabled,
-        contactPhone: contactPhone.replace(/[\s-]/g, '') || undefined,
+        contactPhone: contactPhone.replace(/[\s-]/g, '') || null,
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
